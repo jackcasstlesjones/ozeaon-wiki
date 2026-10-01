@@ -32,7 +32,9 @@ for (const entry of readdirSync(docsDir, { withFileTypes: true })) {
 }
 
 const sections = catalogs.filter((c) => !c.parentId);
-for (const page of catalogs.filter((c) => c.parentId && c.content)) {
+const pages = sections.flatMap((s) => catalogs.filter((c) => c.parentId === s.id && c.content));
+const slugOf = (page) => page.path.replaceAll(".", "");
+for (const page of pages) {
   const file = join(docsDir, `${page.path}.md`);
   mkdirSync(dirname(file), { recursive: true });
   const frontmatter = `---\ntitle: ${JSON.stringify(page.title)}\nsidebar:\n  order: ${page.ord}\n---\n\n`;
@@ -41,4 +43,24 @@ for (const page of catalogs.filter((c) => c.parentId && c.content)) {
 
 const sidebar = sections.map((s) => ({ label: s.title, items: [{ autogenerate: { directory: s.path } }] }));
 writeFileSync("src/sidebar.json", JSON.stringify(sidebar, null, 2) + "\n");
+
+const [first, second] = pages;
+writeFileSync(
+  join(docsDir, "index.mdx"),
+  `---
+title: OZEAON V2 Wiki
+description: Generated documentation for the OZEAON V2 codebase.
+template: splash
+hero:
+  tagline: Architecture, workflows and conventions of the OZEAON V2 ocean conservation platform.
+  actions:
+    - text: ${JSON.stringify(first.title)}
+      link: ${slugOf(first)}/
+      icon: right-arrow
+    - text: ${JSON.stringify(second.title)}
+      link: ${slugOf(second)}/
+      variant: minimal
+---
+`,
+);
 console.log(`Exported ${catalogs.length - sections.length} pages in ${sections.length} sections @ ${commit}`);
