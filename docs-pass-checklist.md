@@ -155,9 +155,9 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### api-layer/api-routes.md (922 → ~250)
 
-- [ ] FORMAT: house-style sweep; fix the colon link label "Organizations: Profiles…"; "Three envelope shapes" lists five; the status table is missing 404/409/422/503; the self-contradictory NaN paragraph; consistent `getErrorMessage` usage; real Related Links
-- [ ] ROADMAP/accuracy: the route/method table is wrong and incomplete (it misses posts, projects/[id], storage, users/search, etc.) → replace it with a per-family list linking `src/app/api` rather than a hand-maintained method table
-- [ ] ROADMAP: mark these as roadmap/unwired:
+- [x] FORMAT: house-style sweep; fix the colon link label "Organizations: Profiles…"; "Three envelope shapes" lists five; the status table is missing 404/409/422/503; the self-contradictory NaN paragraph; consistent `getErrorMessage` usage; real Related Links
+- [x] ROADMAP/accuracy: the route/method table is wrong and incomplete (it misses posts, projects/[id], storage, users/search, etc.) → replace it with a per-family list linking `src/app/api` rather than a hand-maintained method table
+- [x] ROADMAP: mark these as roadmap/unwired:
   - events (`NewEventDialog` is unmounted)
   - blocks, connections and user connections (no UI)
   - labels (Notes & Bookmarks)
@@ -165,7 +165,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
   - the pod branch in memberships
 
   Search covers profiles, orgs, projects and articles only; global search is planned
-- [ ] STALE-DETAIL: per-endpoint behaviour for every family (→ 1–2 unusual sentences each), long copied handler snippets (keep 3: the `withAuthUser` export, the uuid ownership schema, the `.select().maybeSingle()` delete), the API Reference, and the slug placeholder detail → cut
+- [x] STALE-DETAIL: per-endpoint behaviour for every family (→ 1–2 unusual sentences each), long copied handler snippets (keep 3: the `withAuthUser` export, the uuid ownership schema, the `.select().maybeSingle()` delete), the API Reference, and the slug placeholder detail → cut
 
 ### api-layer/edge-functions.md (551 → ~90)
 
@@ -176,10 +176,10 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### api-layer/server-actions-and-queries.md (695 → ~220)
 
-- [ ] FORMAT: house-style sweep; split "Operations, Performance and Extension Points"; merge Core Flow, Canonical Code Sample and Configuration; drop the `[slug]` bug history; use "e.g." instead of the hard-coded list of 7 action files
-- [ ] ROADMAP: `sendConnectionRequest` is the "canonical action", but connections are unwired → use a live action (e.g. `deleteAccount` or `updateProfileSettings`) and reduce connections/blocking to one roadmap note (`isBlocked` still affects user stats)
-- [ ] ROADMAP/accuracy: `getAuthUser` lives in `src/lib/supabase/queries/auth.ts`, is cached, joins the profile and returns `{ user, activeAccount, supabase }`. The env var is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. The getAuthUser diagram arrows are reversed
-- [ ] STALE-DETAIL: copies of `createClient`/`createActionClient` (keep the 4-row factory table), line-level comment-route detail (→ link Comments & Reactions; keep it in one place), the API Reference → cut
+- [x] FORMAT: house-style sweep; split "Operations, Performance and Extension Points"; merge Core Flow, Canonical Code Sample and Configuration; drop the `[slug]` bug history; use "e.g." instead of the hard-coded list of 7 action files
+- [x] ROADMAP: `sendConnectionRequest` is the "canonical action", but connections are unwired → use a live action (e.g. `deleteAccount` or `updateProfileSettings`) and reduce connections/blocking to one roadmap note (`isBlocked` still affects user stats)
+- [x] ROADMAP/accuracy: `getAuthUser` lives in `src/lib/supabase/queries/auth.ts`, is cached, joins the profile and returns `{ user, activeAccount, supabase }`. The env var is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. The getAuthUser diagram arrows are reversed
+- [x] STALE-DETAIL: copies of `createClient`/`createActionClient` (keep the 4-row factory table), line-level comment-route detail (→ link Comments & Reactions; keep it in one place), the API Reference → cut
 
 ### editor/tiptap-core.md (867 → ~220)
 
@@ -518,11 +518,11 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [x] STALE-DETAIL L23–106: All 3 entries have Kind and Used in lines, a props table and a usage snippet. → Cut each to 1–3 sentences plus **Source:**. Keep these gotchas: "Mark all as read" marks only the loaded batch; the row button and the menu trigger are siblings, not nested; delete is not implemented; the skeleton renders `<li>` items so it must sit in a `<ul>`. About 106 → 45 lines.
 
 ### components/organizations.md
-- [ ] FORMAT L28, 72, 220, 326: Group headings mix styles ("## Feed", "## cards/", "## form/", "## members/"), and entries sit at `###`, including "### steps/IdentityStep". → Use plain group names ("Feed", "Cards", "Forms", "Members") consistently, or flatten to `## ComponentName` as the catalog style requires.
-- [ ] FORMAT: "Organisation" (UI strings) and "Organization" (prose) are mixed. → Use "organization" in prose and keep the British spelling only in quoted UI copy.
-- [ ] STALE-DETAIL L30–420: All 19 entries have Kind and Used in lines plus props tables. → Cut to 1–3 sentences plus **Source:**.
-- [ ] STALE-DETAIL L111, 131, 148–149, 168, 193–194, 214, 304–311: Each card lists its exact `fetch` method, path and body. → Replace with one sentence in the intro ("cards call `/api/organizations/{orgId}/…` then `router.refresh()`"), which the mermaid diagram already shows. Keep two gotchas: InviteCard cancels with no confirmation, and owners can't be removed.
-- [ ] STALE-DETAIL L301–311: The OrganizationSettingsForm walkthrough covers validation, save codes, slug, images, unsaved changes and delete. → Keep 3–4 bullets: images and link deletes commit immediately and undo doesn't revert them; slug re-sync starts only after the name is edited; 422 and 503 moderation handling; owner-only danger zone. Link the rest to the source. About 420 → 130 lines.
+- [x] FORMAT L28, 72, 220, 326: Group headings mix styles ("## Feed", "## cards/", "## form/", "## members/"), and entries sit at `###`, including "### steps/IdentityStep". → Use plain group names ("Feed", "Cards", "Forms", "Members") consistently, or flatten to `## ComponentName` as the catalog style requires.
+- [x] FORMAT: "Organisation" (UI strings) and "Organization" (prose) are mixed. → Use "organization" in prose and keep the British spelling only in quoted UI copy.
+- [x] STALE-DETAIL L30–420: All 19 entries have Kind and Used in lines plus props tables. → Cut to 1–3 sentences plus **Source:**.
+- [x] STALE-DETAIL L111, 131, 148–149, 168, 193–194, 214, 304–311: Each card lists its exact `fetch` method, path and body. → Replace with one sentence in the intro ("cards call `/api/organizations/{orgId}/…` then `router.refresh()`"), which the mermaid diagram already shows. Keep two gotchas: InviteCard cancels with no confirmation, and owners can't be removed.
+- [x] STALE-DETAIL L301–311: The OrganizationSettingsForm walkthrough covers validation, save codes, slug, images, unsaved changes and delete. → Keep 3–4 bullets: images and link deletes commit immediately and undo doesn't revert them; slug re-sync starts only after the name is edited; 422 and 503 moderation handling; owner-only danger zone. Link the rest to the source. About 420 → 130 lines.
 
 ### components/posts.md
 - [ ] ROADMAP L85: The disabled, screen-reader-only bookmark button isn't tied to the roadmap. → Add "(Notes & Bookmarks is on the roadmap, not built)".

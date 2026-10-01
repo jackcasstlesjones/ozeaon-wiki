@@ -3,13 +3,9 @@ title: "Organizations"
 description: Organization feed cards, the create and settings forms, member management for organization admins, and the personal memberships/invitations/requests views.
 ---
 
-Organization components serve three audiences:
+Organization components serve three audiences: the public feed (`OrganizationsInfiniteFeed`, `OrganizationCard`), the signed-in user's own memberships and invitations (`OrganizationsTabs` and the `User*Card` trio), and organization admins (the members screens and the two forms). There are no barrel files; import each component from its file path. Client cards send `fetch` calls to `/api/organizations/{orgId}/…` and then call `router.refresh()`; invites are the exception and go through the `inviteMember` server action.
 
-- **Public feed and search:** `OrganizationsInfiniteFeed` and `OrganizationCard`.
-- **Signed-in user's own organizations** (`/settings/organizations`): `OrganizationsTabs` with `UserMembershipCard`, `UserInviteCard` and `UserJoinRequestCard`.
-- **Organization admins:** the members screens (`OrgMembersHeader`, the `*Tab` lists, and `MemberCard`, `InviteCard`, `JoinRequestCard`) and the two forms (`OrganizationForm` to create, `OrganizationSettingsForm` to edit).
-
-Server pages fetch the rows and pass them down as props. The client cards change data with `fetch` calls to `/api/organizations/{orgId}/…` and then call `router.refresh()` so the server page re-renders. Invites are the exception: they go through the `inviteMember` server action.
+See also: [Organizations feature](../../features/organizations/)
 
 ```mermaid
 flowchart LR
@@ -21,398 +17,129 @@ flowchart LR
   Modal -- "inviteMember(orgId, data)" --> Action[(server action)]
 ```
 
-There are no barrel files in this folder; import each component from its file path.
-
 ## Feed
 
 ### OrganizationsInfiniteFeed
 
-A paginated two-column grid of `OrganizationCard`s, built on `GenericInfiniteFeed` with `entity="organizations"` (pages are fetched from `/api/organizations`).
+A paginated two-column grid of `OrganizationCard`s, built on `GenericInfiniteFeed` with `entity="organizations"`.
 
-- **Source:** [src/components/organizations/OrganizationsInfiniteFeed.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/OrganizationsInfiniteFeed.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/app/(main)/(feed)/(public)/organizations/page.tsx`
+**Source:** [src/components/organizations/OrganizationsInfiniteFeed.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/OrganizationsInfiniteFeed.tsx)
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `initial` | `OrgFeedRow[]` | — | First page from the server. |
-| `limit` | `number` | `20` | Page size. |
-| `showRole` | `boolean` | — | Forwarded to each card. |
+### OrganizationsTabs
 
-```tsx
-<OrganizationsInfiniteFeed
-  initial={organizations}
-  limit={BATCH}
-  showRole={showRole}
-/>
-```
+The underline `NavTabs` for "My Organisations": Active Organisations, Invitations and Requests to join. `OrganizationsTabs` is async and adds pending counts to the Invitations and Requests tabs; `OrganizationsTabsFallback` renders the same tabs without counts and serves as the `Suspense` fallback. Count queries run in parallel; if one fails the error is logged and the tab renders without that count.
 
-### OrganizationsTabs / OrganizationsTabsFallback
+**Source:** [src/components/organizations/OrganizationsTabs.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/OrganizationsTabs.tsx)
 
-The underline `NavTabs` for "My Organisations": Active Organisations, Invitations and Requests to join. `OrganizationsTabs` adds pending counts to the Invitations and Requests tabs. `OrganizationsTabsFallback` renders the same tabs without counts and serves as the `Suspense` fallback.
-
-- **Source:** [src/components/organizations/OrganizationsTabs.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/OrganizationsTabs.tsx)
-- **Kind:** Server component (`OrganizationsTabs` is `async`)
-- **Used in:** `src/app/(main)/(dashboard)/settings/(personal)/organizations/layout.tsx`
-
-No props.
-
-Notable behaviour:
-
-- Calls `getAuthUserOrRedirect()`, then `getPendingInviteCountForUser` and `getPendingJoinRequestCountForUser` in parallel. If a count query fails, the error is logged and the tab still renders, without that count.
-
-```tsx
-<Suspense fallback={<OrganizationsTabsFallback />}>
-  <OrganizationsTabs />
-</Suspense>
-```
-
-## cards/
+## Cards
 
 ### OrganizationCard
 
-A feed card showing the logo, name, mission, member/project/article counts, an optional "You are the …" role line and a "View" affordance. The whole card links to `/organizations/{slug}`.
+A feed card showing the logo, name, mission, member/project/article counts, an optional role line, and a "View" affordance. The whole card links to `/organizations/{slug}` via an overlay `<Link>` with `prefetch={false}`; a count is shown only when it is greater than 0.
 
-- **Source:** [src/components/organizations/cards/OrganizationCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/OrganizationCard.tsx)
-- **Kind:** Shared (no `"use client"` directive)
-- **Used in:** `src/components/organizations/OrganizationsInfiniteFeed.tsx`, `src/components/search/SearchResultsFeed.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `org` | `OrgFeedRow` | — | Feed row: `name`, `slug`, `mission`, `logo_image`, counts, `viewer_role`. |
-| `showRole` | `boolean` | — | Shows the viewer's role (`owner` / `admin` / `member`) when `org.viewer_role` is set. |
-
-Notable behaviour:
-
-- The link is an empty overlay `<Link className="card-link">` with `aria-label="View {name}"` and `prefetch={false}`.
-- A count is shown only when it is greater than 0 and is pluralised. The article count is hidden below `md`.
-
-```tsx
-<OrganizationCard org={item.organization} showRole={false} />
-```
+**Source:** [src/components/organizations/cards/OrganizationCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/OrganizationCard.tsx)
 
 ### MemberCard
 
-A collapsible admin card for one organization member. It shows the name and a role select (Member/Admin), with removal behind a confirmation.
+A collapsible admin card for one organization member with a role select (Member/Admin) and removal behind a confirmation. Owners show a read-only "Owner" field and have no remove action.
 
-- **Source:** [src/components/organizations/cards/MemberCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/MemberCard.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/components/organizations/members/AllMembersTab.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `member` | `OrganizationMember` | — | Member row with `member_role` and `user_profile`. |
-| `orgId` | `string` | — | Organization ID used in API paths. |
-
-Notable behaviour:
-
-- Changing the role sends `PATCH /api/organizations/{orgId}/members/{userId}` with body `{ role }`. Only `"admin"` and `"member"` are accepted.
-- Remove opens a `ConfirmDialog`, then sends `DELETE` to the same path.
-- Owners (`member_role.slug === "owner"`) show a read-only "Owner" field and have no remove action.
-- Each action reports through `useAsyncAction` toasts and then calls `router.refresh()`.
+**Source:** [src/components/organizations/cards/MemberCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/MemberCard.tsx)
 
 ### InviteCard
 
-A collapsible admin card for a pending invitation. It shows the invitee name and role (read-only) and an "awaiting to accept" notice.
+A collapsible admin card for a pending invitation showing the invitee name and role. The card's cancel action removes the invite immediately with no confirmation dialog.
 
-- **Source:** [src/components/organizations/cards/InviteCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/InviteCard.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/components/organizations/members/AllMembersTab.tsx`, `src/components/organizations/members/InvitationsTab.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `invite` | `OrgInvite` | — | Invite with `invitee` and `role`. |
-| `orgId` | `string` | — | Organization ID. |
-
-Notable behaviour:
-
-- The card's remove action cancels the invite immediately, with no confirmation, by sending `DELETE /api/organizations/{orgId}/invites/{invite.id}`. It then calls `router.refresh()`.
+**Source:** [src/components/organizations/cards/InviteCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/InviteCard.tsx)
 
 ### JoinRequestCard
 
-A collapsible admin card for a user's request to join. It has Accept and Reject buttons, and the role is fixed to "Member".
+A collapsible admin card for a user's join request with Accept and Reject buttons. Both buttons are disabled while either request is in flight.
 
-- **Source:** [src/components/organizations/cards/JoinRequestCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/JoinRequestCard.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/components/organizations/members/AllMembersTab.tsx`, `src/components/organizations/members/RequestsTab.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `request` | `OrgJoinRequest` | — | Request with `user`. |
-| `orgId` | `string` | — | Organization ID. |
-
-Notable behaviour:
-
-- Accept sends `POST /api/organizations/{orgId}/members` with `{ user_id }`.
-- Reject, from either the button or the card's remove action, opens a `ConfirmDialog` and then sends `DELETE /api/organizations/{orgId}/join-requests/{request.id}`.
-- Both buttons are disabled while either request is in flight. Both actions call `router.refresh()` when they finish.
+**Source:** [src/components/organizations/cards/JoinRequestCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/JoinRequestCard.tsx)
 
 ### UserMembershipCard
 
-A collapsible card for one of the signed-in user's own memberships. Owners and admins see "Edit Organisation". Other members see "Leave Organisation".
+A collapsible card for one of the signed-in user's own memberships. Owners and admins see "Edit Organisation" (switches account then pushes `/settings`); other members see "Leave Organisation" behind a confirmation.
 
-- **Source:** [src/components/organizations/cards/UserMembershipCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/UserMembershipCard.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/app/(main)/(dashboard)/settings/(personal)/organizations/page.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `membership` | `UserMembership` | — | Membership with `organization` and `role`. |
-| `userId` | `string` | — | Current user's ID (used in the leave request). |
-
-Notable behaviour:
-
-- Edit calls `switchToOrg(orgId)` from `useAccountSwitch()` and then `router.push("/settings")`.
-- Leave opens a `ConfirmDialog`, then sends `DELETE /api/organizations/{orgId}/members/{userId}` and calls `router.refresh()`.
-- The organization row has an external-link button to `/organizations/{slug}`.
-
-```tsx
-<UserMembershipCard
-  key={membership.id}
-  membership={membership}
-  userId={user.id}
-/>
-```
+**Source:** [src/components/organizations/cards/UserMembershipCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/UserMembershipCard.tsx)
 
 ### UserInviteCard
 
-A collapsible card for an invitation the signed-in user received, with Accept and Decline buttons.
+A collapsible card for an invitation the signed-in user received, with Accept and Decline buttons. Decline requires a confirmation.
 
-- **Source:** [src/components/organizations/cards/UserInviteCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/UserInviteCard.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/app/(main)/(dashboard)/settings/(personal)/organizations/invitations/page.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `invite` | `UserInvite` | — | Invite with `organization` and `role`. |
-
-Notable behaviour:
-
-- Accept sends `POST /api/organizations/{orgId}/members` with an empty JSON body. Success toast: "Joined {name}".
-- Decline opens a `ConfirmDialog`, then sends `DELETE /api/organizations/{orgId}/invites/{invite.id}`. Both actions call `router.refresh()`.
-
-```tsx
-<UserInviteCard key={invite.id} invite={invite} />
-```
+**Source:** [src/components/organizations/cards/UserInviteCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/UserInviteCard.tsx)
 
 ### UserJoinRequestCard
 
-A collapsible card for a join request the signed-in user sent, with a "Cancel Request" button.
+A collapsible card for a join request the signed-in user sent, with a "Cancel Request" button behind a confirmation.
 
-- **Source:** [src/components/organizations/cards/UserJoinRequestCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/UserJoinRequestCard.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/app/(main)/(dashboard)/settings/(personal)/organizations/requests/page.tsx`
+**Source:** [src/components/organizations/cards/UserJoinRequestCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/cards/UserJoinRequestCard.tsx)
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `request` | `UserJoinRequest` | — | Request with `organization`. |
-
-Notable behaviour:
-
-- Cancel opens a `ConfirmDialog`, then sends `DELETE /api/organizations/{orgId}/join-requests/{request.id}` and calls `router.refresh()`.
-
-```tsx
-<UserJoinRequestCard key={request.id} request={request} />
-```
-
-## form/
+## Forms
 
 ### OrganizationForm
 
-The create-organization page. It has three numbered `FormSectionCard`s (Identity, Media, Links & Social Media), a `FormSidebar` section tracker, and a "Create Organisation" button in the nav slot.
+The create-organization form with three `FormSectionCard`s (Identity, Media, Links & Social Media), a `FormSidebar` section tracker, and a "Create Organisation" button. Form state and moderation handling come from `useOrganizationForm()`; on success it routes to `/organizations/{slug}`. The back button opens a "Discard Changes" confirmation.
 
-- **Source:** [src/components/organizations/form/OrganizationForm.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/OrganizationForm.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/app/(main)/(editor)/organizations/new/page.tsx`
+**Source:** [src/components/organizations/form/OrganizationForm.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/OrganizationForm.tsx)
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `organizationTypes` | `SelectOption[]` | — | Options for the organization type select. |
+### IdentityStep
 
-Notable behaviour:
+Name, slug, organization type, mission, description, contact email, and location fields. The slug auto-syncs to `slugify(name)` until the user edits it directly.
 
-- Form state, submission, completed-section tracking and moderation handling come from `useOrganizationForm()`. The hook validates against `organizationSchema` and, on success, routes to `/organizations/{slug}`.
-- Required-field markers come from `RequiredFieldsProvider fields={ORG_REQUIRED_FIELDS}`.
-- The active sidebar section follows `focusin` and `pointerdown` events inside each section. Clicking a sidebar item smooth-scrolls to its section.
-- The back button opens a "Discard Changes" `ConfirmDialog` that navigates to `/organizations`.
+**Source:** [src/components/organizations/form/steps/IdentityStep.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/steps/IdentityStep.tsx)
 
-```tsx
-<OrganizationForm organizationTypes={formattedOrganizationTypes} />
-```
+### MediaStep
 
-### steps/IdentityStep
+Logo and cover image upload fields using `FormImageUpload`. Removing an image sets its field to `null`.
 
-The Identity fields: name, slug, organization type, mission, description, contact email and location. It reads the parent form with `useFormContext<Organization>()`.
+**Source:** [src/components/organizations/form/steps/MediaStep.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/steps/MediaStep.tsx)
 
-- **Source:** [src/components/organizations/form/steps/IdentityStep.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/steps/IdentityStep.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/components/organizations/form/OrganizationForm.tsx`
+### LinksStep
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `organizationTypes` | `SelectOption[]` | — | Type select options. |
+Website and LinkedIn URL fields plus a repeatable `custom_links` list managed with `useFieldArray`.
 
-Notable behaviour:
-
-- Until the user edits the slug field, `slug` is set to `slugify(name)` (from `transliteration`) whenever the name changes.
-- Text limits come from `ORG_FIELD_LIMITS`, and the fields show remaining-character counters.
-
-### steps/MediaStep
-
-Logo and cover image uploads, using `FormImageUpload`. Uploads go to `/api/organizations/image?type=logo` and `?type=cover`, and the results set `logo_image_id` and `cover_image_id`.
-
-- **Source:** [src/components/organizations/form/steps/MediaStep.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/steps/MediaStep.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/components/organizations/form/OrganizationForm.tsx`
-
-No props. Removing an image sets its field to `null`.
-
-### steps/LinksStep
-
-Website and LinkedIn URL fields, plus a repeatable list of `custom_links` (managed with `useFieldArray`) and an "Add Another Link" button.
-
-- **Source:** [src/components/organizations/form/steps/LinksStep.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/steps/LinksStep.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/components/organizations/form/OrganizationForm.tsx`
-
-No props.
+**Source:** [src/components/organizations/form/steps/LinksStep.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/steps/LinksStep.tsx)
 
 ### OrganizationSettingsForm
 
-The organization settings page for an existing organization. It has an Identity card (logo, name, read-only slug, type, cover, mission, email, location), an About card, a Social Links card, and a Danger zone card that only owners see.
+The organization settings page for an existing organization, with Identity, About, Social Links, and (owners only) Danger Zone cards. Key behaviours:
 
-- **Source:** [src/components/organizations/form/OrganizationSettingsForm.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/OrganizationSettingsForm.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/app/(main)/(dashboard)/settings/page.tsx`
+- Images and custom-link deletions commit immediately; undo and navigating away restore saved form values but do not revert those changes.
+- The slug re-syncs to `slugify(name)` only after the name field has been edited, so mounting never overwrites a stored slug.
+- A 422 response with a `moderation` body opens `ModerationRejectedDialog`; a 503 is treated as a moderation failure.
+- The Danger Zone is visible to owners only and deletes the organization, switches the active account back to user, and redirects to `/`.
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `organizationTypes` | `SelectOption[]` | — | Type select options. |
-| `defaultValues` | `Partial<z.input<typeof organizationSettingsSchema>>` | — | Saved values. |
-| `orgId` | `string` | — | Organization being edited. |
-| `isOwner` | `boolean` | — | Shows the Danger zone (delete organization). |
-| `logoPreviewUrl` | `string \| null` | — | Current logo URL for `AvatarUpload`. |
-| `logoPath` | `string \| null` | — | Current logo storage path. |
-| `coverPreviewUrl` | `string \| null` | — | Current cover URL. |
-| `coverPath` | `string \| null` | — | Current cover storage path. |
+**Source:** [src/components/organizations/form/OrganizationSettingsForm.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/form/OrganizationSettingsForm.tsx)
 
-Notable behaviour:
-
-- **Validation:** RHF with `zodResolver(organizationSettingsSchema)` and `mode: "onBlur"`. On an invalid submit it shows a toast and focuses the first leaf field with an error, walking into nested errors such as `custom_links.N.url`.
-- **Save:** sends `PATCH /api/organizations/{orgId}`.
-  - `code: "slug_taken"` shows an inline slug error.
-  - A 422 with `moderation` opens `ModerationRejectedDialog` through `useModerationRejection`. A 503 is shown as a moderation failure.
-  - On success the form resets from the response (the returned `slug`, plus the `links` with their new IDs), the active account's `slug` and `name` are updated with `setActiveAccount`, and `router.refresh()` runs.
-- **Slug:** the slug is always `slugify(name)`. It starts re-syncing only after the name is first edited, so mounting never rewrites a stored slug. Undo resets this.
-- **Images and links save immediately:** the logo (cropped by `AvatarUpload`, compressed to 0.5MB / 512px, then sent with `uploadModeratedImage`), the cover, image removal (`DELETE /api/organizations/image?type=…&orgId=…`) and custom-link deletion (`DELETE /api/organizations/{orgId}/links/{linkId}`). Undo and leave-page restore the saved values but keep these committed changes.
-- **Unsaved changes:** "Undo Changes" opens a discard `ConfirmDialog`. `useUnsavedChangesGuard` prompts before navigating away while the form is dirty. On mobile, undo and save are floating action buttons.
-- **Delete:** the internal `DeleteOrgDialog` (a `ConfirmDeleteDialog`) sends `DELETE /api/organizations/{orgId}`, sets the active account back to `{ type: "user" }` and pushes `/`.
-
-```tsx
-<OrganizationSettingsForm
-  organizationTypes={organizationTypes}
-  defaultValues={defaultValues}
-  orgId={org.id}
-  isOwner={role === "owner"}
-  logoPreviewUrl={logoPreviewUrl}
-  logoPath={org.logo_image?.path ?? null}
-  coverPreviewUrl={coverPreviewUrl}
-  coverPath={org.cover_image?.path ?? null}
-/>
-```
-
-## members/
+## Members
 
 ### OrgMembersHeader
 
-The "Organisation Members" heading with an "Invite Member" button that opens `InviteMemberModal`. After a successful invite it closes the modal and calls `router.refresh()`.
+The "Organisation Members" heading with an "Invite Member" button that opens `InviteMemberModal`. Calls `router.refresh()` after a successful invite.
 
-- **Source:** [src/components/organizations/members/OrgMembersHeader.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/OrgMembersHeader.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/app/(main)/(dashboard)/settings/(organizations)/members/layout.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `orgId` | `string` | — | Organization to invite into. |
-
-```tsx
-<OrgMembersHeader orgId={activeAccount.id} />
-```
+**Source:** [src/components/organizations/members/OrgMembersHeader.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/OrgMembersHeader.tsx)
 
 ### InviteMemberModal
 
-A dialog form for inviting a user. It has a user search (`InputSearchSelect` against `/api/users/search`) and a role select (Member/Admin, default `member`).
+A dialog form for inviting a user, with a user search (`InputSearchSelect` against `/api/users/search`) and a role select (Member/Admin, default `member`). Submit calls the `inviteMember(orgId, data)` server action.
 
-- **Source:** [src/components/organizations/members/InviteMemberModal.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/InviteMemberModal.tsx)
-- **Kind:** Client component (`"use client"`)
-- **Used in:** `src/components/organizations/members/OrgMembersHeader.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `orgId` | `string` | — | Organization ID. |
-| `isOpen` | `boolean` | — | Dialog state. |
-| `onClose` | `() => void` | — | Called when the dialog closes (after a form reset). |
-| `onSuccess` | `() => void` | — | Called after the invite is sent. |
-
-Notable behaviour:
-
-- Validated with `zodResolver(InviteBodySchema)`. The form is typed with `z.input`, the type before transforms are applied.
-- Submit calls the `inviteMember(orgId, data)` server action (`src/app/(main)/(dashboard)/settings/(organizations)/members/actions.ts`). It shows a toast on success or failure and resets the form on success.
+**Source:** [src/components/organizations/members/InviteMemberModal.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/InviteMemberModal.tsx)
 
 ### AllMembersTab
 
-The full members list: pending join requests first, then pending invites, then members. Shows `EmptyState` ("No members yet") when all three lists are empty.
+Shows pending join requests first, then pending invites, then members. Renders `EmptyState` when all three lists are empty.
 
-- **Source:** [src/components/organizations/members/AllMembersTab.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/AllMembersTab.tsx)
-- **Kind:** Shared (no `"use client"` directive)
-- **Used in:** `src/app/(main)/(dashboard)/settings/(organizations)/members/page.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `orgId` | `string` | — | Passed to each card. |
-| `members` | `OrganizationMember[]` | — | Rendered as `MemberCard`. |
-| `invites` | `OrgInvite[]` | — | Rendered as `InviteCard`. |
-| `requests` | `OrgJoinRequest[]` | — | Rendered as `JoinRequestCard`. |
-
-```tsx
-<AllMembersTab
-  orgId={activeAccount.id}
-  members={(membersResult.data ?? []) as OrganizationMember[]}
-  invites={(invitesResult.data ?? []) as OrgInvite[]}
-  requests={requestsResult.data as OrgJoinRequest[]}
-/>
-```
+**Source:** [src/components/organizations/members/AllMembersTab.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/AllMembersTab.tsx)
 
 ### InvitationsTab
 
-A list of pending invites rendered as `InviteCard`s. Shows `EmptyState` ("No pending invitations") when the list is empty.
+A list of pending invites rendered as `InviteCard`s. Renders `EmptyState` ("No pending invitations") when empty.
 
-- **Source:** [src/components/organizations/members/InvitationsTab.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/InvitationsTab.tsx)
-- **Kind:** Shared (no `"use client"` directive)
-- **Used in:** `src/app/(main)/(dashboard)/settings/(organizations)/members/invitations/page.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `orgId` | `string` | — | Organization ID. |
-| `invites` | `OrgInvite[]` | — | Pending invites. |
-
-```tsx
-<InvitationsTab orgId={activeAccount.id} invites={data} />
-```
+**Source:** [src/components/organizations/members/InvitationsTab.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/InvitationsTab.tsx)
 
 ### RequestsTab
 
-A list of pending join requests rendered as `JoinRequestCard`s. Shows `EmptyState` ("No pending requests") when the list is empty.
+A list of pending join requests rendered as `JoinRequestCard`s. Renders `EmptyState` ("No pending requests") when empty.
 
-- **Source:** [src/components/organizations/members/RequestsTab.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/RequestsTab.tsx)
-- **Kind:** Shared (no `"use client"` directive)
-- **Used in:** `src/app/(main)/(dashboard)/settings/(organizations)/members/requests/page.tsx`
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `orgId` | `string` | — | Organization ID. |
-| `requests` | `OrgJoinRequest[]` | — | Pending requests. |
-
-```tsx
-<RequestsTab orgId={activeAccount.id} requests={data} />
-```
+**Source:** [src/components/organizations/members/RequestsTab.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations/members/RequestsTab.tsx)
