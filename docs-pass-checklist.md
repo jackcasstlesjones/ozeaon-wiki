@@ -61,7 +61,7 @@ Codebase pin: ozeaon-v2 `0a4f1a95`.
 These apply to every one of the 46 non-component pages. Each page section below repeats them as a single FORMAT item so they can be ticked per page.
 
 - Delete `## Purpose and Scope`, add `description:`, convert `> Source:` blockquotes to inline links, rename failure/ops sections to the standard names, replace plain-text "sibling page" references and stale generator slugs (`6-api-layer`, `2-architecture`, `8-design-system`…) with real relative links, and delete generator hedging ("not read within the source budget", "exploration budget", "not verified in source", "Careful readers should verify").
-- [ ] FORMAT src/sidebar.json (done except `components/tiptap.md`, which still has `sidebar.order` because it was being rewritten; strip it once it's committed): the explicit Components list ignores `sidebar.order` on the top-level component pages (organizations and posts were both 10), and new component pages must be added by hand → drop `sidebar.order` from the top-level component pages and add a README note that `src/sidebar.json` sets their order
+- [x] FORMAT src/sidebar.json (done; was pending `components/tiptap.md`, which still has `sidebar.order` because it was being rewritten; strip it once it's committed): the explicit Components list ignores `sidebar.order` on the top-level component pages (organizations and posts were both 10), and new component pages must be added by hand → drop `sidebar.order` from the top-level component pages and add a README note that `src/sidebar.json` sets their order
 - [ ] FORMAT: heading case. Every `##`/`###` heading uses Title Case (code identifiers excepted) → run a site-wide check at the end
 - [ ] FORMAT: spelling. Prose mixes "organisation" and "organization" → use "organization" in prose (matching the code identifiers) and keep "Organisation" only in quoted UI strings; sweep the whole site at the end
 - [ ] FORMAT: cross-links from component pages to their feature pages (components/projects → features/projects, etc.) → add a one-line "See also" in each component page intro
@@ -183,19 +183,19 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### editor/tiptap-core.md (867 → ~220)
 
-- [ ] FORMAT: house-style sweep; link toolbar-and-api and components/tiptap
-- [ ] ROADMAP/accuracy: heading levels are 2–4 (`levels: [2, 3, 4]`), not 1–3. The consumer is `InputContent` (the RHF field), not "the Article form". Check what the server does with the etag before claiming skip-on-no-change
-- [ ] STALE-DETAIL: the version table and lock note (→ "keep `@tiptap/*` versions aligned"), the `buildExtensions` body (keep the rationale bullets), the hook copied effect by effect (→ ~8 decision bullets plus the load sequence diagram), Editor JSX, props tables and classDiagram, Configuration Options and API Reference, the 14-row guard table → cut
+- [x] FORMAT: house-style sweep; link toolbar-and-api and components/tiptap
+- [x] ROADMAP/accuracy: heading levels are 2–4 (`levels: [2, 3, 4]`), not 1–3. The consumer is `InputContent` (the RHF field), not "the Article form". Check what the server does with the etag before claiming skip-on-no-change
+- [x] STALE-DETAIL: the version table and lock note (→ "keep `@tiptap/*` versions aligned"), the `buildExtensions` body (keep the rationale bullets), the hook copied effect by effect (→ ~8 decision bullets plus the load sequence diagram), Editor JSX, props tables and classDiagram, Configuration Options and API Reference, the 14-row guard table → cut
 
 ### editor/toolbar-and-api.md (1013 → ~180)
 
-- [ ] FORMAT: house-style sweep; real sibling links
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; real sibling links
+- [x] ROADMAP/accuracy:
   - the upload registry is hard-coded to `createIDBUploadRegistry("OZNArticleImagesDatabase")`, so every editor shares one store, and `clear()` on unmount wipes it for all of them
   - `keys()` is unused and reload recovery isn't wired
   - `characterCount` is always undefined (no CharacterCount extension)
   - `docs/hook-form-components.md` describes the old BlockNote editor → drop the link or flag it as stale
-- [ ] STALE-DETAIL: the barrel copy and exports table, toolbar JSX, the full selector body, every registry method, the duplicated Editor-prop section (keep it here as 2 sentences), Usage Examples, API Reference, the "~15 re-render" estimate → cut
+- [x] STALE-DETAIL: the barrel copy and exports table, toolbar JSX, the full selector body, every registry method, the duplicated Editor-prop section (keep it here as 2 sentences), Usage Examples, API Reference, the "~15 re-render" estimate → cut
 
 ### features/search.md (708 → ~170)
 
@@ -270,20 +270,20 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### features/articles-reader.md (607 → ~110)
 
-- [ ] FORMAT: house-style sweep; link label "Articles: Authoring" → "Article Authoring & Publishing"; drop the non-existent "Articles: Feed" page reference
-- [ ] ROADMAP: "funding context" → `FundingBlock` shows the declared funding source, not payments. Cut the speculative "different revisions" claim
-- [ ] STALE-DETAIL: full copies of both page files (keep the `hasContent` `"<p></p>"` snippet), the decision flowchart, ER and field table, Configuration Options, API Reference, Usage Examples, the state diagram → cut
+- [x] FORMAT: house-style sweep; link label "Articles: Authoring" → "Article Authoring & Publishing"; drop the non-existent "Articles: Feed" page reference
+- [x] ROADMAP: "funding context" → `FundingBlock` shows the declared funding source, not payments. Cut the speculative "different revisions" claim
+- [x] STALE-DETAIL: full copies of both page files (keep the `hasContent` `"<p></p>"` snippet), the decision flowchart, ER and field table, Configuration Options, API Reference, Usage Examples, the state diagram → cut
 
 ### features/organizations.md (840 → ~200)
 
-- [ ] FORMAT: house-style sweep. Pick one spelling: "organization" in prose (matching the code identifiers), "Organisation" only in quoted UI strings. Fix the stray "公开", "Priviledged", "four count functions" (it's three), and the emoji table
-- [ ] ROADMAP:
+- [x] FORMAT: house-style sweep. Pick one spelling: "organization" in prose (matching the code identifiers), "Organisation" only in quoted UI strings. Fix the stray "公开", "Priviledged", "four count functions" (it's three), and the emoji table
+- [x] ROADMAP:
   - `verified` is a flag only; org verification is planned
   - there is no organization follow UI
   - "admin console" → the org settings Members page
   - "nav bell 3 pending" → settings badges
-- [ ] ROADMAP/accuracy: `POST /api/organizations/[id]/members` lets an owner or admin insert members directly. `20260520000000_organization_add_member_triggers.sql` stamps the originating invite or request; it doesn't maintain `member_count`. Cut the muddled counters sentence
-- [ ] STALE-DETAIL: type copies (keep the `viewer_role` no-N+1 point), query copies (keep the `maybeSingle`/`notFound()` rule), `getUserOrgRole`/`getAdminOrgs` bodies (keep the design bullets), pending-list bodies, activity metrics, `ORG_FIELD_LIMITS` values, API Reference and constants, performance restatement → cut
+- [x] ROADMAP/accuracy: `POST /api/organizations/[id]/members` lets an owner or admin insert members directly. `20260520000000_organization_add_member_triggers.sql` stamps the originating invite or request; it doesn't maintain `member_count`. Cut the muddled counters sentence
+- [x] STALE-DETAIL: type copies (keep the `viewer_role` no-N+1 point), query copies (keep the `maybeSingle`/`notFound()` rule), `getUserOrgRole`/`getAdminOrgs` bodies (keep the design bullets), pending-list bodies, activity metrics, `ORG_FIELD_LIMITS` values, API Reference and constants, performance restatement → cut
 
 ### features/projects.md (872 → ~200)
 
