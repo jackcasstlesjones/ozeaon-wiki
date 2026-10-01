@@ -473,15 +473,15 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### components/articles.md (880 → ~250)
 
-- [ ] ROADMAP: mark as roadmap placeholders:
+- [x] ROADMAP: mark as roadmap placeholders:
   - `ArticleReviewSection` (reviews planned, not rendered)
   - `BountyBlock` (`$OZN` bounties, not rendered)
   - the "Tip - Coming soon" button
   - `token_gated` (paywalls; the access-level control is hidden)
   - the commented-out indigenous fields (Indigenous Knowledge Hub)
   - `FundingBlock`, which is provenance, not project funding
-- [ ] FORMAT: drop the Kind lines; folder-name group headings ("## cards/", "## Root") → Title Case group names
-- [ ] STALE-DETAIL: all ~40 entries → 1–3 sentences plus Source. Keep the ArticleForm flow notes (draft-then-publish, the shared in-flight create, the 7-day edit lock, `shouldUnregister`). Cut line-level detail, all but 2–3 usage snippets, and the barrel lists
+- [x] FORMAT: drop the Kind lines; folder-name group headings ("## cards/", "## Root") → Title Case group names
+- [x] STALE-DETAIL: all ~40 entries → 1–3 sentences plus Source. Keep the ArticleForm flow notes (draft-then-publish, the shared in-flight create, the 7-day edit lock, `shouldUnregister`). Cut line-level detail, all but 2–3 usage snippets, and the barrel lists
 
 ### components/auth.md (207 → ~80)
 
@@ -525,32 +525,32 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [x] STALE-DETAIL L301–311: The OrganizationSettingsForm walkthrough covers validation, save codes, slug, images, unsaved changes and delete. → Keep 3–4 bullets: images and link deletes commit immediately and undo doesn't revert them; slug re-sync starts only after the name is edited; 422 and 503 moderation handling; owner-only danger zone. Link the rest to the source. About 420 → 130 lines.
 
 ### components/posts.md
-- [ ] ROADMAP L85: The disabled, screen-reader-only bookmark button isn't tied to the roadmap. → Add "(Notes & Bookmarks is on the roadmap, not built)".
-- [ ] ROADMAP L360–375: `CircularProgress` (dead code, only in commented-out markup) has a full props table. → Reduce to one line ("unused; kept for planned project funding progress") or drop the entry.
-- [ ] FORMAT L27, 146, 179, 377, 609: Group headings are mixed ("## Feed and interactions", "## cards/", "## attachments/", "## create-form/", "## utils/"). Entries like "### layouts/DesktopComposer" and "### parts/ComposerTextarea" carry path prefixes, and `attachment-kinds.ts` is a heading. → Use consistent plain group names and `ComponentName` headings without path prefixes.
-- [ ] FORMAT L25: The long "**Barrels:**" bullet lists every re-export. → One sentence: "Import from `@/components/posts/{cards,attachments,utils}`."
-- [ ] STALE-DETAIL L29–631: All 30 entries have props tables, Kind lines and Used in lists. → Cut to 1–3 sentences plus **Source:**.
-- [ ] STALE-DETAIL L48–52, 217, 256–258, 469, 489–490: Numeric and implementation detail (IntersectionObserver margins, 300/600px thresholds, `max-h-75`, the 120px drag threshold, focus-trap mechanics). → Remove. Keep the gotchas: optimistic like re-syncs to the server status; attachment priority order; `post.message` is JSON-encoded; repost navigates to `/posts` when triggered elsewhere.
-- [ ] STALE-DETAIL L397: The `attachment-kinds.ts` paragraph enumerates every config field and endpoint. → "Per-kind attachment config (FormData field, labels, search endpoint); a post attaches one kind at a time." plus Source. About 631 → 170 lines.
+- [x] ROADMAP L85: The disabled, screen-reader-only bookmark button isn't tied to the roadmap. → Add "(Notes & Bookmarks is on the roadmap, not built)".
+- [x] ROADMAP L360–375: `CircularProgress` (dead code, only in commented-out markup) has a full props table. → Reduce to one line ("unused; kept for planned project funding progress") or drop the entry.
+- [x] FORMAT L27, 146, 179, 377, 609: Group headings are mixed ("## Feed and interactions", "## cards/", "## attachments/", "## create-form/", "## utils/"). Entries like "### layouts/DesktopComposer" and "### parts/ComposerTextarea" carry path prefixes, and `attachment-kinds.ts` is a heading. → Use consistent plain group names and `ComponentName` headings without path prefixes.
+- [x] FORMAT L25: The long "**Barrels:**" bullet lists every re-export. → One sentence: "Import from `@/components/posts/{cards,attachments,utils}`."
+- [x] STALE-DETAIL L29–631: All 30 entries have props tables, Kind lines and Used in lists. → Cut to 1–3 sentences plus **Source:**.
+- [x] STALE-DETAIL L48–52, 217, 256–258, 469, 489–490: Numeric and implementation detail (IntersectionObserver margins, 300/600px thresholds, `max-h-75`, the 120px drag threshold, focus-trap mechanics). → Remove. Keep the gotchas: optimistic like re-syncs to the server status; attachment priority order; `post.message` is JSON-encoded; repost navigates to `/posts` when triggered elsewhere.
+- [x] STALE-DETAIL L397: The `attachment-kinds.ts` paragraph enumerates every config field and endpoint. → "Per-kind attachment config (FormData field, labels, search endpoint); a post attaches one kind at a time." plus Source. About 631 → 170 lines.
 
 ### components/profiles.md
-- [ ] ROADMAP L173–175, 151: "ProgressTokensSoon … describing the upcoming impact metric". → Say it's a static teaser and that Progress Tokens / the PRG ledger are planned and not built.
-- [ ] ROADMAP L297–444: The ProfileActions, ConnectButton, FollowButton, BlockButton, UnblockButton, ConnectionRequests, ConnectionRequestCard and PrivateContentMessage entries each say "not rendered" separately. → Group them under one "Connections, following & blocking (disconnected)" section with one intro sentence: "Code exists but is unwired; rewiring connections into profiles and re-enabling blocking is on the roadmap; privacy settings are not built." Then list the names with Source links. Drop their props tables and the `check*` call lists.
-- [ ] ROADMAP L493: The "Verified" badge is presented as a feature. → Add "renders the `verified` flag; there is no verification flow yet (Org verification is on the roadmap)".
-- [ ] FORMAT L28, 181, 446–485, 487, 651–733: Group headings are "## shared", "## users", "### images", "#### ImageGalleryList", "### sections" and "#### DescriptionSection", so heading depth runs down to h4. → Use consistent group headings and put entries at one level.
-- [ ] FORMAT: "Organization" is capitalized mid-sentence throughout (L8–10, 493–733) but lowercase on other pages. → Make it lowercase.
-- [ ] STALE-DETAIL L30–733: All 35 entries have props tables, Kind lines, Used in lines and snippets. → Cut to 1–3 sentences plus **Source:**. Keep the ownership rule (owner only while acting as the user), `CoverImageEditor`'s dependency on the shell's `group` class, and the `OrgPostsFeed` empty-file note. About 733 → 200 lines.
+- [x] ROADMAP L173–175, 151: "ProgressTokensSoon … describing the upcoming impact metric". → Say it's a static teaser and that Progress Tokens / the PRG ledger are planned and not built.
+- [x] ROADMAP L297–444: The ProfileActions, ConnectButton, FollowButton, BlockButton, UnblockButton, ConnectionRequests, ConnectionRequestCard and PrivateContentMessage entries each say "not rendered" separately. → Group them under one "Connections, following & blocking (disconnected)" section with one intro sentence: "Code exists but is unwired; rewiring connections into profiles and re-enabling blocking is on the roadmap; privacy settings are not built." Then list the names with Source links. Drop their props tables and the `check*` call lists.
+- [x] ROADMAP L493: The "Verified" badge is presented as a feature. → Add "renders the `verified` flag; there is no verification flow yet (Org verification is on the roadmap)".
+- [x] FORMAT L28, 181, 446–485, 487, 651–733: Group headings are "## shared", "## users", "### images", "#### ImageGalleryList", "### sections" and "#### DescriptionSection", so heading depth runs down to h4. → Use consistent group headings and put entries at one level.
+- [x] FORMAT: "Organization" is capitalized mid-sentence throughout (L8–10, 493–733) but lowercase on other pages. → Make it lowercase.
+- [x] STALE-DETAIL L30–733: All 35 entries have props tables, Kind lines, Used in lines and snippets. → Cut to 1–3 sentences plus **Source:**. Keep the ownership rule (owner only while acting as the user), `CoverImageEditor`'s dependency on the shell's `group` class, and the `OrgPostsFeed` empty-file note. About 733 → 200 lines.
 
 ### components/projects.md
-- [ ] ROADMAP L496: `roadmap`/`tokenomics` sections for the `dao-experiment` project type could read as DAO or token features. → Add "(free-text content sections only; DAO and token features are not built)".
-- [ ] ROADMAP L249, 462, 724, 756, 864, 905–911: Funding placeholders ("Funding - Soon" badge, disabled funding/donations toggles, `FundingSection`, "Fund - Coming Soon" CTA, `funding` always true) are described separately. → Keep them, but add one intro line: "Project funding, donations and rewards are on the roadmap; all funding UI is static placeholder."
-- [ ] ROADMAP L98: `ProjectsFilterDialog` is "pending product sign-off". → Connect it to the in-progress Feed filters item, or keep it flagged as unwired.
-- [ ] FORMAT L37, 114, 147, 343, 389, 624, 711, 866: Group headings are "## Root", "## pages/dashboard", "## cards", "## form/steps", "## form/parts", "## page", "## page/sections". The project-page `TeamSection`, `DocumentsSection` and `CommentsSection` headings duplicate the form-step headings of the same name, giving ambiguous anchors. → Rename the groups ("Form sections", "Public page sections") and disambiguate the headings, e.g. "TeamSection (form)" and "TeamSection (page)".
-- [ ] STALE-DETAIL L39–951: About 45 entries have props tables, Kind lines and Used in lists. → Cut to 1–3 sentences plus **Source:**.
-- [ ] STALE-DETAIL L367–373, 495–499, 544–546, 600–602: Function-level walkthroughs of `ProjectForm`, `ContentSection`, `DocumentsSection` and `RelatedSection`. → Keep the why: `saveDraftSilent` before uploads so a draft row exists; the edit check is cosmetic and the server re-checks `canManageProject`; only the first dropped document uploads; section removal commits through an undo toast. Drop the rest.
-- [ ] STALE-DETAIL L496: The `SECTION_VISIBILITY` mapping is copied in full. → "Section visibility per project type is hard-coded in `SECTION_VISIBILITY`" plus a link.
-- [ ] STALE-DETAIL L293: The `PROJECT_STATUS_BADGES` value list is copied. → Link to it instead.
-- [ ] STALE-DETAIL L846–864: The `section-data` export table. → One sentence plus Source. About 951 → 250 lines.
+- [x] ROADMAP L496: `roadmap`/`tokenomics` sections for the `dao-experiment` project type could read as DAO or token features. → Add "(free-text content sections only; DAO and token features are not built)".
+- [x] ROADMAP L249, 462, 724, 756, 864, 905–911: Funding placeholders ("Funding - Soon" badge, disabled funding/donations toggles, `FundingSection`, "Fund - Coming Soon" CTA, `funding` always true) are described separately. → Keep them, but add one intro line: "Project funding, donations and rewards are on the roadmap; all funding UI is static placeholder."
+- [x] ROADMAP L98: `ProjectsFilterDialog` is "pending product sign-off". → Connect it to the in-progress Feed filters item, or keep it flagged as unwired.
+- [x] FORMAT L37, 114, 147, 343, 389, 624, 711, 866: Group headings are "## Root", "## pages/dashboard", "## cards", "## form/steps", "## form/parts", "## page", "## page/sections". The project-page `TeamSection`, `DocumentsSection` and `CommentsSection` headings duplicate the form-step headings of the same name, giving ambiguous anchors. → Rename the groups ("Form sections", "Public page sections") and disambiguate the headings, e.g. "TeamSection (form)" and "TeamSection (page)".
+- [x] STALE-DETAIL L39–951: About 45 entries have props tables, Kind lines and Used in lists. → Cut to 1–3 sentences plus **Source:**.
+- [x] STALE-DETAIL L367–373, 495–499, 544–546, 600–602: Function-level walkthroughs of `ProjectForm`, `ContentSection`, `DocumentsSection` and `RelatedSection`. → Keep the why: `saveDraftSilent` before uploads so a draft row exists; the edit check is cosmetic and the server re-checks `canManageProject`; only the first dropped document uploads; section removal commits through an undo toast. Drop the rest.
+- [x] STALE-DETAIL L496: The `SECTION_VISIBILITY` mapping is copied in full. → "Section visibility per project type is hard-coded in `SECTION_VISIBILITY`" plus a link.
+- [x] STALE-DETAIL L293: The `PROJECT_STATUS_BADGES` value list is copied. → Link to it instead.
+- [x] STALE-DETAIL L846–864: The `section-data` export table. → One sentence plus Source. About 951 → 250 lines.
 
 ### components/search.md
 - [x] ROADMAP L8: Doesn't say how much of Search is built. In code, `/search` and `/api/search` are live and ungated: a name/title match across organizations, projects, articles and people, merged via `searchContent`, with a minimum query length. → Add: "Current search is a basic name/title search across four kinds; full global search across every content type is on the roadmap."
@@ -558,9 +558,9 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [x] STALE-DETAIL L13–98: All 3 entries have Kind and Used in lines plus props tables. → Cut to 1–3 sentences plus **Source:**. Keep the gotchas: the `Suspense` wrapper is needed for `useSearchParams`; docked mode uses `router.replace` so history doesn't stack; the feed is keyed by `query`. About 98 → 40 lines.
 
 ### components/shadcn.md
-- [ ] FORMAT: This page overlaps `design-system/ui-primitives.md` ("Shared UI Primitives & shadcn Components"). → Add a cross-link, and make one page own each topic.
-- [ ] STALE-DETAIL L16–475: All 26 entries have Kind, Exports, Wrapped by and Used in lines. → Keep **Source:** and **Upstream:** only.
-- [ ] STALE-DETAIL L29–47, 69–76, 106, 222, 235, 247, 259, 271, 284, 297, 310, 325–367, 427, 431: Exhaustive variant lists and token class strings (`h-9 px-3`, `bg-bg-cold text-muted`, `z-60`, `max-h-75`, etc.). → Replace with 1–2 sentences per primitive on what's project-specific. Keep the real gotchas:
+- [x] FORMAT: This page overlaps `design-system/ui-primitives.md` ("Shared UI Primitives & shadcn Components"). → Add a cross-link, and make one page own each topic.
+- [x] STALE-DETAIL L16–475: All 26 entries have Kind, Exports, Wrapped by and Used in lines. → Keep **Source:** and **Upstream:** only.
+- [x] STALE-DETAIL L29–47, 69–76, 106, 222, 235, 247, 259, 271, 284, 297, 310, 325–367, 427, 431: Exhaustive variant lists and token class strings (`h-9 px-3`, `bg-bg-cold text-muted`, `z-60`, `max-h-75`, etc.). → Replace with 1–2 sentences per primitive on what's project-specific. Keep the real gotchas:
   - Button: pass icons via `iconLeft`/`iconRight`; the icon `className` props apply only with `asChild`.
   - Tooltip: touch toggle and `disableTouch`.
   - `CollapsibleContent animated`: re-measures content after mount.
@@ -568,13 +568,13 @@ These apply to every one of the 46 non-component pages. Each page section below 
   - Use `ConfirmDialog`, never `window.confirm`.
   - Toaster theme is fixed to light.
   - Drawer, Breadcrumb, ScrollArea and Tags are unused.
-- [ ] STALE-DETAIL L458–474: The props table and behaviour notes for the unused Tags (shadcn-io) component. → One line: "vendored, unused; use `InputTags`". About 474 → 120 lines.
+- [x] STALE-DETAIL L458–474: The props table and behaviour notes for the unused Tags (shadcn-io) component. → One line: "vendored, unused; use `InputTags`". About 474 → 120 lines.
 
 ### components/tiptap.md
-- [ ] FORMAT: This page duplicates `editor/tiptap-core.md` and `editor/toolbar-and-api.md` (about 1,880 lines covering the same module). → Make this a short catalog entry (purpose, public surface, the one consumer `InputContent`) that links to the Rich Text Editor section. Don't keep two references.
-- [ ] FORMAT L24: README-vs-source discrepancies are scattered (L179, 214, 264). → Keep them in a short "Gotchas" list: heading levels are 2–4, not 1–3; `parseHTML` does parse; drop fills the node but doesn't upload; `characterCount` is always `undefined`; the `minLength` arg isn't read.
-- [ ] STALE-DETAIL L26–39: The "## Barrels" section enumerates every export and type. → Remove it, or reduce it to "import from `@/components/tiptap`".
-- [ ] STALE-DETAIL L49–441: Args table (16 rows), registry members table, `ImageAttrs` table, extension option tables, selectors table, api/render/validation function tables, types shape table, Kind and Used in lines. → Remove them all (they're in the editor/ pages and the code). Keep the why: `immediatelyRender: false`; files live in an IndexedDB registry because node attrs can't hold `File`; `flush(routeOverride)` for records created after mount; an image node is removed only after the server delete succeeds. About 441 → 90 lines.
+- [x] FORMAT: This page duplicates `editor/tiptap-core.md` and `editor/toolbar-and-api.md` (about 1,880 lines covering the same module). → Make this a short catalog entry (purpose, public surface, the one consumer `InputContent`) that links to the Rich Text Editor section. Don't keep two references.
+- [x] FORMAT L24: README-vs-source discrepancies are scattered (L179, 214, 264). → Keep them in a short "Gotchas" list: heading levels are 2–4, not 1–3; `parseHTML` does parse; drop fills the node but doesn't upload; `characterCount` is always `undefined`; the `minLength` arg isn't read.
+- [x] STALE-DETAIL L26–39: The "## Barrels" section enumerates every export and type. → Remove it, or reduce it to "import from `@/components/tiptap`".
+- [x] STALE-DETAIL L49–441: Args table (16 rows), registry members table, `ImageAttrs` table, extension option tables, selectors table, api/render/validation function tables, types shape table, Kind and Used in lines. → Remove them all (they're in the editor/ pages and the code). Keep the why: `immediatelyRender: false`; files live in an IndexedDB registry because node attrs can't hold `File`; `flush(routeOverride)` for records created after mount; an image node is removed only after the server delete succeeds. About 441 → 90 lines.
 
 ### components/users.md
 - [x] ROADMAP L209 (ListHeader "followers and following") and L94 (Used in: `ConnectionRequestCard`): These reference the disconnected connections/follow code without saying so. → Add "(no call sites; follow/connection lists are not wired up, see the roadmap)".
@@ -591,27 +591,27 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [x] STALE-DETAIL L10–266: All 5 entries have Kind and Used in lines plus props tables, and pixel and class detail (`w-75`, `sizes="28rem"`). → Cut to 1–3 sentences plus **Source:**. Keep one composed snippet showing `CondensedCard*` used together. About 130 → 45 lines.
 
 ### components/ui/comments.md
-- [ ] FORMAT L36–44: "Notable behaviour:" is followed directly by a table, not bullets. → Make the entity → API/realtime table a short "Architecture" paragraph under `EntityComments`.
-- [ ] FORMAT L247–249: The "## index.ts" section. → Remove it.
-- [ ] STALE-DETAIL L19–245: All 8 entries have props tables (CommentList alone has 17 rows), Kind lines and Used in lines. → Keep `EntityComments` as the documented entry point. Cut the internal pieces to one line each plus Source.
-- [ ] STALE-DETAIL L133–141, 169–173, 224–229: Realtime and fold detail. → Keep the gotchas: realtime refetches on insert and delete, but other users' edits don't arrive live; switching account resets composer and like state; ownership is per acting identity; a thrown `onSubmit` is swallowed. Drop the CSS caps and breakpoint notes. About 249 → 80 lines.
+- [x] FORMAT L36–44: "Notable behaviour:" is followed directly by a table, not bullets. → Make the entity → API/realtime table a short "Architecture" paragraph under `EntityComments`.
+- [x] FORMAT L247–249: The "## index.ts" section. → Remove it.
+- [x] STALE-DETAIL L19–245: All 8 entries have props tables (CommentList alone has 17 rows), Kind lines and Used in lines. → Keep `EntityComments` as the documented entry point. Cut the internal pieces to one line each plus Source.
+- [x] STALE-DETAIL L133–141, 169–173, 224–229: Realtime and fold detail. → Keep the gotchas: realtime refetches on insert and delete, but other users' edits don't arrive live; switching account resets composer and like state; ownership is per acting identity; a thrown `onSubmit` is swallowed. Drop the CSS caps and breakpoint notes. About 249 → 80 lines.
 
 ### components/ui/display.md
-- [ ] ROADMAP L293–307: OrgVerifiedBadge. → Add "renders the `verified` column; there is no verification flow yet (Org verification is on the roadmap)".
-- [ ] FORMAT L417–486: "## Internal PDF viewer parts" is followed by sibling `##` entries for FullScreenWrapper, ViewerToolbar and ViewerToolbarButton, so the internals look like public catalog entries. → Collapse them into the one "Internal PDF viewer parts" section as a bullet list with Source links.
-- [ ] STALE-DETAIL L12–486: All 18 entries have Kind and Used in lines (EmptyState: "36 files in total"), props tables, and an exhaustive `Text` `color` enum (L360). → Cut to 1–3 sentences plus **Source:**.
-- [ ] STALE-DETAIL L378–386, 433–486: PDFViewer zoom steps, 600px/900px numbers, pdf.js unpkg asset list, toolbar props. → Keep the gotchas: the viewer is client-only via `next/dynamic` with `ssr: false`; the pdf.js worker loads from unpkg; state lives above `FullScreenWrapper` because toggling fullscreen remounts its children; `DocumentSelector` sorts its `documents` prop in place. About 486 → 120 lines.
+- [x] ROADMAP L293–307: OrgVerifiedBadge. → Add "renders the `verified` column; there is no verification flow yet (Org verification is on the roadmap)".
+- [x] FORMAT L417–486: "## Internal PDF viewer parts" is followed by sibling `##` entries for FullScreenWrapper, ViewerToolbar and ViewerToolbarButton, so the internals look like public catalog entries. → Collapse them into the one "Internal PDF viewer parts" section as a bullet list with Source links.
+- [x] STALE-DETAIL L12–486: All 18 entries have Kind and Used in lines (EmptyState: "36 files in total"), props tables, and an exhaustive `Text` `color` enum (L360). → Cut to 1–3 sentences plus **Source:**.
+- [x] STALE-DETAIL L378–386, 433–486: PDFViewer zoom steps, 600px/900px numbers, pdf.js unpkg asset list, toolbar props. → Keep the gotchas: the viewer is client-only via `next/dynamic` with `ssr: false`; the pdf.js worker loads from unpkg; state lives above `FullScreenWrapper` because toggling fullscreen remounts its children; `DocumentSelector` sorts its `documents` prop in place. About 486 → 120 lines.
 
 ### components/ui/errors.md
 - [x] FORMAT L62–64: The "## index.ts" section. → Remove it.
 - [x] STALE-DETAIL L10–60: Kind and Used in lines plus props tables with copied default strings. → 1–3 sentences plus Source each. Keep the "doesn't self-clear" note. About 64 → 30 lines.
 
 ### components/ui/forms.md
-- [ ] FORMAT L12, 166, 388: Entries are `###` under `##` group headings ("Layout and navigation", "File and image upload", "Hook-form wrappers"). Grouping is reasonable for 35 entries, but it differs from the flat sibling UI pages. → Either keep it here and adopt the same pattern on display.md and layout.md, or flatten. Decide once for the whole UI group.
-- [ ] FORMAT L1122–1125: The "## Barrels" section enumerates every re-export. → Replace with two import-path sentences in the intro.
-- [ ] STALE-DETAIL L14–1120: Props tables (about 270 table rows), Kind lines and Used in lists on every entry. → Cut each wrapper to 1–3 sentences plus **Source:**. Keep the "Shared props" concept as one sentence.
-- [ ] STALE-DETAIL L1008–1050: InputContent's upload limits (5 MB per file, 50 MB total, 10 uploads, png/jpeg/webp) and routes are duplicated in tiptap.md L118. → State them in one place (the editor page), or replace both with a link to the constants.
-- [ ] STALE-DETAIL L392–412, 1108–1120: Type alias definitions and the `useSearchSelect` return shape. → Keep these gotchas: `updates` is ignored by some wrappers; `StringArrayFieldPath` accepts any string; `OtpInput` isn't RHF-bound despite living in `hook-form/`; `InputContent` isn't exported from the barrel. Drop the rest. About 1125 → 250 lines.
+- [x] FORMAT L12, 166, 388: Entries are `###` under `##` group headings ("Layout and navigation", "File and image upload", "Hook-form wrappers"). Grouping is reasonable for 35 entries, but it differs from the flat sibling UI pages. → Either keep it here and adopt the same pattern on display.md and layout.md, or flatten. Decide once for the whole UI group.
+- [x] FORMAT L1122–1125: The "## Barrels" section enumerates every re-export. → Replace with two import-path sentences in the intro.
+- [x] STALE-DETAIL L14–1120: Props tables (about 270 table rows), Kind lines and Used in lists on every entry. → Cut each wrapper to 1–3 sentences plus **Source:**. Keep the "Shared props" concept as one sentence.
+- [x] STALE-DETAIL L1008–1050: InputContent's upload limits (5 MB per file, 50 MB total, 10 uploads, png/jpeg/webp) and routes are duplicated in tiptap.md L118. → State them in one place (the editor page), or replace both with a link to the constants.
+- [x] STALE-DETAIL L392–412, 1108–1120: Type alias definitions and the `useSearchSelect` return shape. → Keep these gotchas: `updates` is ignored by some wrappers; `StringArrayFieldPath` accepts any string; `OtpInput` isn't RHF-bound despite living in `hook-form/`; `InputContent` isn't exported from the barrel. Drop the rest. About 1125 → 250 lines.
 
 ### components/ui/images.md
 - [x] STALE-DETAIL L16–63: Kind and Used in lines plus props tables. → 1–3 sentences plus Source each. Keep: both render nothing for an empty `src`; `aspectRatio="auto"` needs an explicit height; the zoomed image ignores the thumbnail props. About 63 → 25 lines.
