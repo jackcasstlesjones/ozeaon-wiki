@@ -22,7 +22,7 @@ This page documents the Edge Function layer of the API surface: the three Deno f
 - The client-side SDK wrappers that call these functions — for those, see the client API layer pages.
 - The broader REST/PostgREST access path for normal, user-scoped data — see the API Layer overview.
 
-> For the API layer as a whole, see [6-api-layer](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/6-api-layer). For the database objects invoked here (`user_profiles`, `reconcile_stats`), see the database section.
+> For the API layer as a whole, see [API Routes](../api-routes/). For the database objects invoked here (`user_profiles`, `reconcile_stats`), see the database section.
 
 ## Overview
 
@@ -540,7 +540,7 @@ No test files exist within `supabase/functions/` in this repository — there is
 
 ## Related Links
 
-- API Layer overview — [6-api-layer](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/6-api-layer)
+- API Layer overview — [API Routes](../api-routes/)
 - Database schema, RLS policies, and the `reconcile_stats` RPC implementation — see the database section of this wiki
 - Client-side callers of these functions — see the client API layer pages
 

@@ -4,7 +4,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "1-overview"
+          "directory": "overview"
         }
       }
     ]
@@ -14,7 +14,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "2-architecture"
+          "directory": "architecture"
         }
       }
     ]
@@ -24,7 +24,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "3-auth-and-accounts"
+          "directory": "auth-and-accounts"
         }
       }
     ]
@@ -34,7 +34,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "4-features"
+          "directory": "features"
         }
       }
     ]
@@ -44,7 +44,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "5-editor"
+          "directory": "editor"
         }
       }
     ]
@@ -54,7 +54,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "6-api-layer"
+          "directory": "api-layer"
         }
       }
     ]
@@ -64,17 +64,27 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "7-moderation-and-storage"
+          "directory": "moderation-and-storage"
         }
       }
     ]
   },
   {
-    "label": "Design System & Component Library",
+    "label": "Design System",
     "items": [
       {
         "autogenerate": {
-          "directory": "8-design-system"
+          "directory": "design-system"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Components",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "components"
         }
       }
     ]
@@ -84,7 +94,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "9-config-and-utils"
+          "directory": "config-and-utils"
         }
       }
     ]
@@ -94,7 +104,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "10-operations"
+          "directory": "operations"
         }
       }
     ]
@@ -104,7 +114,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "11-developer-guide"
+          "directory": "developer-guide"
         }
       }
     ]

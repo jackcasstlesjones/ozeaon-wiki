@@ -425,8 +425,7 @@ For build, deployment, and environment configuration of the Next.js app that hos
 
 ## Related Links
 
-- [Typography & Color System](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/8.1-typography-and-color) — the token definitions (`src/styles/typography.css`, `src/styles/globals.css`) that every card and shell consumes.
-- [Design System overview](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/8-design-system) — the parent section this page belongs to.
+- [Typography & Color System](../design-tokens/) — the token definitions (`src/styles/typography.css`, `src/styles/globals.css`) that every card and shell consumes.
 - [Design system tokens](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/design-system.md) — source document for the type scale, text colors, and background tokens.
 - [Dashboard shell](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/layout.tsx) — outermost authenticated layout.
 - [Organizations settings shell](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/settings/(organizations)/layout.tsx) — organization-scoped settings layout.

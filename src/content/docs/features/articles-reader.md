@@ -600,8 +600,7 @@ The reader experience is extended at three well-defined seams:
 
 ## Related Links
 
-- [Articles: Feed](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/4.3-articles-feed) — browsing and infinite-scroll article lists (`ArticlesInfiniteFeed`).
-- [Articles: Authoring](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/4.5-articles-authoring) — the article form, attachments, and slug handling (`ArticleForm`).
+- [Articles: Authoring](../articles-authoring/) — the article form, attachments, and slug handling (`ArticleForm`).
 - Route source: [src/app/(main)/(reader)/articles/[slug]/page.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(reader)/articles/[slug]/page.tsx)
 - Sidebar source: [src/app/(main)/(reader)/@sidebar/articles/[slug]/page.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(reader)/@sidebar/articles/[slug]/page.tsx)
 - Presentation components: [src/components/articles/pages/](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/pages)

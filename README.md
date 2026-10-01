@@ -1,6 +1,8 @@
 # OZEAON V2 Wiki
 
-AI-generated docs for [ozeaon-v2](https://github.com/ozeaon/ozeaon-v2), built with Astro Starlight and deployed to GitHub Pages on push to `main`.
+Docs for [ozeaon-v2](https://github.com/ozeaon/ozeaon-v2), built with Astro Starlight and deployed to GitHub Pages on push to `main`.
+
+Pages live in `src/content/docs/` and the sidebar order in `src/sidebar.json`. Edit both by hand.
 
 - `pnpm dev`: run locally
-- `node scripts/export-wiki.mjs`: re-export pages from a local OpenDeepWiki database
+- `pnpm build`: build to `dist/`
