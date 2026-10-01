@@ -118,18 +118,18 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### architecture/supabase-client-patterns.md (580 → ~200)
 
-- [ ] FORMAT: house-style sweep; rename "Related Documentation Links" to "Related Links" and delete `## Summary`
-- [ ] ROADMAP/accuracy: the browser factory is `createBrowserClient()` (`src/lib/supabase/client.ts`), not `createClient()`; CLAUDE.md is stale → rename it everywhere
-- [ ] ROADMAP/accuracy: `server.ts` also exports `createActionClient()` (it doesn't swallow cookie-write errors) and is `server-only`. Link the auth helpers in `src/lib/supabase/queries/auth.ts` (`getAuthUser` is cached, `getAuthUserOrRedirect`, `withAuthUser`)
-- [ ] ROADMAP/accuracy: `server.ts` and `client.ts` bind `Database` too; only `admin.ts` is untyped. The middleware builds its own client in `src/lib/supabase/middleware.ts`. The ESLint restriction is path-based (`src/app/**/(private)/**/*.tsx`)
-- [ ] STALE-DETAIL: "Query Modules Built on These Clients" function reference (→ 2–3 sentences and a link to Server Actions & Queries), the version table, Configuration Options and API Reference, and the full `public.ts` copy (keep the admin credential-check snippet) → cut
+- [x] FORMAT: house-style sweep; rename "Related Documentation Links" to "Related Links" and delete `## Summary`
+- [x] ROADMAP/accuracy: the browser factory is `createBrowserClient()` (`src/lib/supabase/client.ts`), not `createClient()`; CLAUDE.md is stale → rename it everywhere
+- [x] ROADMAP/accuracy: `server.ts` also exports `createActionClient()` (it doesn't swallow cookie-write errors) and is `server-only`. Link the auth helpers in `src/lib/supabase/queries/auth.ts` (`getAuthUser` is cached, `getAuthUserOrRedirect`, `withAuthUser`)
+- [x] ROADMAP/accuracy: `server.ts` and `client.ts` bind `Database` too; only `admin.ts` is untyped. The middleware builds its own client in `src/lib/supabase/middleware.ts`. The ESLint restriction is path-based (`src/app/**/(private)/**/*.tsx`)
+- [x] STALE-DETAIL: "Query Modules Built on These Clients" function reference (→ 2–3 sentences and a link to Server Actions & Queries), the version table, Configuration Options and API Reference, and the full `public.ts` copy (keep the admin credential-check snippet) → cut
 
 ### architecture/type-system.md (619 → ~180)
 
-- [ ] FORMAT: house-style sweep; **the unclosed ```typescript fence at L102 makes L179–191 render as code** → close it; remove "6170 more lines not shown" residue; link the plain-text Related Links
-- [ ] ROADMAP/accuracy: CI doesn't run `db:gen`. `src/types/supabase.ts` is committed and regenerated locally; CI runs `typegen` → fix the diagram and text
-- [ ] ROADMAP/accuracy: `Tables<"comments">`: no such table (`post_comments`, etc.) → fix. The `MembershipResult` `"pod"` variant reads placeholder tables (pods are roadmap). The `graphql_public` drift claim is unverified → verify or delete
-- [ ] STALE-DETAIL: the copied generated `Database` type (keep a 5-line Row/Insert/Update excerpt), the Domain File Reference export tables, script bodies, Configuration Options, Command Reference and API Reference → cut
+- [x] FORMAT: house-style sweep; **the unclosed ```typescript fence at L102 makes L179–191 render as code** → close it; remove "6170 more lines not shown" residue; link the plain-text Related Links
+- [x] ROADMAP/accuracy: CI doesn't run `db:gen`. `src/types/supabase.ts` is committed and regenerated locally; CI runs `typegen` → fix the diagram and text
+- [x] ROADMAP/accuracy: `Tables<"comments">`: no such table (`post_comments`, etc.) → fix. The `MembershipResult` `"pod"` variant reads placeholder tables (pods are roadmap). The `graphql_public` drift claim is unverified → verify or delete
+- [x] STALE-DETAIL: the copied generated `Database` type (keep a 5-line Row/Insert/Update excerpt), the Domain File Reference export tables, script bodies, Configuration Options, Command Reference and API Reference → cut
 
 ### auth-and-accounts/account-switching.md (622 → ~200)
 
@@ -260,13 +260,13 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### features/articles-authoring.md (844 → ~220)
 
-- [ ] FORMAT: house-style sweep; "storefront" → "the form"; move the off-topic storage/prerender bullets
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; "storefront" → "the form"; move the off-topic storage/prerender bullets
+- [x] ROADMAP/accuracy:
   - "no server-side validation" is wrong; the article API routes run Zod
   - the reader sidebar has Authors, FundingBlock and the date only; `BountyBlock` is an unrendered placeholder (bounties are planned)
   - `fundingSources` is research-funding provenance, not payments
   - drop the reader detail and link articles-reader
-- [ ] STALE-DETAIL: `generateMetadata` and the auth block copied twice, the reference-data block, attachment assembly copied twice, `ArticleFormProps` and API Reference, default values copied three times, language options, `useForm` options copied twice (keep the `shouldUnregister` snippet), the failure table with line links → cut
+- [x] STALE-DETAIL: `generateMetadata` and the auth block copied twice, the reference-data block, attachment assembly copied twice, `ArticleFormProps` and API Reference, default values copied three times, language options, `useForm` options copied twice (keep the `shouldUnregister` snippet), the failure table with line links → cut
 
 ### features/articles-reader.md (607 → ~110)
 
@@ -287,12 +287,12 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### features/projects.md (872 → ~200)
 
-- [ ] FORMAT: title "Project Lifecycle & Discovery" → "Projects"; house-style sweep; add `## Failure Modes & Edge Cases` (null-vs-[] filter, ownership OR, the uuid precondition, the date-suffix slug) and `## Related Links`
-- [ ] ROADMAP:
+- [x] FORMAT: title "Project Lifecycle & Discovery" → "Projects"; house-style sweep; add `## Failure Modes & Edge Cases` (null-vs-[] filter, ownership OR, the uuid precondition, the date-suffix slug) and `## Related Links`
+- [x] ROADMAP:
   - the For You/Latest/Trending tabs are commented out ("pending product sign-off") and `/for-you` redirects; `/projects` is one newest-first feed and nothing links `/trending` or `/latest`; the recommendation engine is planned
   - the funding/donations toggles are disabled "Coming soon"
   - "moderation queue" → automated moderation (`moderateAndLog`); the reporting queue is planned
-- [ ] STALE-DETAIL: import and barrel lists, the PATCH handler in 9 chunks (keep the sequence diagram), feed-builder bodies, overloads and option types, `filterByOwnership` copies (keep the rationale), the feed flowchart, ER columns, GET handler copies → cut
+- [x] STALE-DETAIL: import and barrel lists, the PATCH handler in 9 chunks (keep the sequence diagram), feed-builder bodies, overloads and option types, `filterByOwnership` copies (keep the rationale), the feed flowchart, ER columns, GET handler copies → cut
 
 ### moderation-and-storage/email-and-marketing.md (639 → ~150)
 

@@ -1,50 +1,28 @@
 ---
 title: "Supabase Client Patterns"
+description: "The four Supabase client factories, when to use each, and the client-reuse rules."
 sidebar:
   order: 3
 ---
 
-OZEAON V2 exposes four distinct Supabase client factories — server, browser, admin, and public — each with a different authorization model, runtime target, and rendering consequence. This page documents how each client is constructed, when it must be used, and how the choice affects Next.js caching and row-level security.
-
-## Purpose and Scope
-
-This page covers the Supabase client construction layer of the repository:
-
-- The four client entry points listed in the project's client pattern table
-- How each factory is constructed (credentials, `auth` options, typed schema binding)
-- The rendering/caching consequences of using a cookie-aware client inside Next.js App Router
-- The reuse rules around `createClient()` relative to `getAuthUser()` / `getAuthUserOrRedirect()` and `withAuthUser`
-- ESLint guardrails that enforce the public/private client boundary
-
-It intentionally does **not** cover:
-
-- The wider query layer beyond the five modules given a per-file reference below under [Query Modules Built on These Clients](#query-modules-built-on-these-clients) (see the query-layer documentation)
-- Storage uploads (`StorageAdapter`) and R2 integration
-- Row-level security policy definitions in the database schema
-- Route handler authoring details beyond the client-injection contract
+OZEAON V2 exposes four distinct Supabase client factories — server, browser, admin, and public — each with a different authorization model, runtime target, and rendering consequence. The choice of factory is architectural: it determines whether a route renders statically or dynamically, and whether data access is scoped by row-level security.
 
 ## Overview
 
-The platform is a full-stack Next.js (App Router) application backed by Supabase, where server rendering, server actions, route handlers, middleware, and client components all need database access — but never with the same privilege level. A single shared client would either leak the service-role key into the browser or force every read through an RLS-bypassing connection.
+| Client | Factory | Use In | Runtime |
+|--------|---------|--------|---------|
+| Server | `createClient()` / `createActionClient()` from [`@/lib/supabase/server`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/server.ts) | Server Components, API routes, Server Actions | Node / Worker, cookie-bound |
+| Browser | `createBrowserClient()` from [`@/lib/supabase/client`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/client.ts) | Client Components (`"use client"`) | Browser |
+| Admin | `createAdminClient()` from [`@/lib/supabase/admin`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/admin.ts) | API routes bypassing RLS | Server only |
+| Public | `createPublicClient()` from [`@/lib/supabase/public`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/public.ts) | Unauthenticated public queries | Server only |
 
-The design therefore splits client creation into four explicit factories, each a small module with a single exported function:
+Three design rules underpin the split:
 
-| Client | Import | Use In | Runtime |
-|--------|--------|--------|---------|
-| Server | `@/lib/supabase/server` | Server Components, Server Actions, API routes | Node / Worker, cookie-bound |
-| Browser | `@/lib/supabase/client` | Client Components (`"use client"`) | Browser |
-| Admin | `@/lib/supabase/admin` | API routes bypassing RLS (use sparingly) | Server only |
-| Public | `@/lib/supabase/public` | Unauthenticated public queries | Server only |
+1. **Typed schema binding.** The server, browser, and public factories all bind the generated `Database` type from `@/types/supabase`. The admin client does not; admin queries carry no compile-time table checking. `CLAUDE.md` says only `public.ts` binds `Database` — that is stale.
+2. **`server-only` guard.** The admin and public modules begin with `import "server-only";`, turning accidental import from a client component into a build error rather than a credential leak.
+3. **Cookie-based dynamism as a rendering signal.** `createClient()` calls `cookies()` internally, automatically opting the containing route into dynamic rendering. No `export const dynamic` directive is needed (and the project bans legacy cache directives).
 
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L82-L89)
-
-The key concepts behind the split:
-
-1. **Typed schema binding.** The public client binds the generated `Database` type from `@/types/supabase` and restricts it to the `"public"` schema, so query results and table names are statically checked.
-2. **`server-only` guard.** Both the admin and public modules begin with `import "server-only";`, which turns any accidental import from a client component into a build-time error rather than a credential leak.
-3. **Cookie-based dynamism as a rendering signal.** The server client calls `cookies()` internally (documented behavior in the project guidance). Because the project runs with `cacheComponents: false`, that `cookies()` call automatically opts the containing route into dynamic rendering — no `export const dynamic` directive is required, and the project explicitly forbids the legacy directives.
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L13-L21)
+Middleware builds its own client directly in [`src/lib/supabase/middleware.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/middleware.ts) using `createServerClient` from `@supabase/ssr` — it does not go through `server.ts`.
 
 ## Architecture
 
@@ -53,26 +31,21 @@ flowchart TD
     subgraph sg_Consumers["Consumers"]
         RSC["Server Component / Server Action"]
         Route["API Route Handler"]
-        ClientComp["Client Component (use client)"]
+        ClientComp["Client Component"]
         MW["Middleware"]
     end
 
     subgraph sg_Factories["Client Factories (src/lib/supabase)"]
-        ServerClient["server.ts<br/>createClient()"]
-        BrowserClient["client.ts<br/>createClient()"]
+        ServerClient["server.ts<br/>createClient() / createActionClient()"]
+        BrowserClient["client.ts<br/>createBrowserClient()"]
         AdminClient["admin.ts<br/>createAdminClient()"]
         PublicClient["public.ts<br/>createPublicClient()"]
+        MWClient["middleware.ts<br/>createServerClient() direct"]
     end
 
-    subgraph sg_Auth["Auth Helpers"]
+    subgraph sg_Auth["Auth Helpers (queries/auth.ts)"]
         GetAuthUser["getAuthUser() / getAuthUserOrRedirect()"]
         WithAuthUser["withAuthUser()"]
-    end
-
-    subgraph sg_Env["Environment"]
-        UrlEnv["NEXT_PUBLIC_SUPABASE_URL"]
-        PublishableKey["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"]
-        ServiceKey["SUPABASE_SERVICE_ROLE_KEY"]
     end
 
     RSC --> ServerClient
@@ -81,500 +54,154 @@ flowchart TD
     Route --> AdminClient
     Route --> PublicClient
     ClientComp --> BrowserClient
-    MW --> ServerClient
+    MW --> MWClient
 
     GetAuthUser -->|"returns memoized client"| ServerClient
     WithAuthUser -->|"injects supabase via ctx"| ServerClient
-
-    ServerClient --> UrlEnv
-    ServerClient --> PublishableKey
-    BrowserClient --> UrlEnv
-    BrowserClient --> PublishableKey
-    PublicClient --> UrlEnv
-    PublicClient --> PublishableKey
-    AdminClient --> UrlEnv
-    AdminClient --> ServiceKey
 ```
-
-The diagram reflects two structural facts visible in the source: the public client is a bare `@supabase/supabase-js` client with session persistence turned off, and the admin client is the same constructor fed the service-role key instead of the publishable key. Neither the admin nor the public client participates in cookie handling, which is why they are safe for statically prerenderable routes — and why they must never be mixed with user-specific state.
 
 ## Client Factory Implementations
 
-### Public Client — `createPublicClient()`
+### Public Client
 
-The public client is used for unauthenticated reads (articles, public profiles) and is the only client that can render on a fully static path. It creates a fresh client per call, disables token refresh and session persistence, and binds the generated `Database` type.
+`createPublicClient()` is for unauthenticated reads on routes that should prerender statically. It creates a fresh client per call, disables token refresh and session persistence, and binds `Database` with the `"public"` schema. Because it never calls `cookies()`, routes using it exclusively can be prerendered by Next.js. The env vars are asserted (`!`) rather than validated; a missing value surfaces as a Supabase request error rather than a thrown configuration error. Source: [`public.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/public.ts).
+
+### Admin Client
+
+`createAdminClient()` bypasses row-level security using the service-role key. It performs an explicit credential check before construction — the one factory that throws on misconfiguration:
 
 ```typescript
-import "server-only";
-
-import { Database } from "@/types/supabase";
-import { createClient } from "@supabase/supabase-js";
-
-export function createPublicClient() {
-  return createClient<Database, "public">(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    },
-  );
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error("Missing Supabase admin credentials");
 }
 ```
 
-> Source: [public.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/public.ts#L1-L17)
+Source: [`admin.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/admin.ts). The admin client does not bind `Database`, so admin queries carry no compile-time table checking. Use sparingly and only in API routes. Both `public.ts` and `admin.ts` use `process.env.*` directly; `server.ts` and `client.ts` use the validated `env.supabase.*` from `@/config`.
 
-Design intent and details:
+### Server Client
 
-- **`import "server-only"`** prevents bundling this module into client JavaScript. Even though the credentials are public-prefixed (`NEXT_PUBLIC_*`), the module is server-only because it is intended for server-side fetching and must not be confused with the browser client.
-- **Two generic parameters**: `createClient<Database, "public">` types the client against the generated schema and narrows the rest-API schema name to `"public"`. This is what gives callers compile-time table and column checking.
-- **`persistSession: false` + `autoRefreshToken: false`**: the public client has no identity to maintain, so cookie/localStorage writes are pointless work. Disabling them makes the client explicitly stateless.
-- **`!` non-null assertions**: the environment variables are asserted rather than validated at runtime; a missing value surfaces as a Supabase request error, not a thrown configuration error. Contrast with the admin client, which does validate.
+`server.ts` exports two cookie-aware clients, both bound to `Database` and using `env.supabase.*`:
 
-### Admin Client — `createAdminClient()`
+- **`createClient()`** — for Server Components and route handlers. If `setAll` is called from a Server Component (where cookies cannot be set), the error is swallowed silently; middleware is expected to keep the session alive.
+- **`createActionClient()`** — for Server Actions, where setting cookies is permitted. Does not swallow `setAll` errors, so cookie-write failures surface to the caller.
 
-The admin client bypasses row-level security by authenticating with the service-role key. Its source carries an inline warning in a comment, and it performs an explicit credential check before construction.
+Both must be awaited because `cookies()` is async in this Next.js version. The `await` is also the dynamic-rendering signal: creating the server client opts the route into dynamic rendering.
 
-```typescript
-import "server-only";
-import { createClient } from "@supabase/supabase-js";
+### Browser Client
 
-// Admin client that bypasses RLS - only use in API routes!
-export function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error("Missing Supabase admin credentials");
-  }
-
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-}
-```
-
-> Source: [admin.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/admin.ts#L1-L19)
-
-Design intent and details:
-
-- **Service-role credentials** (`SUPABASE_SERVICE_ROLE_KEY`) are the RLS-bypass mechanism. This key must never reach the browser, which is enforced by `import "server-only"`.
-- **Explicit runtime validation**: unlike the public client, the admin client reads the environment variables into locals and throws `Error("Missing Supabase admin credentials")` if either is falsy. This is deliberate — a missing service-role key is a security-relevant misconfiguration that should fail loudly rather than silently degrade into anonymous access.
-- **Stateless auth options**: same as the public client, since the admin client acts on behalf of the application, not a logged-in user.
-- **No schema type binding**: the admin client is not generic-bound to `Database` in this module, so admin queries are not type-checked against the generated schema.
-- The module comment `// Admin client that bypasses RLS - only use in API routes!` is the stated usage boundary. The project guidance repeats this as "use sparingly."
-
-### Server Client — `createClient()`
-
-The server client is the cookie-aware client for user-specific data. It is imported from `@/lib/supabase/server` and must be awaited.
+`createBrowserClient()` from `@/lib/supabase/client` is the client-side factory. It is synchronous and must be called fresh inside each component — hoisting it to a module-level singleton would share mutable auth state across React renders. `CLAUDE.md` names this factory `createClient()` — that is stale; the exported function is `createBrowserClient`.
 
 ```typescript
-//  Server Component / API route
-import { createClient } from "@/lib/supabase/server";
-
-const supabase = await createClient();
-```
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L91-L96)
-
-The `await` is required because, as documented in the project guidance, the server client internally calls `cookies()`, which is async in this Next.js version (a breaking change from 14). That internal `cookies()` call is also the mechanism that marks the route as dynamic.
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L13-L15)
-
-The rule for safe usage is stated explicitly:
-
-- Always use `createClient()` (server client) for any user-specific data — the `cookies()` call inside is the dynamic signal.
-- Never use `createPublicClient()` or the admin client in a component that also renders user-specific state.
-- Public pages (articles, profiles, etc.) that use only `createPublicClient()` will correctly prerender statically.
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L17-L21)
-
-### Browser Client — `createClient()`
-
-The browser client is imported from `@/lib/supabase/client` and is synchronous (no `await`), because it has no request-scoped cookie store to resolve.
-
-```typescript
-// Client Component
 "use client";
-// ⚠️ Create fresh per request, never cache globally Client Component
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/client";
 
-const supabase = createClient();
+const supabase = createBrowserClient(); // fresh per call, never module-level
 ```
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L124-L131)
-
-The inline warning — *create fresh per request, never cache globally* — is the critical constraint. A module-level singleton browser client would share mutable auth state across React renders and, in SSR-adjacent flows, across requests, which is exactly the class of bug the server/browser split exists to prevent.
 
 ## Client Selection Flow
-
-Choosing a client is a decision with a caching consequence, not just an import preference. The flow below encodes the rules stated in the project guidance.
 
 ```mermaid
 flowchart TD
     Start(["Need database access"]) --> Where{"Where does the code run?"}
 
-    Where -->|"Client Component"| Browser["createClient()<br/>@/lib/supabase/client<br/>fresh per call"]
-    Where -->|"Server (RSC, Server Action, route, middleware)"| AuthReq{"Is the data user-specific?"}
+    Where -->|"Client Component"| Browser["createBrowserClient()<br/>@/lib/supabase/client<br/>fresh per call"]
+    Where -->|"Server (RSC, Action, route)"| AuthReq{"Is the data user-specific?"}
 
     AuthReq -->|"No - public data only"| Public["createPublicClient()<br/>@/lib/supabase/public<br/>statically prerenderable"]
-    AuthReq -->|"Yes"| ExistingAuth{"Does an auth helper already run here?"}
+    AuthReq -->|"Yes"| ExistingAuth{"Auth helper already ran?"}
 
-    ExistingAuth -->|"Yes - getAuthUser / getAuthUserOrRedirect"| Reuse["Reuse supabase from helper result"]
-    ExistingAuth -->|"Yes - withAuthUser route handler"| Ctx["Reuse supabase from ctx"]
-    ExistingAuth -->|"No"| Srv["await createClient()<br/>@/lib/supabase/server"]
-
-    Where -->|"Route needs to bypass RLS"| Admin["createAdminClient()<br/>@/lib/supabase/admin<br/>use sparingly"]
+    ExistingAuth -->|"getAuthUser / getAuthUserOrRedirect"| Reuse["Reuse supabase from helper result"]
+    ExistingAuth -->|"withAuthUser route handler"| Ctx["Reuse supabase from ctx"]
+    ExistingAuth -->|"No"| Choice{"Need to bypass RLS?"}
+    Choice -->|"Yes"| Admin["createAdminClient()<br/>@/lib/supabase/admin<br/>use sparingly"]
+    Choice -->|"No — Server Action"| Action["await createActionClient()<br/>@/lib/supabase/server"]
+    Choice -->|"No — other server"| Srv["await createClient()<br/>@/lib/supabase/server"]
 
     Browser --> Done(["Query"])
     Public --> Done
     Reuse --> Done
     Ctx --> Done
-    Srv --> Done
     Admin --> Done
+    Action --> Done
+    Srv --> Done
 ```
-
-Two branches of this flow deserve emphasis:
-
-1. **The public branch terminates in static rendering.** A route that only calls `createPublicClient()` never touches `cookies()`, so Next.js can prerender it.
-2. **The user-specific branch always ends in a cookie-aware client**, either newly created with `await createClient()` or borrowed from a helper that already created one.
 
 ## Client Reuse Rules
 
-The most consequential pattern in this codebase is *not creating* a server client when one has already been created for the request. Repeated `await createClient()` calls inside a single request produce redundant clients and redundant cookie reads.
+The most consequential pattern is *not creating* a server client when one has already been created for the request.
 
 ### Rule 1 — Reuse the client returned by auth helpers
 
+`getAuthUser()` and `getAuthUserOrRedirect()` live in [`src/lib/supabase/queries/auth.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/auth.ts) and are wrapped in React `cache()`, so they return the same client instance on every call within a request. Reuse it:
+
 ```typescript
-// ❌ Wrong — two clients for one request
+// Wrong — two clients, two cookie reads
 const supabase = await createClient();
 const { user } = await getAuthUserOrRedirect();
 
-// ✅ Correct — reuse the client from auth
+// Correct — one client
 const { user, supabase } = await getAuthUserOrRedirect();
 ```
 
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L100-L107)
-
-The reason given in the guidance is explicit: both `getAuthUser()` and `getAuthUserOrRedirect()` already return a `supabase` client that is **memoized by React `cache()` for the request**. React's `cache()` guarantees that repeated calls with the same arguments within one render pass resolve to the same value — which is precisely what makes it valid to hand the client out to multiple call sites in the same server render.
-
-The failure mode of the wrong version is not a crash; it is silently doubled work: an extra client instantiation and an extra `cookies()` read per request.
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L98)
-
 ### Rule 2 — Reuse the client injected by `withAuthUser`
 
-Route handlers wrapped in `withAuthUser` receive the authenticated context — including `supabase` — through `ctx`. Creating a new client inside the handler contradicts the wrapper's purpose.
+Route handlers wrapped in `withAuthUser` receive `{ user, supabase }` through `ctx`. Never call `createClient()` inside a `withAuthUser` handler:
 
 ```typescript
-// ❌ Wrong
-export const POST = withAuthUser(async (req, { user }) => {
-  const supabase = await createClient();
-  ...
-});
-
-// ✅ Correct
+// Correct
 export const POST = withAuthUser(async (req, { user, supabase }) => {
-  ...
+  // use supabase from ctx, not a new createClient()
 });
 ```
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L111-L122)
-
-The guidance states this as a flat prohibition: "Route handlers using `withAuthUser` receive `supabase` via ctx — never call `createClient()` inside a `withAuthUser` handler."
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L109)
 
 ### Rule 3 — Never cache a browser client globally
 
-Despite the heading about reuse, the browser client is the exception: it must be created fresh per call and never hoisted to a module-level singleton.
+The browser client is the exception to the reuse rule: call `createBrowserClient()` fresh per component render. A module-level singleton shares mutable auth state across renders.
 
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L127)
+## Query Modules
 
-```mermaid
-flowchart LR
-    subgraph sg_RequestScope["Per-request reuse (server)"]
-        A1["getAuthUserOrRedirect()"] --> A2["supabase returned"]
-        A3["withAuthUser ctx"] --> A2
-        A2 --> A4["All call sites share one client"]
-    end
-
-    subgraph sg_CallScope["Per-call creation (browser)"]
-        B1["Client Component render"] --> B2["createClient()"]
-        B2 --> B3["Fresh instance, discarded after use"]
-    end
-```
+The query modules under `src/lib/supabase/queries/` apply a consistent pattern: each function accepts the client as a parameter rather than creating one internally, so the same query runs on `createPublicClient()` for published reads (where the result can be cached) and on `createClient()` for draft or user-scoped reads (where RLS must scope the rows). See [Server Actions & Queries](../../api-layer/server-actions-and-queries/) for detail on that layer.
 
 ## ESLint Enforcement
 
-The client boundary is partially machine-enforced. The ESLint configuration carries a custom rule that flags imports of the public client inside private routes, with the message "Use createClient() in private routes."
-
-```javascript
-              name: "@/lib/supabase/public",
-              message: "Use createClient() in private routes.",
-```
-
-> Source: [eslint.config.mjs](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/eslint.config.mjs#L44-L46)
-
-A second, adjacent ESLint rules module targets the caching model, warning that a directive's effect is achievable with `await createClient()`:
-
-```javascript
-    message:
-      "Make sure its intended and really needed. Same effect achieved using await createClient().",
-```
-
-> Source: [eslint.rules.cache.mjs](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/eslint.rules.cache.mjs#L10-L12)
-
-The intent of both rules is the same: the correct way to obtain dynamic, user-scoped rendering is the server client — not a manual cache directive, and not a public client. It is worth noting the two conflicting signals here that a reader should be aware of: the ESLint rule steers private routes toward `createClient()`, while Rules 1 and 2 above say that an existing auth helper or `withAuthUser` context client should be reused instead. The reconciliation is that the rule catches the *import of the wrong client module*, whereas the reuse rules govern *not creating a second instance of the right one*.
-
-```mermaid
-flowchart TD
-    Import{"Which module is imported?"} -->|"@/lib/supabase/public"| Private{"Route renders user-specific state?"}
-    Private -->|"Yes"| LintError["ESLint error:<br/>Use createClient() in private routes."]
-    Private -->|"No"| OKPublic["Allowed - static prerender"]
-    Import -->|"@/lib/supabase/server"| HasAuth{"Auth helper or withAuthUser already ran?"}
-    HasAuth -->|"Yes"| WarnReuse["Reuse the provided client instance"]
-    HasAuth -->|"No"| OKServer["await createClient()"]
-```
-
-## Dependency and Version Constraints
-
-The client factories are thin wrappers over two Supabase packages pinned in `package.json`:
-
-| Package | Version | Role |
-|---------|---------|------|
-| `@supabase/ssr` | `^0.12.7` | SSR cookie-bound client support (server and middleware clients) |
-| `@supabase/supabase-js` | `^2.116.0` | Core client used directly by the public and admin factories |
-| `@supabase/auth-js` | `^2.116.0` | Auth primitives transitively consumed by the above |
-
-> Sources:
-> - [package.json](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/package.json#L53-L54)
-> - [package.json](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/package.json#L96)
-
-This split is visible in the source: `public.ts` and `admin.ts` import `createClient` directly from `@supabase/supabase-js` — not from `@supabase/ssr`. That is consistent with their behavior: neither needs cookie plumbing, because both explicitly disable session persistence. The `@supabase/ssr` package is what the server and middleware clients rely on to read and write the auth cookies that drive dynamic rendering.
-
-## Configuration Options
-
-### Public client (`createPublicClient`)
-
-| Option | Type | Value | Description |
-|--------|------|-------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | string (env) | required, asserted | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | string (env) | required, asserted | Anon/publishable key; subject to RLS |
-| `auth.autoRefreshToken` | boolean | `false` | No identity to refresh |
-| `auth.persistSession` | boolean | `false` | No cookie/localStorage session writes |
-| schema generic | type | `"public"` | Rest-API schema the client targets |
-
-> Source: [public.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/public.ts#L6-L16)
-
-### Admin client (`createAdminClient`)
-
-| Option | Type | Value | Description |
-|--------|------|-------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | string (env) | required, validated | Supabase project URL; throws if falsy |
-| `SUPABASE_SERVICE_ROLE_KEY` | string (env) | required, validated | Service-role key; **bypasses RLS** |
-| `auth.autoRefreshToken` | boolean | `false` | No identity to refresh |
-| `auth.persistSession` | boolean | `false` | No session persistence |
-
-> Source: [admin.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/admin.ts#L6-L18)
-
-## API Reference
-
-### `createPublicClient(): SupabaseClient<Database, "public">`
-
-Creates a stateless, server-only Supabase client authenticated with the publishable key. Suitable for unauthenticated public reads on routes that should prerender statically.
-
-**Parameters:** none.
-
-**Returns:** A `SupabaseClient` typed against the generated `Database` schema and scoped to the `"public"` schema.
-
-**Throws:** Does not throw on missing configuration; the `!` assertions mean a missing env var surfaces later as a request-level Supabase error.
-
-> Source: [public.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/public.ts#L6-L16)
-
-### `createAdminClient(): SupabaseClient`
-
-Creates a server-only Supabase client authenticated with the service-role key, bypassing row-level security.
-
-**Parameters:** none.
-
-**Returns:** A `SupabaseClient` with service-role privileges.
-
-**Throws:**
-- `Error("Missing Supabase admin credentials")` — when either `NEXT_PUBLIC_SUPABASE_URL` or `SUPABASE_SERVICE_ROLE_KEY` is falsy.
-
-> Source: [admin.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/admin.ts#L5-L18)
-
-### `createClient()` — server (`@/lib/supabase/server`)
-
-Creates the cookie-aware server client for user-specific data. Must be awaited.
-
-**Returns:** A promise resolving to a Supabase client bound to the current request's cookies.
-
-**Rendering effect:** Because it internally reads `cookies()`, calling it opts the route into dynamic rendering automatically, with no `dynamic`/`revalidate`/`fetchCache`/`runtime` export required.
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L13-L19)
-
-**Reuse contract:** Should not be called if `getAuthUser()` / `getAuthUserOrRedirect()` has run in the same request, or inside a `withAuthUser` handler.
-
-### `getAuthUser()` / `getAuthUserOrRedirect()`
-
-Auth helpers that return both a `user` and a `supabase` client memoized by React `cache()` for the request.
-
-**Returns:** An object containing `user` and `supabase` (the exact shape is shown by the destructuring usage in the guidance).
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L98-L106)
-
-### `withAuthUser(handler)`
-
-Route-handler wrapper that injects `{ user, supabase }` into the handler's context argument.
-
-**Parameters:**
-- `handler` — an async function `(req, ctx) => Response`, where `ctx` includes at least `user` and `supabase`.
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L109-L122)
-
-## Query Modules Built on These Clients
-
-Five modules under `src/lib/supabase/queries/` show the factories above in real use. Each one's client choice is the load-bearing decision: the public client where the read is cacheable, the server client where RLS must scope the rows.
-
-### `queries/articles.ts`
-
-The largest query module, organised around five exported select projections:
-
-| Constant | Shape | Used by |
-|----------|-------|---------|
-| `ARTICLE_FORM_SELECT` | Full row plus every form-related junction (`sdgs`, `article_tags`, `article_type`, `access_level`, `license_type`, `funding_source`, `subcategories`, `cover_image`, `pdf_file`, `author`, `authors`, linked project/organization) | `getArticleForForm` (draft editing) |
-| `ARTICLE_ATTACHMENTS_SELECT` | `pdf_file` plus `article_documents` / `article_images` joins filtered to `image_type = "attachment"` | `getArticleAttachments` |
-| `ARTICLE_PUBLIC_SELECT` | Full public display row, including documents/images, author and orgs, and `stats:article_stats` | `getArticleBySlug` |
-| `ARTICLE_FEED_SELECT` | Card fields only, with the linked-project join needed for the feed | `getArticlesFeed` |
-| `ARTICLE_DASHBOARD_SELECT` | Minimal dashboard-card fields; no project join, so no status lookup | `getDashboardArticlesFeed` |
-
-> Source: [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/articles.ts#L29-L156)
-
-Functions:
-
-- `getArticleForForm(supabase, value, by: "id" | "slug")` — fetches with `ARTICLE_FORM_SELECT` and flattens the junctions into form shape (`transformArticleForForm`: subcategories → id array, sdgs → string ids, tags → comma-joined string, cover/PDF paths → `StorageAdapter.getPublicUrl` URLs). Visibility is RLS's job; the caller must authorise with `canManageArticle`.
-- `getArticleAttachments(supabase, articleId)` — deliberately unscoped by author so an org admin sees the same files the author does; RLS scopes, the caller authorises.
-- `getArticleBySlug(supabase, slug, includeUnpublished?)` — public display read; adds `published = true` unless asked otherwise; errors are logged and returned.
-- Lookup helpers `getArticleTypes`, `getAccessLevels`, `getLicenseTypes`, `getFundingSources`, `getIndigenousRegions` — reference-table reads ordered by `sort_order`, empty array on failure.
-- `getArticleContentData(article)` — React-`cache`d. Reads the gzipped Tiptap document for an article: first through `StorageAdapter.getFile` (R2 binding), falling back to a public-URL fetch decompressed with `DecompressionStream` — the fallback exists because `getCloudflareContext()` opts a page out of SSG, so build-time rendering must go over HTTP. Both failures degrade to `""`.
-- `getCachedArticleBySlug(slug)` — `cache`d wrapper that always passes `createPublicClient()`, keeping the cache key stable.
-- `getArticlesFeed(options)` / `getDashboardArticlesFeed(options)` — shared `buildFeedQuery` with `publishedStatus` selecting the client: `"published"` uses `createPublicClient()` so feeds never read cookies and stay prerenderable; `"draft"` awaits the cookie-bound `createClient()` because only RLS can scope drafts. The public feed then hydrates linked-project status from `v_project_status` per project id. Errors return `[]`, never throw.
-- `getPublishedArticlesSlugs(limit = 10)` and `getPublishedArticlesCount()` — public-client helpers for sitemap/landing counts; the count is React-`cache`d and logs rather than throws.
-
-> Sources: [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/articles.ts#L446-L522), [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/articles.ts#L548-L566)
-
-### `queries/categories.ts`
-
-Single export `getAllCategoriesWithSubcategories(): Promise<CategoryWithSubcategories[]>` — one `createPublicClient()` query joining `resource_categories` to `resource_subcategories`, sorted by `sort_order`, with subcategories re-sorted in memory. Errors return `[]`.
-
-> Source: [categories.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/categories.ts#L16-L58)
-
-### `queries/comment-sources.ts`
-
-The query half of the comment API (the route factories that consume it are covered on the [data-access page](../../api-layer/server-actions-and-queries/)). `CommentSource<TComment>` is one entity's read/write surface: `label`, the four writes (`insert`, `update`, `softDelete`, `hardDelete`), and seven reads (`entityFlag`, `roots`, `liveCount`, `replies`, `replyTotals`, `replyTarget`, `answerCount`).
-
-`createCommentSource(label, select, writes)` derives every read from the label — `post` yields `posts`, `post_comments`, `post_id`, and the `post_comment_replies` / `post_comment_reply_totals` RPCs — so the reads are written once. Two consequences are load-bearing:
-
-- **The label is a type parameter, not a string.** At each call site `` `${Label}_comments` `` collapses to one literal table, so PostgREST resolves the select and rows stay exact; widened to `string`, rows degrade to a union of all three tables.
-- **Reads use `.filter(column, "eq", value)` instead of `.eq`.** Inside the generic body `.eq` checks the value against the column's type, which needs the row resolved — still a type parameter there — while `.filter` issues the identical request without the check.
-
-The three writes per entity cannot be shared the same way: PostgREST types insert/update payloads against the literal table, and that resolution fails outright for a generic table, so `POST_COMMENT_SOURCE`, `PROJECT_COMMENT_SOURCE`, and `ARTICLE_COMMENT_SOURCE` each spell out their four writes against a literal table. All writes pass through `scopeToOwnComment`, which joins the acting organisation to the authorship filter. Two details worth keeping when editing:
-
-- `softDelete` blanks `content` as well as stamping `deleted_at`, so redacted placeholders carry no text.
-- `answerCount` counts *both* `parent_comment_id` and `reply_to_comment_id` pointing at the comment — a sibling "answered" reply also blocks a hard delete, because the FK's `ON DELETE SET NULL` would otherwise erase who it answered.
-
-> Sources: [comment-sources.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/comment-sources.ts#L101-L187), [comment-sources.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/comment-sources.ts#L189-L322)
-
-### `queries/generate-unique-slug.ts`
-
-`generateUniqueSlug(title, objectType: "articles" | "projects" | "organizations", objectId, maxRetries = 3): Promise<string | null>` — builds a slug base from the title, then probes candidate `base-<suffix>` values on the **public client** (slug uniqueness is public knowledge), excluding the object's own row with `.neq("id", objectId)`, and returns the first free candidate or `null` after the retries. Consumed by the article and project write routes and re-exported from the queries barrel.
-
-> Source: [generate-unique-slug.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/generate-unique-slug.ts#L6-L29)
-
-### `queries/posts.ts`
-
-Feed reads for the posts surface, built around two large select constants: `POST_SELECT_FIELDS` (the full hydrated post: author, authoring org, tagged project/article/organization, post images, stats, plus feed flags like `show_in_feed` and `allow_repost`) and `REPOSTED_POST_SELECT` (the same shape minus the repost-specific flags), joined through `reposted_post:post_tag` so a repost embeds its source post.
-
-| Function | Behaviour |
-|----------|-----------|
-| `buildFeedQuery(supabase)` | Selects both constants and filters `show_in_feed = true`; the caller supplies ordering/paging and scoping filters. |
-| `getPostById(supabase, id)` | The permalink read: any single post by id, feed visibility aside; `.maybeSingle()`, errors logged to `null`. |
-| `getFeedPosts(supabase, options)` | Feed page with optional `userIds` / `organizationIds` scoping (user-only scope excludes org posts unless org ids are also given), default `FEED_PAGE_LIMIT`; errors return `[]`. |
-| `getFeedPostsCount()` | React-`cache`d head-count of feed-visible posts on the public client; `0` on error. |
-
-Every function takes the client as a parameter, so the same read runs on the public client for visitors and the session client for personalised feeds — the inject-the-client rule from [Client Reuse Rules](#client-reuse-rules) applied at module scale.
-
-> Source: [posts.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/posts.ts#L243-L332)
-
-## Failure Modes and Edge Cases
-
-| Failure | Trigger | Observed behavior | Mitigation in source |
-|---------|---------|-------------------|----------------------|
-| Missing admin credentials | `SUPABASE_SERVICE_ROLE_KEY` or URL unset | Throws `Error("Missing Supabase admin credentials")` | Explicit falsy check before construction |
-| Missing public credentials | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` unset | No throw at construction; `!` assertion passes `undefined` through to the Supabase SDK | Rely on Supabase request error surface; the public client assumes correctly provisioned env |
-| Duplicate server client | `await createClient()` followed by an auth helper | Two clients and two `cookies()` reads for one request; no crash | Guidance prohibits the ordering; reuse the `supabase` from the helper result |
-| Duplicate server client in route handler | `await createClient()` inside `withAuthUser` | Redundant client; contradicts the wrapper contract | Guidance states a flat "never" |
-| Singleton browser client | Hoisting `createClient()` to module scope in a client component | Shared mutable auth state across renders/requests | Inline warning: "Create fresh per request, never cache globally" |
-| Service-role key reaching the browser | Importing `@/lib/supabase/admin` from a client component | Build error from `server-only` | `import "server-only";` on the module |
-| Public client in a private route | Importing `@/lib/supabase/public` where user state renders | ESLint error: "Use createClient() in private routes." | Custom ESLint rule |
-| Correct client, wrong lifecycle | Using the public or admin client in a component that also renders user-specific state | User-scoped rendering silently loses the dynamic signal | Guidance rule 2 in the safety list |
-| Legacy cache directives | Adding `export const dynamic` / `revalidate` / `fetchCache` / `runtime` | Forbidden by project convention; unnecessary because `createClient()` already opts into dynamism | Guidance plus the cache ESLint rules module |
-
-> Sources:
-> - [admin.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/admin.ts#L9-L11)
-> - [public.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/public.ts#L6-L16)
-> - [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L12-L21)
-> - [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L98-L122)
-> - [eslint.config.mjs](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/eslint.config.mjs#L44-L46)
-
-### The mixing rule, stated precisely
-
-The single most dangerous combination is a *component* that renders user-specific state while *reading* through a non-cookie client. The guidance forbids exactly this: "Never use `createPublicClient()` or admin client in a component that also renders user-specific state."
-
-> Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L20)
-
-The consequence is not an authorization bypass (RLS still applies to the publishable key) but a **rendering correctness** problem: the component would be prerendered or cached in a context where per-user output is expected, and the user-specific portion would be evaluated without the request-scoped cookie signal.
-
-## Performance and Operational Notes
-
-- **Do not create clients speculatively.** Each `await createClient()` performs cookie reads. Per-request memoization via React `cache()` in the auth helpers is the mechanism that collapses N client needs into one instance — but only if callers reuse the returned client.
-- **Admin client usage is costlier than it looks.** It bypasses RLS, which means the database does no per-row authorization filtering; queries must carry correct filters in application code. This is why the source comment and guidance both scope it to API routes and say "use sparingly."
-- **Public client enables static output.** Because `createPublicClient()` never touches `cookies()`, routes that use it exclusively can be prerendered — a direct build-time and edge-latency win on Cloudflare Workers.
-- **Disabling session persistence is a deliberate performance choice** on both stateless clients: skipping `autoRefreshToken` removes background refresh timers, and `persistSession: false` removes storage I/O.
-- **`server-only` failures are build-time, not runtime.** A mistaken import of `admin.ts` or `public.ts` from a client component fails the build rather than shipping a credential to the browser.
+A custom ESLint rule fires for any file matching `src/app/**/(private)/**/*.tsx` that imports `@/lib/supabase/public`, with the message "Use createClient() in private routes." ([eslint.config.mjs](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/eslint.config.mjs)). The rule is path-based — it detects imports of the wrong module in private route files, not whether user-specific state is rendered.
+
+A second rule in [`eslint.rules.cache.mjs`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/eslint.rules.cache.mjs) warns against legacy cache directives, noting the same effect is achievable with `await createClient()`.
+
+## Failure Modes & Edge Cases
+
+| Failure | Trigger | Result |
+|---------|---------|--------|
+| Missing admin credentials | `SUPABASE_SERVICE_ROLE_KEY` or URL unset at call time | Throws `Error("Missing Supabase admin credentials")` |
+| Missing public credentials | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` unset | `!` assertion passes; surfaces as a Supabase request error |
+| Duplicate server client | `await createClient()` then an auth helper | Two clients, two `cookies()` reads; no crash, but redundant work |
+| Server client inside `withAuthUser` | Calling `createClient()` in a `withAuthUser` handler | Redundant client, contradicts the wrapper contract |
+| Singleton browser client | Module-level `createBrowserClient()` | Shared mutable auth state across renders |
+| Admin or public module in client bundle | Importing `admin.ts` or `public.ts` from a client component | Build error from `import "server-only"` |
+| Public client in private route | Importing `@/lib/supabase/public` in `src/app/**/(private)/**/*.tsx` | ESLint error; route silently loses the dynamic rendering signal |
+| Public client mixed with user-specific state | Any component that reads public client but renders per-user output | No crash; the route prerenders with stale user data |
+
+## Operational Notes
+
+- Do not create clients speculatively. Each `await createClient()` performs cookie reads; React `cache()` in the auth helpers collapses N client needs into one, but only if callers reuse the returned client rather than constructing a second.
+- The admin client bypasses RLS, meaning queries must carry correct filters in application code. This is why the source comment and project guidance both scope it to API routes and say "use sparingly."
+- `createPublicClient()` enables static output. Routes using it exclusively can be prerendered, a build-time and edge-latency win on Cloudflare Workers.
+- `server-only` failures happen at build time, not runtime — a mistaken import fails the build rather than shipping credentials to the browser.
 
 ## Extension Points
 
 | Extension | How | Constraint |
 |-----------|-----|------------|
-| New stateless server client variant | Add a module under `src/lib/supabase/` following the `public.ts` shape | Start with `import "server-only";`; disable session persistence |
-| New authenticated server capability | Add to the server client module or auth helpers rather than a new factory | Must remain cookie-aware so dynamic rendering is preserved |
-| Additional typed schema scope | Change the second generic on `createClient<Database, "public">` | Only `public.ts` currently binds schema generics |
-| New lint guardrail | Add a rule to the ESLint config or `eslint.rules.cache.mjs` | Preserve the existing public-in-private-route prohibition |
+| New stateless server client | Add a module under `src/lib/supabase/` following the `public.ts` shape | Begin with `import "server-only";`; disable session persistence |
+| New authenticated server capability | Extend `server.ts` or auth helpers rather than a new factory | Must remain cookie-aware so dynamic rendering is preserved |
+| New lint guardrail | Add a rule to `eslint.config.mjs` targeting the relevant file pattern | Preserve the existing `(private)`-route prohibition |
 
-The extension point of note is that `public.ts` is the only factory that binds the `Database` type; the admin client does not. Extending admin-side type safety would mean applying the same generic pattern from `public.ts` to `admin.ts`.
+## Related Links
 
-## Related Documentation Links
-
-- Next.js route types and Cloudflare env types: `pnpm typegen`
-- Supabase schema type generation after migrations: `pnpm db:gen`
-- Local Supabase workflow: [docs/supabase-local.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/supabase-local.md)
-- Generated database types: [src/types/supabase.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/supabase.ts)
-- Supabase error normalization: [src/utils/supabase-error.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/supabase-error.ts)
-- Query layer built on these clients: [src/lib/supabase/queries/index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/index.ts)
-- [Article queries](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/articles.ts) — select projections, feeds, content hydration
-- [Post queries](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/posts.ts) — feed selects and permalink read
-- [Category queries](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/categories.ts) and [slug generator](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/generate-unique-slug.ts)
-- [Comment sources](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/comment-sources.ts) — `POST`/`PROJECT`/`ARTICLE_COMMENT_SOURCE`
-- Client pattern source table and reuse rules: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L82-L131)
-
-## Summary
-
-OZEAON V2 treats Supabase client creation as a deliberate architectural boundary rather than a utility. Four factories map onto four privilege/lifecycle models: `createPublicClient()` for stateless, prerenderable public reads; the server `createClient()` for cookie-bound, dynamic, user-scoped access; `createClient()` from `@/lib/supabase/client` for fresh-per-call browser usage; and `createAdminClient()` for explicit, sparing RLS bypass in API routes. The behavioral rules that matter most are the reuse rules — borrow the `supabase` client from `getAuthUserOrRedirect()` or the `withAuthUser` context instead of constructing a second one — and the mixing rule that forbids public or admin clients in any component that renders user-specific state.
+- Auth helper implementations: [`src/lib/supabase/queries/auth.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/auth.ts)
+- Middleware client: [`src/lib/supabase/middleware.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/middleware.ts)
+- Generated database types: [`src/types/supabase.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/supabase.ts)
+- Query layer built on these clients: [Server Actions & Queries](../../api-layer/server-actions-and-queries/)
+- Type system and derivation patterns: [Type System & Generated Types](../type-system/)
+- SSR rendering decisions that follow from client choice: [SSR Rendering & Caching](../ssr-rendering-and-caching/)
+- Middleware session handling: [Middleware & Sessions](../middleware-sessions/)
