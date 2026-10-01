@@ -17,7 +17,7 @@ OZEAON is the web application behind the OZEAON ocean conservation platform. Org
 - **Comments** on posts, projects and articles, and **likes** on posts and comments. See [Comments & Reactions](../../community/comments-and-reactions/).
 - **Search:** name and title search across organisations, projects, articles and people. See [Search & Discovery](../../community/search/).
 - **Automated moderation:** content is checked with the OpenAI moderation API before it publishes. See [Content Moderation Pipeline](../../moderation-and-storage/moderation/).
-- **Founding-member (alpha) badges** for early users and organisations.
+- **Founding-member (alpha) badges** for users and organisations created before the alpha cutoff. See [Founding Member Badges](../../profiles/founding-member-badges/).
 - **UN SDG tagging** on projects and articles.
 
 In progress: notifications (behind the `NEXT_PUBLIC_FEATURE_NOTIFICATIONS` flag), legal pages, and in-feed filters on the article and project feeds.

@@ -88,7 +88,7 @@ A centred `<section>` with an optional icon, a title, an optional description an
 
 ## FoundingMemberBadge
 
-A gradient "Founding Member" pill with a star glyph. User and organisation profiles use different colour palettes; pass `variant="user"` or `variant="organization"`.
+A gradient "Founding Member" pill with a star glyph. User and organisation profiles use different colour palettes; pass `variant="user"` or `variant="organization"`. Whether it shows is decided by `has_alpha_badge`; see [Founding Member Badges](../../../profiles/founding-member-badges/).
 
 **Source:** [src/components/ui/display/FoundingMemberBadge.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/FoundingMemberBadge.tsx)
 

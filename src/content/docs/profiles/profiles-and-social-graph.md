@@ -117,6 +117,8 @@ The other dormant actions in `queries/profile.ts` are `disconnectConnection`, `u
 
 ## Related Links
 
+- [Founding Member Badges](../founding-member-badges/): who gets the alpha badge and when the window closes
+
 - [Media & Images](../../moderation-and-storage/media-and-images/)
 - [Organisation Profiles, Membership & Roles](../../organisations/organisations/)
 - [Posts](../../posts/posts/)
