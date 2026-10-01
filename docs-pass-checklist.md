@@ -16,6 +16,7 @@ Codebase pin: ozeaon-v2 `0a4f1a95`.
 - Every page has a one-sentence `description:` in frontmatter.
 - No boilerplate `## Purpose and Scope`; one short intro paragraph instead.
 - Standard section names: `## Overview`, `## Architecture`, `## Failure Modes & Edge Cases`, `## Operational Notes`, `## Extension Points`, `## Related Links`.
+- Status callouts for unbuilt or in-progress features: Starlight asides (`:::note[...]` for in progress or roadmap, `:::caution[...]` for unwired code), not `>` blockquotes.
 - Citations: inline links in prose, not a `> Source:` blockquote after every snippet.
 - Component catalog entries: `## Name`, 1–3 sentences on purpose and when to use it, one `**Source:**` link. No props tables, `Used in:` lists or `Kind:` lines.
 - Keep the why, architecture, flows, gotchas and conventions. Cut field lists, copied types, function-by-function tables, exhaustive constants and version numbers, and link to the code instead.
@@ -511,9 +512,9 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [ ] FORMAT: `ui/misc.md` L132 still links with the old label "[UI: Forms](../forms/)". → Change it to "[Forms](../forms/)".
 
 ### components/notifications.md
-- [ ] ROADMAP L8–10: The intro doesn't say Notifications is in progress (first release) or that the overlay updates in realtime. `use-notifications.ts` subscribes to channel `notifications-overlay-{userId}`. → Add one sentence: "Notifications is in progress (first release: bell, dropdown, realtime delivery). The dedicated notifications page, settings, grouping and digests are not built yet." Keep the existing `env.features.notifications` gate note.
-- [ ] FORMAT L21: The "**Barrel:**" bullet sits on its own. → Fold it into the intro paragraph.
-- [ ] STALE-DETAIL L23–106: All 3 entries have Kind and Used in lines, a props table and a usage snippet. → Cut each to 1–3 sentences plus **Source:**. Keep these gotchas: "Mark all as read" marks only the loaded batch; the row button and the menu trigger are siblings, not nested; delete is not implemented; the skeleton renders `<li>` items so it must sit in a `<ul>`. About 106 → 45 lines.
+- [x] ROADMAP L8–10: The intro doesn't say Notifications is in progress (first release) or that the overlay updates in realtime. `use-notifications.ts` subscribes to channel `notifications-overlay-{userId}`. → Add one sentence: "Notifications is in progress (first release: bell, dropdown, realtime delivery). The dedicated notifications page, settings, grouping and digests are not built yet." Keep the existing `env.features.notifications` gate note.
+- [x] FORMAT L21: The "**Barrel:**" bullet sits on its own. → Fold it into the intro paragraph.
+- [x] STALE-DETAIL L23–106: All 3 entries have Kind and Used in lines, a props table and a usage snippet. → Cut each to 1–3 sentences plus **Source:**. Keep these gotchas: "Mark all as read" marks only the loaded batch; the row button and the menu trigger are siblings, not nested; delete is not implemented; the skeleton renders `<li>` items so it must sit in a `<ul>`. About 106 → 45 lines.
 
 ### components/organizations.md
 - [ ] FORMAT L28, 72, 220, 326: Group headings mix styles ("## Feed", "## cards/", "## form/", "## members/"), and entries sit at `###`, including "### steps/IdentityStep". → Use plain group names ("Feed", "Cards", "Forms", "Members") consistently, or flatten to `## ComponentName` as the catalog style requires.
@@ -551,9 +552,9 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [ ] STALE-DETAIL L846–864: The `section-data` export table. → One sentence plus Source. About 951 → 250 lines.
 
 ### components/search.md
-- [ ] ROADMAP L8: Doesn't say how much of Search is built. In code, `/search` and `/api/search` are live and ungated: a name/title match across organizations, projects, articles and people, merged via `searchContent`, with a minimum query length. → Add: "Current search is a basic name/title search across four kinds; full global search across every content type is on the roadmap."
-- [ ] FORMAT L11: The "**Barrel:**" bullet. → Fold it into the intro.
-- [ ] STALE-DETAIL L13–98: All 3 entries have Kind and Used in lines plus props tables. → Cut to 1–3 sentences plus **Source:**. Keep the gotchas: the `Suspense` wrapper is needed for `useSearchParams`; docked mode uses `router.replace` so history doesn't stack; the feed is keyed by `query`. About 98 → 40 lines.
+- [x] ROADMAP L8: Doesn't say how much of Search is built. In code, `/search` and `/api/search` are live and ungated: a name/title match across organizations, projects, articles and people, merged via `searchContent`, with a minimum query length. → Add: "Current search is a basic name/title search across four kinds; full global search across every content type is on the roadmap."
+- [x] FORMAT L11: The "**Barrel:**" bullet. → Fold it into the intro.
+- [x] STALE-DETAIL L13–98: All 3 entries have Kind and Used in lines plus props tables. → Cut to 1–3 sentences plus **Source:**. Keep the gotchas: the `Suspense` wrapper is needed for `useSearchParams`; docked mode uses `router.replace` so history doesn't stack; the feed is keyed by `query`. About 98 → 40 lines.
 
 ### components/shadcn.md
 - [ ] FORMAT: This page overlaps `design-system/ui-primitives.md` ("Shared UI Primitives & shadcn Components"). → Add a cross-link, and make one page own each topic.
@@ -575,10 +576,10 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [ ] STALE-DETAIL L49–441: Args table (16 rows), registry members table, `ImageAttrs` table, extension option tables, selectors table, api/render/validation function tables, types shape table, Kind and Used in lines. → Remove them all (they're in the editor/ pages and the code). Keep the why: `immediatelyRender: false`; files live in an IndexedDB registry because node attrs can't hold `File`; `flush(routeOverride)` for records created after mount; an image node is removed only after the server delete succeeds. About 441 → 90 lines.
 
 ### components/users.md
-- [ ] ROADMAP L209 (ListHeader "followers and following") and L94 (Used in: `ConnectionRequestCard`): These reference the disconnected connections/follow code without saying so. → Add "(no call sites; follow/connection lists are not wired up, see the roadmap)".
-- [ ] FORMAT L10: The "Barrel:" paragraph. → Shorten it to one clause in the intro.
-- [ ] FORMAT: "Organization" is capitalized in prose. → Make it lowercase.
-- [ ] STALE-DETAIL L12–219: All 10 entries have Kind and Used in lines plus props tables. → Cut to 1–3 sentences plus **Source:**. Keep: deterministic initials colour from a hash of the name; the AuthorByline fallback order; `last:sr-only` on the divider; the whole-card overlay link with a raised button in `UserGridCard`; `ListHeader`'s back link has no accessible label. About 219 → 70 lines.
+- [x] ROADMAP L209 (ListHeader "followers and following") and L94 (Used in: `ConnectionRequestCard`): These reference the disconnected connections/follow code without saying so. → Add "(no call sites; follow/connection lists are not wired up, see the roadmap)".
+- [x] FORMAT L10: The "Barrel:" paragraph. → Shorten it to one clause in the intro.
+- [x] FORMAT: "Organization" is capitalized in prose. → Make it lowercase.
+- [x] STALE-DETAIL L12–219: All 10 entries have Kind and Used in lines plus props tables. → Cut to 1–3 sentences plus **Source:**. Keep: deterministic initials colour from a hash of the name; the AuthorByline fallback order; `last:sr-only` on the divider; the whole-card overlay link with a raised button in `UserGridCard`; `ListHeader`'s back link has no accessible label. About 219 → 70 lines.
 
 ### components/ui/actions.md
 - [ ] FORMAT L138–140: The "## index.ts" barrel entry is a catalog heading. → Fold it into the intro ("Import from `@/components/ui/actions`"; already said at L8) and delete the section. The same applies to cards, comments and errors.
