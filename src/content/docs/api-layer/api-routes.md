@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-The API surface of ozeaon-v2 is a file-system-routed set of Next.js route handlers under [`src/app/api`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api). Each `route.ts` file exports HTTP method functions; there is no central router. This page covers the two handler patterns, the route families and their status, and the conventions for validation, authorization, and responses that apply across the tree.
+The API surface of OZEAON is a file-system-routed set of Next.js route handlers under [`src/app/api`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api). Each `route.ts` file exports HTTP method functions; there is no central router. This page covers the two handler patterns, the route families and their status, and the conventions for validation, authorization, and responses that apply across the tree.
 
 ## Overview
 

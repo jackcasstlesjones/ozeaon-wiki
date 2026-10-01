@@ -20,7 +20,7 @@ The history falls into a few eras. Read the files themselves for detail. The hea
 
 | Era | What changed |
 | --- | --- |
-| Feb–Apr 2026: V2 foundation | Remote-schema import, the `ozeaondb_v2` tables and RLS, lookup seeding, the article schema, project child tables, and the first `fix_*` hardening pair. See [Data Model & Database Schema](../../architecture/data-model-and-schema/). |
+| Feb–Apr 2026: foundation | Remote-schema import, the `ozeaondb_v2` tables and RLS, lookup seeding, the article schema, project child tables, and the first `fix_*` hardening pair. See [Data Model & Database Schema](../../architecture/data-model-and-schema/). |
 | Late Apr–May: organizations | The org MVP schema, the per-operation permissions matrix, in-app (non-email) invites, and member triggers |
 | May: security wave | Linter clean-up, `REVOKE … FROM PUBLIC`, dropping `pg_graphql`, and moving RLS helpers into a `private` schema |
 | May–Jul: content plumbing | `article_images`/`article_documents` replacing `article_attachments`, `ON DELETE SET NULL` image FKs, engagement scores and profile fields |

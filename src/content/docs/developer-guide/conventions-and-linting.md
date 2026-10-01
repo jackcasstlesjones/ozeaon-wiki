@@ -1,6 +1,6 @@
 ---
 title: "Conventions & Linting"
-description: "How ESLint, Prettier, and custom rule modules enforce architectural invariants in OZEAON V2."
+description: "How ESLint, Prettier, and custom rule modules enforce architectural invariants in OZEAON."
 sidebar:
   order: 1
 ---

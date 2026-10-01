@@ -1,11 +1,11 @@
 ---
 title: "Project Overview"
-description: What OZEAON V2 is, what it does today, what is planned, and how the codebase is put together.
+description: What OZEAON is, what it does today, what is planned, and how the codebase is put together.
 sidebar:
   order: 1
 ---
 
-OZEAON V2 is the web application behind the OZEAON ocean conservation platform. Organizations, projects and individuals publish and discuss conservation work in one place. It is a single Next.js App Router app running on Cloudflare Workers, with Supabase for data and auth, and Cloudflare R2 for files.
+OZEAON is the web application behind the OZEAON ocean conservation platform. Organizations, projects and individuals publish and discuss conservation work in one place. It is a single Next.js App Router app running on Cloudflare Workers, with Supabase for data and auth, and Cloudflare R2 for files.
 
 ## Features
 

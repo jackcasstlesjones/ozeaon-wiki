@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-ozeaon-v2 is a Next.js App Router app that runs on Cloudflare Workers through the OpenNext adapter. This page explains how a route ends up prerendered or dynamic, why the Next.js Cache Components model is switched off, what the OpenNext adapter is (and is not) configured to cache, and which HTTP headers the app sets.
+OZEAON is a Next.js App Router app that runs on Cloudflare Workers through the OpenNext adapter. This page explains how a route ends up prerendered or dynamic, why the Next.js Cache Components model is switched off, what the OpenNext adapter is (and is not) configured to cache, and which HTTP headers the app sets.
 
 ## Overview
 

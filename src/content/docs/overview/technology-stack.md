@@ -1,11 +1,11 @@
 ---
 title: "Technology Stack & Scripts"
-description: What OZEAON V2 is built with, why the build is set up the way it is, and what the pnpm scripts are for.
+description: What OZEAON is built with, why the build is set up the way it is, and what the pnpm scripts are for.
 sidebar:
   order: 3
 ---
 
-OZEAON V2 is a single Next.js App Router application in TypeScript, deployed to Cloudflare Workers through OpenNext and backed by Supabase. Exact versions live in [`package.json`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/package.json). This page covers the choices that matter when you work in the code.
+OZEAON is a single Next.js App Router application in TypeScript, deployed to Cloudflare Workers through OpenNext and backed by Supabase. Exact versions live in [`package.json`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/package.json). This page covers the choices that matter when you work in the code.
 
 ## Overview
 

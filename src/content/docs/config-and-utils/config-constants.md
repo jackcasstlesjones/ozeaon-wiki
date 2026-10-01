@@ -1,6 +1,6 @@
 ---
 title: "Environment & Configuration Constants"
-description: "Type-safe environment-variable aggregation and shared application constants for ozeaon-v2."
+description: "Type-safe environment-variable aggregation and shared application constants for OZEAON."
 sidebar:
   order: 1
 ---

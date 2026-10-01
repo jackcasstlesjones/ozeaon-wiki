@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-OZEAON V2 exposes four distinct Supabase client factories — server, browser, admin, and public — each with a different authorization model, runtime target, and rendering consequence. The choice of factory is architectural: it determines whether a route renders statically or dynamically, and whether data access is scoped by row-level security.
+OZEAON exposes four distinct Supabase client factories — server, browser, admin, and public — each with a different authorization model, runtime target, and rendering consequence. The choice of factory is architectural: it determines whether a route renders statically or dynamically, and whether data access is scoped by row-level security.
 
 ## Overview
 

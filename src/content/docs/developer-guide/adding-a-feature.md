@@ -1,11 +1,11 @@
 ---
 title: "Adding a Feature End-to-End"
-description: "Convention-driven walkthrough for designing, implementing, and shipping a new feature in OZEAON V2."
+description: "Convention-driven walkthrough for designing, implementing, and shipping a new feature in OZEAON."
 sidebar:
   order: 2
 ---
 
-A practical walkthrough of how a new feature is designed, implemented, type-checked, reviewed, and shipped in OZEAON V2. Because the stack is convention-heavy, adding a feature is less about inventing new patterns and more about fitting into existing ones — correct client selection, derived types, ownership-scoped mutations, and CI-gated deploys.
+A practical walkthrough of how a new feature is designed, implemented, type-checked, reviewed, and shipped in OZEAON. Because the stack is convention-heavy, adding a feature is less about inventing new patterns and more about fitting into existing ones — correct client selection, derived types, ownership-scoped mutations, and CI-gated deploys.
 
 ## Overview
 

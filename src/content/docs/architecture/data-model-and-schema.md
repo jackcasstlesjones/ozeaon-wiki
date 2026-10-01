@@ -5,7 +5,7 @@ sidebar:
   order: 5
 ---
 
-The Ozeaon V2 data model is a PostgreSQL schema hosted on Supabase, evolved through a linear series of versioned SQL migrations under [`supabase/migrations/`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations). It defines the platform's content, identity, membership and lookup entities, plus placeholder tables for roadmap features. This page covers the V2 foundation migrations and the conventions they establish; see [Migrations & Seeding](../../operations/migrations-and-seeding/) and [`docs/db/schema.sql`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/db/schema.sql) for the full 80-migration chain and the current 113-table state.
+The OZEAON data model is a PostgreSQL schema hosted on Supabase, evolved through a linear series of versioned SQL migrations under [`supabase/migrations/`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations). It defines the platform's content, identity, membership and lookup entities, plus placeholder tables for roadmap features. This page covers the foundation migrations and the conventions they establish; see [Migrations & Seeding](../../operations/migrations-and-seeding/) and [`docs/db/schema.sql`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/db/schema.sql) for the full 80-migration chain and the current 113-table state.
 
 ## Overview
 
@@ -32,7 +32,7 @@ The schema is best understood as a set of layered entity families, all rooted in
 flowchart TD
     subgraph sg_Migrations["Migration Chain (supabase/migrations)"]
         M1["remote_schema (baseline dumps)"]
-        M2["ozeaondb_v2_tables<br/>core V2 tables + enums"]
+        M2["ozeaondb_v2_tables<br/>core tables + enums"]
         M3["ozeaondb_v2_rls<br/>RLS policies"]
         M4["seed_lookup_tables<br/>taxonomy seeds"]
         M5["articles_full_schema<br/>articles expansion"]
@@ -78,7 +78,7 @@ Lookup tables are leaves that content entities reference by FK. Content entities
 
 ## Migration-Based Schema Evolution
 
-### The V2 Cutover Migration
+### The Schema Cutover Migration
 
 The pivot point is [`20260310232125_ozeaondb_v2_tables.sql`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260310232125_ozeaondb_v2_tables.sql). It runs inside a single transaction so that any failure rolls back the whole change set:
 
@@ -90,11 +90,11 @@ The migration proceeds in order: **drop stale triggers/functions → drop legacy
 
 ### Enums vs. Lookup Tables
 
-Values that are *state* (e.g., invite lifecycle) are modelled as native Postgres enums because the set is closed and referential checks are free. The V2 cutover introduces `image_mime_type`, `invite_status`, `request_status`, `connection_status`, `referral_status`, `vote_choice`, and `visibility_type`. Values that are *taxonomy* (article types, resource categories) are modelled as lookup tables because they are user-facing, extendable, and carry metadata such as `icon` and `description`.
+Values that are *state* (e.g., invite lifecycle) are modelled as native Postgres enums because the set is closed and referential checks are free. The schema cutover introduces `image_mime_type`, `invite_status`, `request_status`, `connection_status`, `referral_status`, `vote_choice`, and `visibility_type`. Values that are *taxonomy* (article types, resource categories) are modelled as lookup tables because they are user-facing, extendable, and carry metadata such as `icon` and `description`.
 
 ### Lookup Table Shape
 
-All V2 lookup tables follow an identical skeleton:
+All lookup tables follow an identical skeleton:
 
 ```sql
 CREATE TABLE public.proposal_types (
@@ -207,7 +207,7 @@ The schema contains placeholder tables for features that are on the roadmap but 
 | Primary keys | `uuid` with `DEFAULT gen_random_uuid()` |
 | Timestamps | `timestamptz NOT NULL DEFAULT now()` |
 | `updated_at` | `BEFORE UPDATE` trigger calling `public.update_updated_at()` |
-| Lookup shape (V2) | `id`, `slug`, `name`, `description`, `sort_order`, `created_at` |
+| Lookup shape | `id`, `slug`, `name`, `description`, `sort_order`, `created_at` |
 | Lookup shape (articles) | `id`, `code`, `name`, `description`, `sort_order smallint`, `created_at` |
 | Child FK delete rule | `ON DELETE CASCADE` |
 | Ownership expression | `parent.created_by = auth.uid()` (projects) / `parent.author_id = auth.uid()` (articles) |
@@ -216,7 +216,7 @@ The schema contains placeholder tables for features that are on the roadmap but 
 ## Failure Modes & Edge Cases
 
 - **Migration ordering hazards.** Dependent tables must be dropped before their parents; triggers/functions referencing dropped columns must be removed first. `resource_subcategories` resolves parent ids by slug subquery — if `resource_categories` isn't seeded first, the FK insert fails with a NULL violation.
-- **Idempotency pitfalls.** Column renames (e.g. `organization_id` → `linked_organization_id`) are guarded by `information_schema` existence checks; without these a second application raises "column does not exist". `CREATE TABLE` in the V2 cutover uses plain syntax (no `IF NOT EXISTS`) but is protected by the wrapping transaction — it runs exactly once.
+- **Idempotency pitfalls.** Column renames (e.g. `organization_id` → `linked_organization_id`) are guarded by `information_schema` existence checks; without these a second application raises "column does not exist". `CREATE TABLE` in the schema cutover uses plain syntax (no `IF NOT EXISTS`) but is protected by the wrapping transaction — it runs exactly once.
 - **Policy-existence guard.** `CREATE POLICY` has no `IF NOT EXISTS` form in older Postgres versions; migrations wrap policy creation in `IF NOT EXISTS (SELECT 1 FROM pg_policies ...)` blocks.
 - **RLS correctness.** The `article_authors` bug (`user_id` → `author_id`) demonstrates that an incorrect predicate either leaks rows or hides legitimate ones. Owner policies must pair `USING` with `WITH CHECK`; omitting `WITH CHECK` lets an owner write rows for resources they don't own.
 - **Parent-relative child visibility.** A child row without `ON DELETE CASCADE` on its parent FK leaves orphan rows whose policies always evaluate false after the parent is deleted.
@@ -225,7 +225,7 @@ The schema contains placeholder tables for features that are on the roadmap but 
 
 - **RLS policy performance.** The dedicated [`fix_rls_performance`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260420000002_fix_rls_performance.sql) migration exists because nested `EXISTS (SELECT ... FROM parent ...)` predicates in child-table policies were identified as a hotspot. Child-table policies benefit from supporting indexes on parent lookup columns.
 - **Grants breadth.** All three Supabase roles (`anon`, `authenticated`, `service_role`) receive full verb grants on lookup tables. RLS is the sole enforcement boundary — the broad grant is the Supabase default for the `public` schema.
-- **Single-transaction cutover.** The V2 migration wraps the entire restructure in one `BEGIN`/`COMMIT`. The trade-off: a failure rolls back cleanly, but the transaction holds locks for its duration and is intended for controlled application via the Supabase SQL editor or `supabase db push`.
+- **Single-transaction cutover.** The cutover migration wraps the entire restructure in one `BEGIN`/`COMMIT`. The trade-off: a failure rolls back cleanly, but the transaction holds locks for its duration and is intended for controlled application via the Supabase SQL editor or `supabase db push`.
 
 ## Extension Points
 
@@ -236,8 +236,8 @@ The schema contains placeholder tables for features that are on the roadmap but 
 
 ## Related Links
 
-- V2 core tables and enums: [20260310232125_ozeaondb_v2_tables.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260310232125_ozeaondb_v2_tables.sql)
-- V2 RLS policies: [20260311112434_ozeaondb_v2_rls.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260311112434_ozeaondb_v2_rls.sql)
+- Core tables and enums: [20260310232125_ozeaondb_v2_tables.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260310232125_ozeaondb_v2_tables.sql)
+- RLS policies: [20260311112434_ozeaondb_v2_rls.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260311112434_ozeaondb_v2_rls.sql)
 - Lookup taxonomy seeds: [20260325000000_seed_lookup_tables.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260325000000_seed_lookup_tables.sql)
 - Articles full schema: [20260328000000_articles_full_schema.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260328000000_articles_full_schema.sql)
 - Project content migrations: [supabase/migrations/](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations)

@@ -1,11 +1,11 @@
 ---
 title: "CI/CD Workflows"
-description: "How GitHub Actions, Cloudflare Workers and Supabase branching combine to build, preview and ship every change to ozeaon-v2."
+description: "How GitHub Actions, Cloudflare Workers and Supabase branching combine to build, preview and ship every change to OZEAON."
 sidebar:
   order: 3
 ---
 
-The ozeaon-v2 pipeline is built around three ideas: every pull request into `main` gets its own Cloudflare Worker and its own Supabase database branch; schema changes ship with the code that needs them; and preview environments are seeded from a committed fixture rather than a real-data dump.
+The OZEAON pipeline is built around three ideas: every pull request into `main` gets its own Cloudflare Worker and its own Supabase database branch; schema changes ship with the code that needs them; and preview environments are seeded from a committed fixture rather than a real-data dump.
 
 ## Overview
 

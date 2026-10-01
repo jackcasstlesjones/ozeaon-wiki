@@ -1,11 +1,11 @@
 ---
 title: "Server Actions & Queries"
-description: "How ozeaon-v2 organizes server-side data access: Supabase client factories, server action modules, and query helpers."
+description: "How OZEAON organizes server-side data access: Supabase client factories, server action modules, and query helpers."
 sidebar:
   order: 2
 ---
 
-ozeaon-v2 splits all server-side data access into two concerns: a set of small Supabase client factories that select the right client for each execution context, and access modules that use those clients to read or write domain data. This page covers the factories, the `"use server"` action modules and their conventions, the query helpers, and the shared utilities (comment factories, block helpers) that route handlers and components call into.
+OZEAON splits all server-side data access into two concerns: a set of small Supabase client factories that select the right client for each execution context, and access modules that use those clients to read or write domain data. This page covers the factories, the `"use server"` action modules and their conventions, the query helpers, and the shared utilities (comment factories, block helpers) that route handlers and components call into.
 
 ## Overview
 
