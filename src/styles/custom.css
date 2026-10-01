@@ -11,3 +11,9 @@
 	--sl-color-accent: #4c647e;
 	--sl-color-accent-high: #2c3b4b;
 }
+
+/* Keep the landing-page hero logo modest instead of the default 400px. */
+.hero img {
+	width: min(10rem, 40vw);
+	height: auto;
+}
