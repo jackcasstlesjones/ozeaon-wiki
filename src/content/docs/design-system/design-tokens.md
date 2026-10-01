@@ -29,7 +29,7 @@ flowchart LR
 
 **Adding a token requires two edits.** Declare it in `:root` and then re-export it in `@theme inline`. Declaring only in `:root` gives a working `var()` but no Tailwind class; declaring only in `@theme inline` produces a broken reference.
 
-### Naming conventions
+### Naming Conventions
 
 Two conventions produce otherwise-surprising class names:
 
@@ -48,7 +48,7 @@ The two link colors are not interchangeable:
 
 The `@theme inline` comment states the rule: *"text-brand (green, brand action) ≠ text-text-link (gray, body link text)"*.
 
-### Globals structure
+### Globals Structure
 
 `globals.css` imports the subsidiary stylesheets, making them available everywhere:
 
@@ -62,7 +62,7 @@ The `@theme inline` comment states the rule: *"text-brand (green, brand action) 
 
 `source("../../src/")` limits Tailwind's class detection to `src/`, keeping the build fast.
 
-### Token layers in detail
+### Token Layers in Detail
 
 **Layer 1 — Primitives** (`--gray-0`…`--gray-1000`, `--green-*`, `--red-*`, `--amber-*`, `--indigo-*`, `--ink-*`, category and accent primitives). The `Ink` family is kept separate from the gray scale because its values carry no blue tint — icons use it to match Figma's `fill_icon`, `Duotone`, and `Line_icon` roles.
 
