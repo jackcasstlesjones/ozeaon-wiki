@@ -1,14 +1,14 @@
 ---
 title: "Search & Discovery"
-description: "Keyword search across organisations, projects, articles and people, built on the existing feed queries."
+description: "Keyword search across organizations, projects, articles and people, built on the existing feed queries."
 sidebar:
   order: 10
 ---
 
-Search on Ozeaon is a keyword match by name or title over four kinds of entity: organisations, projects, articles and people. It has no search index. Each kind is matched with an `ilike` query that returns only ids and a date. The matches are merged newest-first and sliced to the requested page, and the surviving ids are then hydrated through the same feed queries that power the public feeds. Search results therefore render with the same cards as the feeds.
+Search on Ozeaon is a keyword match by name or title over four kinds of entity: organizations, projects, articles and people. It has no search index. Each kind is matched with an `ilike` query that returns only ids and a date. The matches are merged newest-first and sliced to the requested page, and the surviving ids are then hydrated through the same feed queries that power the public feeds. Search results therefore render with the same cards as the feeds.
 
 :::note[Roadmap status]
-What has shipped is keyword search at `/search` over organisation **name**, project **title**, article **title** and a profile's **display name or username**. Projects and articles also match when their owner or author matches the people query. It is not behind a feature flag. Posts, comments, body text, tags, SDGs, events and resources are not searched, and there is no relevance ranking. The roadmap's global search across every content type is still **planned**.
+What has shipped is keyword search at `/search` over organization **name**, project **title**, article **title** and a profile's **display name or username**. Projects and articles also match when their owner or author matches the people query. It is not behind a feature flag. Posts, comments, body text, tags, SDGs, events and resources are not searched, and there is no relevance ranking. The roadmap's global search across every content type is still **planned**.
 :::
 
 ## Overview
@@ -49,7 +49,7 @@ if (trimmed.length < SEARCH_MIN_QUERY_LENGTH) return [];
 
 The term is then double-quoted, with any embedded `"` escaped, before it goes into a PostgREST `or()` list. Without the quoting, a term containing `,`, `(` or `)` would break the filter grammar.
 
-People are matched first, on `display_name` or `username`, because their ids also let projects (`owner_id`) and articles (`author_id`) match by author. This people query is limited to `SEARCH_AUTHOR_MATCH_CAP` rather than to the current page, so the author set is the same on every page. Organisations, projects and articles are then matched in parallel. Each query selects only `id` and its own date aliased to `sorted_at`: `created_at` for organisations and people, and `published_at` for projects and articles. Projects and articles must also have `published = true`.
+People are matched first, on `display_name` or `username`, because their ids also let projects (`owner_id`) and articles (`author_id`) match by author. This people query is limited to `SEARCH_AUTHOR_MATCH_CAP` rather than to the current page, so the author set is the same on every page. Organizations, projects and articles are then matched in parallel. Each query selects only `id` and its own date aliased to `sorted_at`: `created_at` for organizations and people, and `published_at` for projects and articles. Projects and articles must also have `published = true`.
 
 ### Merge and Slice
 

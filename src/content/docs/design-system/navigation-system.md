@@ -70,7 +70,7 @@ Contents:
 
 ## DashboardSidebar
 
-`DashboardSidebar` ([`src/components/nav/DashboardSidebar.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/DashboardSidebar.tsx)) renders on settings routes inside `SidebarShell`. It has its own `CREATE_LINKS` constant (Article, Project, Organisation) and shows account-type-specific settings links. The organisation variant has a `DropdownMenuContent` for the Create button that is hardcoded via `CREATE_LINKS` — the `useCreateAction` abstraction described in the spec is not implemented.
+`DashboardSidebar` ([`src/components/nav/DashboardSidebar.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/DashboardSidebar.tsx)) renders on settings routes inside `SidebarShell`. It has its own `CREATE_LINKS` constant (Article, Project, Organisation) and shows account-type-specific settings links. The organization variant has a `DropdownMenuContent` for the Create button that is hardcoded via `CREATE_LINKS` — the `useCreateAction` abstraction described in the spec is not implemented.
 
 ## NavSlotContext
 
