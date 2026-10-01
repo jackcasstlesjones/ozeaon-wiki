@@ -130,7 +130,7 @@ flowchart TD
 
 The most consequential pattern is *not creating* a server client when one has already been created for the request.
 
-### Rule 1 — Reuse the client returned by auth helpers
+### Rule 1 — Reuse the Client Returned by Auth Helpers
 
 `getAuthUser()` and `getAuthUserOrRedirect()` live in [`src/lib/supabase/queries/auth.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/auth.ts) and are wrapped in React `cache()`, so they return the same client instance on every call within a request. Reuse it:
 
@@ -143,7 +143,7 @@ const { user } = await getAuthUserOrRedirect();
 const { user, supabase } = await getAuthUserOrRedirect();
 ```
 
-### Rule 2 — Reuse the client injected by `withAuthUser`
+### Rule 2 — Reuse the Client Injected by `withAuthUser`
 
 Route handlers wrapped in `withAuthUser` receive `{ user, supabase }` through `ctx`. Never call `createClient()` inside a `withAuthUser` handler:
 
@@ -154,7 +154,7 @@ export const POST = withAuthUser(async (req, { user, supabase }) => {
 });
 ```
 
-### Rule 3 — Never cache a browser client globally
+### Rule 3 — Never Cache a Browser Client Globally
 
 The browser client is the exception to the reuse rule: call `createBrowserClient()` fresh per component render. A module-level singleton shares mutable auth state across renders.
 

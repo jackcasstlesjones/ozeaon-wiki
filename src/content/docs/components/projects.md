@@ -155,13 +155,13 @@ Section 5: a drag-sortable list of content sections built from the system sectio
 
 **Source:** [src/components/projects/form/steps/ContentSection.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/projects/form/steps/ContentSection.tsx)
 
-### TeamSection (form step)
+### TeamSection (Form Step)
 
 Section 6: a repeatable list of `TeamMemberCard`s. Selecting a linked user copies their name, bio and role descriptor into the form. Each card receives the other members' user IDs as `excludeUserIds` so the same user can't appear twice.
 
 **Source:** [src/components/projects/form/steps/TeamSection.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/projects/form/steps/TeamSection.tsx)
 
-### DocumentsSection (form step)
+### DocumentsSection (Form Step)
 
 Section 7: a document dropzone and the list of uploaded project documents. The dropzone accepts `multiple`, but only the first dropped file is uploaded. Deletion is optimistic and restores the item on failure.
 
@@ -185,7 +185,7 @@ Section 10: a combined article/project search. Queries wait until at least 3 cha
 
 **Source:** [src/components/projects/form/steps/RelatedSection.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/projects/form/steps/RelatedSection.tsx)
 
-### CommentsSection (form step)
+### CommentsSection (Form Step)
 
 Section 11: a single `InputBoolean` bound to `comments_enabled`. Shared with the article form.
 
@@ -269,7 +269,7 @@ Not a component. A module of pure helpers that all page sections and the sidebar
 
 **Source:** [src/components/projects/page/sections/ProposalSection.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/projects/page/sections/ProposalSection.tsx)
 
-### TeamSection (page section)
+### TeamSection (Page Section)
 
 "Team" heading and a one- or two-column grid of `UserCard`s with each member's role and bio. Returns `null` when the team is empty. **Anchor:** `section-team`.
 
@@ -281,7 +281,7 @@ A static "Funding Rounds & Rewards" placeholder with a "Coming Soon" badge. Proj
 
 **Source:** [src/components/projects/page/sections/FundingSection.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/projects/page/sections/FundingSection.tsx)
 
-### DocumentsSection (page section)
+### DocumentsSection (Page Section)
 
 "Documents" heading and a downloadable grid of `AttachedItemCard`s. The title is `document.title ?? document.filename`; the download link comes from `getImageUrlFromKey(document.path)`. Returns `null` when there are no documents. **Anchor:** `section-documents`.
 
@@ -299,7 +299,7 @@ A "Related Content" `CarouselSection` mixing `CondensedProjectCard` and `Condens
 
 **Source:** [src/components/projects/page/sections/RelatedContentSection.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/projects/page/sections/RelatedContentSection.tsx)
 
-### CommentsSection (page section)
+### CommentsSection (Page Section)
 
 "Comments" heading and the `EntityComments` thread for the project. Returns `null` when `shouldHideCommentSection` is true. Not listed in the sidebar's `SECTION_NAV`. **Anchor:** `section-comments`.
 

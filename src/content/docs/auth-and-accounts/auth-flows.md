@@ -23,7 +23,7 @@ Google sign-in exists as [`src/components/auth/GoogleSignIn.tsx`](https://github
 
 ## Architecture
 
-### Server actions
+### Server Actions
 
 All auth flows are server actions. The key ones:
 
@@ -36,7 +36,7 @@ All auth flows are server actions. The key ones:
 - **`resendVerificationEmail`** — calls `supabase.auth.resend` for `signup` or `email_change` types.
 - **`signOut`** — clears `password_reset_pending` if set, signs out, calls `clearActiveAccount`, and redirects to `/`.
 
-### /auth/confirm callback
+### /auth/confirm Callback
 
 [`src/app/(auth)/auth/confirm/route.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(auth)/auth/confirm/route.ts) is the GET route that Supabase links point to when email links are used (as opposed to in-app OTP). It handles three cases in order:
 
@@ -60,11 +60,11 @@ flowchart TD
   G -->|no| C
 ```
 
-### /auth/error page
+### /auth/error Page
 
 [`src/app/auth/error/page.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/auth/error/page.tsx) reads only the `message` search param and shows a static "Link is invalid or has expired" heading with a default fallback message. It lives outside the `(auth)` route group. An `AuthError` component on `(main)/error` handles runtime errors and reads `code`; these are separate.
 
-### Route gating
+### Route Gating
 
 `authorizeUser()` in [`src/lib/supabase/auth.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/auth.ts) calls `supabase.auth.getUser()` and redirects to `/login`. It exists in the codebase but has no callers — it is dead code.
 
@@ -72,7 +72,7 @@ The real guard is `getAuthUserOrRedirect()` in [`src/lib/supabase/queries/auth.t
 
 Feed, reader, and profile routes in `(main)/(feed)/(public)` and `(main)/(profile)` are public — they do not call `getAuthUserOrRedirect`. Some inner pages in `(feed)/(private)` call it directly.
 
-### Password-reset guard
+### Password-reset Guard
 
 The middleware (`src/middleware.ts`) runs `getClaims()` on every request. If `user_metadata.password_reset_pending` is set, the middleware calls `getUser()` and redirects any route except `/reset-password` and `/auth/signout` to `/reset-password`. This prevents a user who requested a password reset from navigating away before completing it.
 

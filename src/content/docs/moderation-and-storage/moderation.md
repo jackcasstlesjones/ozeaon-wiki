@@ -20,13 +20,13 @@ The moderation system has two entry points:
 
 ## Architecture
 
-### Two calling shapes
+### Two Calling Shapes
 
 `moderateSubmission` accepts either plain text inputs (batched as a single array call to the OpenAI endpoint) or an image (converted to a base64 data URL and sent as an image part). Both paths use the same retry loop and produce the same `ModerationCheck` shape.
 
 The retry condition: transient upstream errors (rate limit, timeout, network) are retried; authentication errors and malformed responses are not. The batch call is atomic — if any item in the batch fails, the whole batch is treated as failed.
 
-### Surfaces & callers
+### Surfaces & Callers
 
 The `moderation_surface` enum covers seven values: `project`, `article`, `post`, `post_comment`, `project_comment`, `article_comment`, `profile`. All organization creates and updates also use the `profile` surface (there is no separate `organization` value in the enum).
 
@@ -42,7 +42,7 @@ Active callers of `moderateAndLog`:
 
 Image moderation is used by article and project image upload routes.
 
-### Database schema
+### Database Schema
 
 The log has three tables:
 

@@ -46,17 +46,17 @@ flowchart TD
 
 Both hooks translate the reactive account scope (from `useActiveAccount`) into a concrete `scopeOrgId` via `notificationScopeOrgId`, then call the query layer. Realtime callbacks do not carry data into state — they trigger a re-read.
 
-### Account scoping
+### Account Scoping
 
 Every read is scoped to the account the user is currently acting as. `null` means the individual-account copy; a UUID means an organization account. The two branches (`.eq("recipient_org_id", scopeOrgId)` vs `.is("recipient_org_id", null)`) can never overlap.
 
 Scoping is **display-only**. The real security boundary is the `recipient_user_id` RLS predicate on the base table, because the acting-as cookie is unsigned.
 
-### Why scope is held in a ref
+### Why Scope Is Held in a Ref
 
 Both hooks keep the current scope in a `useRef`. The realtime callback must read the *current* scope without the subscription tearing down and rebuilding on every account switch. If `scopeOrgId` were a subscription dependency, switching accounts would drop and re-establish the WebSocket channel unnecessarily. The ref is synced in a separate effect declared before the load effect, so it is current by the time the load reads it.
 
-### Realtime channels
+### Realtime Channels
 
 The bell subscribes to `INSERT`, `UPDATE` and `DELETE` on channel `notifications-{userId}`, always. The overlay subscribes to all events on `notifications-overlay-{userId}`, only while open. Both use the filter `recipient_user_id=eq.{userId}` — Realtime permits only one filter per subscription, so account scope is resolved client-side. A row addressed to another of the user's accounts arrives and is discarded without touching state.
 
@@ -66,7 +66,7 @@ Deletes always trigger a re-read regardless of scope, because the table has `REP
 
 `markNotificationsRead` uses `.eq("recipient_user_id", userId).is("read_at", null)` — you can only mark your own unread rows. The hook drops rows from local state optimistically before the write lands, then schedules a re-read to settle the list. There is no rollback: if the write fails, a `toast.error` is shown and the re-read restores the rows.
 
-### Read path
+### Read Path
 
 The overlay list reads up to `NOTIFICATION_BATCH_SIZE` rows from `v_notifications` (which joins the destination path), ordered by `last_event_at DESC` (index-backed). The count query uses `head: true, count: "exact"` and never transfers rows. Because every view column is nullable to the type system, `toListItem` filters out rows missing `id`, `type`, `actor_name` or `last_event_at`; `event_count` defaults to 1 for ungrouped rows.
 

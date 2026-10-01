@@ -20,13 +20,13 @@ Sign-up confirmation goes through Supabase Auth (`supabase.auth.signUp`), not Re
 
 ## Architecture
 
-### Resend client
+### Resend Client
 
 The Resend client in [`src/lib/email/client.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts) calls the Resend REST API directly with `fetch`. It reads `RESEND_API_KEY` and `RESEND_SENDER_EMAIL` from `env.ts`. The `EMAIL_TEMPLATES` registry maps template names to Resend template UUIDs for `sendTemplateEmail`, though no template sends are called in production today.
 
 Failures throw `EmailError`. Both live callers use `.catch()` to log failures without blocking the user-facing action.
 
-### Mailchimp audience client
+### Mailchimp Audience Client
 
 [`src/lib/marketing/mailchimp.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/marketing/mailchimp.ts) calls the Mailchimp Marketing API v3 endpoint `POST /lists/{audienceId}/members`. The datacenter is derived from the key suffix (everything after the last `-` in `MAILCHIMP_API_KEY`). The request always sets status `pending` so Mailchimp sends its own opt-in email. A `Member Exists` error is treated as a no-op. The call has a 5-second timeout. Missing keys cause fail-fast at startup rather than a runtime error.
 

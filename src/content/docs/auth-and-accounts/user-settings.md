@@ -22,24 +22,24 @@ Three separate concern areas are handled by different actions:
 
 ## Architecture
 
-### Profile settings form
+### Profile Settings Form
 
 `updateProfileSettings` ([`src/app/(main)/(feed)/(private)/account/actions.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(feed)/(private)/account/actions.ts)) validates input against `profileSettingsSchema` (Zod), runs the bio through the moderation gate (`moderateField`), upserts `user_profiles`, then reconciles `user_links` by deleting stale rows and upserting the current list. The moderation gate runs before any database writes; a rejection returns the flagged categories so the UI can display them.
 
 The link reconciliation deletes all `user_links` rows that are not in the submitted `id` set before upserting, which means an empty submission clears all links. New links have no `id` and get a generated one on insert.
 
-### Email change
+### Email Change
 
 Email change is a two-step OTP flow handled in [`src/app/(main)/(dashboard)/settings/actions.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/settings/actions.ts):
 
 1. `initiateEmailChange(newEmail)` — calls `supabase.auth.updateUser({ email })`, which triggers Supabase to send an OTP to the new address.
 2. `verifyEmailChange(newEmail, token)` — calls `supabase.auth.verifyOtp` with type `email_change`. After verification it checks that `data.user.email` actually moved to the new address — under Supabase's `double_confirm_changes` setting the OTP can be accepted without the change taking effect until a second confirmation arrives in the old mailbox. If the address hasn't moved, `verifyEmailChange` returns an explanatory error instead of a false success. On a confirmed change, a security notice email is sent to the previous address.
 
-### Password change
+### Password Change
 
 `changePassword(currentPassword, newPassword)` re-authenticates with `signInWithPassword` to verify the current password before calling `supabase.auth.updateUser`. If the current password is wrong it returns a `"current_password_incorrect"` code for the UI to handle. On success it calls `supabase.auth.signOut({ scope: "others" })` to invalidate other active sessions.
 
-### Privacy settings (roadmap)
+### Privacy Settings (Roadmap)
 
 The `user_settings` table has `privacy` and `public_profile` columns. Only the profile layout at [`src/app/(main)/(profile)/profiles/[username]/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(profile)/profiles/[username]/layout.tsx) reads these — it filters the query to profiles where `public_profile = true` and `privacy = "public"`. The `/api/user-settings` route exists but has no UI callers. A settings UI for privacy is planned and not yet built.
 

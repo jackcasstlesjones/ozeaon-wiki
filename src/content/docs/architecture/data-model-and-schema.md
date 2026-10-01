@@ -78,7 +78,7 @@ Lookup tables are leaves that content entities reference by FK. Content entities
 
 ## Migration-Based Schema Evolution
 
-### The V2 cutover migration
+### The V2 Cutover Migration
 
 The pivot point is [`20260310232125_ozeaondb_v2_tables.sql`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260310232125_ozeaondb_v2_tables.sql). It runs inside a single transaction so that any failure rolls back the whole change set:
 
@@ -88,11 +88,11 @@ BEGIN;
 
 The migration proceeds in order: **drop stale triggers/functions → drop legacy tables → create enums → create lookup tables → create core tables.** The ordering is load-bearing: triggers referencing soon-to-be-dropped columns must go first, and dependent tables before their parents. This step retires the legacy tutorial and social subsystems (`activities`, `reactions`, `comments`, `bookmarks`) and their junction tables.
 
-### Enums vs. lookup tables
+### Enums vs. Lookup Tables
 
 Values that are *state* (e.g., invite lifecycle) are modelled as native Postgres enums because the set is closed and referential checks are free. The V2 cutover introduces `image_mime_type`, `invite_status`, `request_status`, `connection_status`, `referral_status`, `vote_choice`, and `visibility_type`. Values that are *taxonomy* (article types, resource categories) are modelled as lookup tables because they are user-facing, extendable, and carry metadata such as `icon` and `description`.
 
-### Lookup table shape
+### Lookup Table Shape
 
 All V2 lookup tables follow an identical skeleton:
 
@@ -109,7 +109,7 @@ CREATE TABLE public.proposal_types (
 
 Article-specific lookups (`funding_sources`, `indigenous_macro_regions`) use a leaner shape with `code` instead of `slug` and `smallint sort_order`. The surrogate `id` + machine `code`/`slug` + `sort_order` triple recurs across all taxonomy tables.
 
-### Empty-guard seed pattern
+### Empty-guard Seed Pattern
 
 Every seed migration wraps inserts in an existence check so re-running the migration against an already-seeded database is a no-op:
 

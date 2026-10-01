@@ -18,7 +18,7 @@ The cookie name is `oz_active_account`. It is httpOnly, sameSite lax, scoped to 
 
 ## Architecture
 
-### Server-side reading and writing
+### Server-side Reading and Writing
 
 [`src/utils/data/active-account.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/data/active-account.ts) exports four helpers:
 
@@ -29,7 +29,7 @@ The cookie name is `oz_active_account`. It is httpOnly, sameSite lax, scoped to 
 
 `getAuthUser()` in [`src/lib/supabase/queries/auth.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/auth.ts) runs `getActiveAccount()` in parallel with the profile fetch, so every server call that resolves the session also carries the current active account.
 
-### The /api/active-account endpoint
+### The /api/active-account Endpoint
 
 [`src/app/api/active-account/route.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/active-account/route.ts) is protected by `withAuthUser`. It has two methods:
 
@@ -38,7 +38,7 @@ The cookie name is `oz_active_account`. It is httpOnly, sameSite lax, scoped to 
 
 The GET path is superseded by `/api/session`, which returns profile and active account in a single call.
 
-### Client hook and UI
+### Client Hook and UI
 
 [`src/hooks/use-account-switch.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-account-switch.ts) wraps the two API calls in `switchToOrg(orgId)` and `switchToUser()`. Both call `setActiveAccount` from the `useActiveAccount` hook after a successful response, keeping the client `SessionProvider` state in sync without a full page reload.
 
@@ -46,7 +46,7 @@ The `AccountSwitcherModal` (nav) and `UserMembershipCard` (org profile page) are
 
 The switcher renders org memberships as a promise prop passed through Suspense, so the server can start fetching the org list while the shell renders.
 
-### Authorization helpers
+### Authorization Helpers
 
 [`src/utils/data/account.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/data/account.ts) exposes the server-side gate functions that consume the active account:
 

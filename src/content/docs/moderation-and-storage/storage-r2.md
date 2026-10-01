@@ -17,7 +17,7 @@ Application write paths (`uploadFile`, `uploadBuffer`) go through `StorageAdapte
 
 [`R2BindingStorage`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/r2-binding.ts) wraps a `R2Bucket` binding and exposes `uploadFile`, `upload` (buffer), `get`, `getAsResponse`, `getAsText`, `getAsJson`, `exists`, `head`, `copy`, `deleteFile`, and `deleteFiles` (batched in groups of 1,000). `StorageAdapter` calls these through `getCloudflareContext`; the API route and the audit utility call them directly.
 
-### Fallback read route
+### Fallback Read Route
 
 `GET /api/storage?key=<key>` reads the object with `R2BindingStorage.getAsResponse`, then sets:
 
@@ -28,13 +28,13 @@ X-Cache: MISS
 
 The ETag from R2 is quoted if it is not already. There is no Cloudflare Cache API lookup, no `If-None-Match` / 304 handling, and no conditional re-read: every request reads R2 directly. This route is the fallback for environments without `NEXT_PUBLIC_STORAGE_URL`; it is commented out for non-development environments in the current code.
 
-### Upload pipeline
+### Upload Pipeline
 
 The upload order is: validate → write to R2 → moderate (images only) → DB insert. If any later step fails, the already-written R2 object is deleted. This means failed uploads never leave orphaned files provided the delete succeeds; the audit script (`lib/storage/audit.ts`) reconciles any that slip through.
 
 Images set an explicit `cacheControl: "public, max-age=31536000, immutable"` on the `StorageAdapter.uploadFile` call, making them suitable for long-term CDN caching. Article content documents (compressed as `application/gzip`) do not set explicit cache control on upload, so they rely on R2's defaults.
 
-### Bucket configuration
+### Bucket Configuration
 
 | Environment | R2 bucket |
 |---|---|

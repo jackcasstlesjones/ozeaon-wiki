@@ -72,7 +72,7 @@ flowchart TD
     RedactSink --> WorkersLogs
 ```
 
-### Helper surface: `src/lib/logger/index.ts`
+### Helper Surface: `src/lib/logger/index.ts`
 
 The public API is three functions ([source](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/index.ts)):
 
@@ -80,7 +80,7 @@ The public API is three functions ([source](https://github.com/ozeaon/ozeaon-v2/
 - **`toError`** handles four input shapes: a real `Error` passes through untouched; a non-null object is destructured for `message`, with all remaining own properties copied via `Object.assign` (preserving Supabase/PostgREST `code`/`details`/`hint` fields); `null` and primitives fall through to `new Error(String(value))`.
 - **`logError`** coerces via `toError`, strips `error.stack` in production (size and leakage control), then calls `logger.error` or `logger.warn` with `{ error, ...extra }`.
 
-### Production formatter: the most consequential line
+### Production Formatter: The Most Consequential Line
 
 `config.ts` ([source](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/config.ts)) selects the formatter per environment. The production path returns an array containing one plain object:
 
@@ -100,11 +100,11 @@ This shape is what Cloudflare Workers Logs needs to decompose records into filte
 
 The dev formatter appends `record.properties` as a separate console argument using a manual `Object.keys(record.properties).length > 0` check in both `config.ts` and `client-config.ts`. Note: `docs/logging-conventions.md` records that this workaround was replaced by `@logtape/pretty`'s native `properties: true` option, but the code still uses the manual check — the conventions doc is out of sync.
 
-### Startup wiring
+### Startup Wiring
 
 The server-side configuration is applied once per instance inside Next.js instrumentation ([`src/instrumentation.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/instrumentation.ts)), using **dynamic `await import()`** rather than static imports — this keeps Node-only modules (`node:async_hooks`) off the hot path. The browser uses the synchronous counterpart, `configureSync(clientLoggingConfig)`, in [`src/instrumentation-client.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/instrumentation-client.ts). `reset: true` on both configs makes `configure()` idempotent on repeated registration.
 
-### Server vs client differences
+### Server vs Client Differences
 
 [`client-config.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/client-config.ts) differs from `config.ts` in four ways:
 
@@ -113,7 +113,7 @@ The server-side configuration is applied once per instance inside Next.js instru
 - **Redaction:** server wraps the sink in `redactByField`; client does not — client logs carry less sensitive server-side state.
 - **Dev colors:** both use `{ icons: false, align: false }` for stable output; client keeps `colors: true` since browser consoles are always live.
 
-### Request-scoped context
+### Request-scoped Context
 
 Two independent `withContext` entry points exist because middleware and API route handlers run in disjoint execution paths.
 
@@ -133,7 +133,7 @@ logError(logger, "Failed to retrieve object", error, {
 
 Handlers typed with a plain `Request` (not `NextRequest`) must use `new URL(request.url).pathname` instead of `.nextUrl`.
 
-### Category taxonomy
+### Category Taxonomy
 
 Categories are derived mechanically from file location. Key rules ([`docs/logging-conventions.md`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md)):
 
@@ -146,7 +146,7 @@ Categories are derived mechanically from file location. Key rules ([`docs/loggin
 
 `getLogger` from `@/lib/logger` prepends `"ozeaon"` automatically. Calling LogTape's own `getLogger` directly, or hardcoding the root segment, is banned — it would break the `"ozeaon"` prefix as a stream-level filter.
 
-### Message and level conventions
+### Message and Level Conventions
 
 `logError`'s level parameter is `"error" | "warning"`, where `"warning"` maps to LogTape's `warn`:
 
@@ -184,7 +184,7 @@ Concurrency: the ALS mechanism isolates each request's `withContext` scope per a
 
 ## Operational Notes
 
-### Cloudflare Workers Logs characteristics
+### Cloudflare Workers Logs Characteristics
 
 | Property | Value | Implication |
 |----------|-------|-------------|
@@ -193,15 +193,15 @@ Concurrency: the ALS mechanism isolates each request's `withContext` scope per a
 | Account-wide volume | ~5 billion logs/day before 1% auto-sampling | `observability.logs.head_sampling_rate` is the proactive per-Worker lever |
 | Correlation | App-supplied `requestId` | Cloudflare's Ray ID is not guaranteed unique and cannot substitute |
 
-### Why the production formatter returns an array, not JSON
+### Why the Production Formatter Returns an Array, Not JSON
 
 `getConsoleSink` takes the multi-argument `console[method](...args)` path — the one Workers Logs can decompose into filterable fields — only when the formatter returns an **array** rather than a string. Swapping to `getJsonLinesFormatter()` for convenience would silently defeat field extraction in the dashboard while appearing to work locally.
 
-### Why `console.*` is banned
+### Why `console.*` Is Banned
 
 `no-console` is enforced project-wide as its own top-level block in `eslint.config.mjs`. Direct `console.*` bypasses redaction, the root category, level floors, and the Workers-Logs-compatible object shape simultaneously — so it must be structurally impossible, not merely discouraged. The block is deliberately not folded into the existing `.tsx`-only merge block, which has a pre-existing bug where only the last spread takes effect.
 
-### Rejected approaches
+### Rejected Approaches
 
 | Approach | Verdict | Reason |
 |----------|---------|--------|

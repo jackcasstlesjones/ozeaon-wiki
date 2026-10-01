@@ -162,7 +162,7 @@ if (filteredIds !== null && !filteredIds.length) return [];
 
 The trending, new and latest feeds exist but nothing in the UI currently links to them — see the note above about commented-out tabs.
 
-### `getProjectsFeed` — the Dual-Mode Feed
+### `getProjectsFeed` — The Dual-Mode Feed
 
 `getProjectsFeed` is overloaded on `dashboard: true` to select different return types and clients:
 
