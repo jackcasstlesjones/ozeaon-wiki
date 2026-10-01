@@ -1,5 +1,5 @@
 ---
-title: "UI: Inputs"
+title: "Inputs"
 description: Standalone (non-form-bound) inputs — a search field with affix slot and a searchable multi-select.
 sidebar:
   order: 8

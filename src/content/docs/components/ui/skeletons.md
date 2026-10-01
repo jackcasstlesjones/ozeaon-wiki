@@ -1,5 +1,5 @@
 ---
-title: "UI: Skeletons"
+title: "Skeletons"
 description: Loading placeholders for feeds, navigation lists and cards.
 sidebar:
   order: 12

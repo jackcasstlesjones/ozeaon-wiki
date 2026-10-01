@@ -1,5 +1,5 @@
 ---
-title: "Articles: Reader Experience"
+title: "Article Reader Experience"
 sidebar:
   order: 4
 ---

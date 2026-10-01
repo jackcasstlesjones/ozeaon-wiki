@@ -1,5 +1,5 @@
 ---
-title: "UI: Comments"
+title: "Comments"
 description: Threaded comment UI for posts, projects and articles — composer, list, items, toggle and realtime thread.
 sidebar:
   order: 3

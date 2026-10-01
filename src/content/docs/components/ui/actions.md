@@ -1,5 +1,5 @@
 ---
-title: "UI: Actions"
+title: "Actions"
 description: Button-style controls — loading button, icon button, like toggle and button grouping.
 sidebar:
   order: 1

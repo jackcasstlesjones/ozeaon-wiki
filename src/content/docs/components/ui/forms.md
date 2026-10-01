@@ -1,5 +1,5 @@
 ---
-title: "UI: Forms"
+title: "Forms"
 description: Form layout shells, file/image upload controls and the React Hook Form field wrappers under src/components/ui/forms.
 sidebar:
   order: 6

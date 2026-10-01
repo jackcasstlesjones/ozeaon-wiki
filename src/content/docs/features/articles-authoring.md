@@ -1,5 +1,5 @@
 ---
-title: "Articles: Authoring & Publishing"
+title: "Article Authoring & Publishing"
 sidebar:
   order: 3
 ---

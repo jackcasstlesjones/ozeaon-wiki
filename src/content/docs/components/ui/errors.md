@@ -1,5 +1,5 @@
 ---
-title: "UI: Errors"
+title: "Errors"
 description: Error boundary fallback screen and the persistent page-level form error banner.
 sidebar:
   order: 5

@@ -1,5 +1,5 @@
 ---
-title: "UI: Overlays"
+title: "Overlays"
 description: Confirmation dialogs, the type-DELETE gate, the moderation rejection dialog and a full-screen loading overlay.
 sidebar:
   order: 11

@@ -82,10 +82,32 @@
   {
     "label": "Components",
     "items": [
+      "components/account",
+      "components/articles",
+      "components/auth",
+      "components/events",
+      "components/home",
+      "components/icons",
+      "components/nav",
+      "components/notifications",
+      "components/organizations",
+      "components/posts",
+      "components/projects",
+      "components/profiles",
+      "components/search",
+      "components/shadcn",
+      "components/tiptap",
+      "components/users",
       {
-        "autogenerate": {
-          "directory": "components"
-        }
+        "label": "UI",
+        "collapsed": true,
+        "items": [
+          {
+            "autogenerate": {
+              "directory": "components/ui"
+            }
+          }
+        ]
       }
     ]
   },

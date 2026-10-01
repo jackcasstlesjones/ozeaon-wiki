@@ -1,5 +1,5 @@
 ---
-title: "UI: Display"
+title: "Display"
 description: Read-only presentation primitives — empty states, dates, badges, chip rows, document metadata and the PDF viewer.
 sidebar:
   order: 4

@@ -1,5 +1,5 @@
 ---
-title: "UI: Misc"
+title: "Misc"
 description: Top-level files in components/ui — the sidebar system, PasswordInput, ExternalLink, DynamicMarker, getFeatureMarker and the root barrel.
 sidebar:
   order: 10

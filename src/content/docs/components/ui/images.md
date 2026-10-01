@@ -1,5 +1,5 @@
 ---
-title: "UI: Images"
+title: "Images"
 description: Wrappers around next/image for fixed-aspect containers and click-to-zoom images.
 sidebar:
   order: 7

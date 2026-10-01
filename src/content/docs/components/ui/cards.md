@@ -1,5 +1,5 @@
 ---
-title: "UI: Cards"
+title: "Cards"
 description: Building blocks for condensed carousel cards, cover category chips and collapsible form cards.
 sidebar:
   order: 2

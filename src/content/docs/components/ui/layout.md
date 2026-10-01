@@ -1,5 +1,5 @@
 ---
-title: "UI: Layout"
+title: "Layout"
 description: Page shells, layout constants, grids, flex containers, headings, carousels, tabs and the generic infinite feed.
 sidebar:
   order: 9

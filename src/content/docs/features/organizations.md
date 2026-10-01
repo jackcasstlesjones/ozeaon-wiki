@@ -1,5 +1,5 @@
 ---
-title: "Organizations: Profiles, Membership & Roles"
+title: "Organization Profiles, Membership & Roles"
 sidebar:
   order: 6
 ---

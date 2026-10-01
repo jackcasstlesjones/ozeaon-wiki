@@ -1,5 +1,5 @@
 ---
-title: "shadcn primitives"
+title: "shadcn Primitives"
 description: The vendored shadcn/ui primitives in src/components/shadcn, with the project's variants, added props and token styling, and the ui wrappers built on them.
 sidebar:
   order: 14

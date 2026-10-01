@@ -1,5 +1,5 @@
 ---
-title: "Shared UI Primitives & Shadcn Components"
+title: "Shared UI Primitives & shadcn Components"
 sidebar:
   order: 2
 ---

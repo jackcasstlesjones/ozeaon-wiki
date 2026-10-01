@@ -1,5 +1,5 @@
 ---
-title: "Projects: Lifecycle & Discovery"
+title: "Project Lifecycle & Discovery"
 sidebar:
   order: 5
 ---
