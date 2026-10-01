@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-Presentation components that render data without owning it. Reach for these instead of raw markup: `EmptyState` for any "nothing here" message, `DateDisplay` for any formatted date, and the chip-row components for category chips that must fit on one line. The barrel `src/components/ui/display/index.ts` exports `EmptyState`, `DateDisplay`, `CardFooter`, `Text`, `DocumentMetadata` and `AttachedItemCard`; everything else on this page is imported from its own file path.
+Presentation components that render data without owning it. Reach for these instead of raw markup: `EmptyState` for any "nothing here" message, `DateDisplay` for any formatted date, and the chip-row components for category chips that must fit on one line. The barrel `src/components/ui/display/index.ts` exports `EmptyState`, `DateDisplay`, `CardFooter`, `Text`, `DocumentMetadata` and `AttachedItemCard`; everything else on this page is imported from its own file path. See also [UI Primitives](../../../design-system/ui-primitives/).
 
 ## AttachedItemCard
 

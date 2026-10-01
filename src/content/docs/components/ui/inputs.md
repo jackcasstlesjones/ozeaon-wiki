@@ -5,7 +5,7 @@ sidebar:
   order: 8
 ---
 
-Controlled inputs that aren't tied to React Hook Form. Use them when you manage state yourself. Inside an RHF form, use the `hook-form` wrappers on the [Forms](../forms/) page (e.g. `InputMultiSelect` wraps `MultiSelect`). The `@/components/ui/inputs` barrel also re-exports the hook-form wrappers.
+Controlled inputs that aren't tied to React Hook Form. Use them when you manage state yourself. Inside an RHF form, use the `hook-form` wrappers on the [Forms](../forms/) page (e.g. `InputMultiSelect` wraps `MultiSelect`). The `@/components/ui/inputs` barrel also re-exports the hook-form wrappers. See also [UI Primitives](../../../design-system/ui-primitives/).
 
 `src/components/ui/inputs/README.md` is stale: it describes Conform-based `*Field` components that no longer exist.
 

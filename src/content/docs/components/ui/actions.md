@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-Action primitives built on the shadcn `Button` or a plain `<button>`, imported from `@/components/ui/actions`. Use them instead of rolling your own spinner button, badge icon button or heart toggle.
+Action primitives built on the shadcn `Button` or a plain `<button>`, imported from `@/components/ui/actions`. Use them instead of rolling your own spinner button, badge icon button or heart toggle. See also [UI Primitives](../../../design-system/ui-primitives/).
 
 ## LoadingButton
 

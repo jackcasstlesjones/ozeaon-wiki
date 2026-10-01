@@ -5,7 +5,7 @@ sidebar:
   order: 5
 ---
 
-Error presentation, imported from `@/components/ui/errors`. Use `ErrorFallback` for `error.tsx` boundaries and full-area failure states. Use `FormErrorBanner` for a blocking form failure that must stay visible until the user acts, where a self-clearing toast would be wrong.
+Error presentation, imported from `@/components/ui/errors`. Use `ErrorFallback` for `error.tsx` boundaries and full-area failure states. Use `FormErrorBanner` for a blocking form failure that must stay visible until the user acts, where a self-clearing toast would be wrong. See also [UI Primitives](../../../design-system/ui-primitives/).
 
 ## ErrorFallback
 
