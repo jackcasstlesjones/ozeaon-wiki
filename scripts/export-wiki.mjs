@@ -1,7 +1,7 @@
 // Exports OpenDeepWiki's generated pages into Starlight content + sidebar order.
 // Usage: node scripts/export-wiki.mjs [path/to/opendeepwiki.db]
 import { DatabaseSync } from "node:sqlite";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
 
@@ -27,8 +27,8 @@ const rewriteLinks = (md) =>
 
 const stripTitle = (md) => md.replace(/^\s*#\s+.*\n+/, "");
 
-for (const dir of new Set(catalogs.filter((c) => !c.parentId).map((c) => c.path))) {
-  rmSync(join(docsDir, dir), { recursive: true, force: true });
+for (const entry of readdirSync(docsDir, { withFileTypes: true })) {
+  if (entry.isDirectory()) rmSync(join(docsDir, entry.name), { recursive: true, force: true });
 }
 
 const sections = catalogs.filter((c) => !c.parentId);
