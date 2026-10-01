@@ -1,33 +1,41 @@
 ---
 title: "Project Overview"
-description: What OZEAON V2 is, what is built today, and how the repository is put together.
+description: What OZEAON V2 is, what it does today, what is planned, and how the codebase is put together.
 sidebar:
   order: 1
 ---
 
-OZEAON V2 is the web application behind the OZEAON ocean conservation platform. Organizations, projects and individuals publish and discuss conservation work in one place. It is a single Next.js App Router app running on Cloudflare Workers, with Supabase for data and auth and Cloudflare R2 for files.
+OZEAON V2 is the web application behind the OZEAON ocean conservation platform. Organizations, projects and individuals publish and discuss conservation work in one place. It is a single Next.js App Router app running on Cloudflare Workers, with Supabase for data and auth, and Cloudflare R2 for files.
 
-## What Is Built
+## Features
 
-These areas are live in the codebase today:
-
-- **Accounts:** sign up, sign in, email verification, password reset, profile settings, switching between a personal account and an organization account, and account hard deletion. See [Auth Flows](../../auth-and-accounts/auth-flows/) and [Account Switching & Active Account](../../auth-and-accounts/account-switching/).
-- **Organizations:** public profiles, members and roles, invitations and join requests, and organization hard deletion. See [Organization Profiles, Membership & Roles](../../features/organizations/).
-- **Projects:** multi-section project pages, drafts and publishing, My Projects, and hard deletion. See [Project Lifecycle & Discovery](../../features/projects/).
-- **Articles:** a Tiptap-based authoring flow, publishing, My Articles, and a reader view. See [Article Authoring & Publishing](../../features/articles-authoring/) and [Article Reader Experience](../../features/articles-reader/).
-- **Posts:** a community feed with attachments and reposts. See [Posts](../../features/posts/).
+- **Accounts:** sign up, sign in, email verification, password reset, profile settings, switching between a personal account and an organization account, and account deletion. See [Auth Flows](../../auth-and-accounts/auth-flows/) and [Account Switching & Active Account](../../auth-and-accounts/account-switching/).
+- **Organizations:** public profiles, members and roles, invitations and join requests, and organization deletion. See [Organization Profiles, Membership & Roles](../../features/organizations/).
+- **Projects:** multi-section project pages, drafts and publishing, My Projects, and deletion. See [Project Lifecycle & Discovery](../../features/projects/).
+- **Articles:** a Tiptap-based editor, publishing, My Articles and a reader view. See [Article Authoring & Publishing](../../features/articles-authoring/) and [Article Reader Experience](../../features/articles-reader/).
+- **Posts:** a community feed with image attachments and reposts. See [Posts](../../features/posts/).
 - **Comments** on posts, projects and articles, and **likes** on posts and comments. See [Comments & Reactions](../../features/comments-and-reactions/).
+- **Search:** name and title search across organizations, projects, articles and people. See [Search & Discovery](../../features/search/).
 - **Automated moderation:** content is checked with the OpenAI moderation API before it publishes. See [Content Moderation Pipeline](../../moderation-and-storage/moderation/).
-- **Alpha badges** for users and organizations created during the alpha.
+- **Founding-member (alpha) badges** for early users and organizations.
 - **UN SDG tagging** on projects and articles.
 
-These are **in progress**: notifications (first release, behind the `NEXT_PUBLIC_FEATURE_NOTIFICATIONS` flag), legal pages, and in-feed filters on the article and project feeds.
+In progress: notifications (behind the `NEXT_PUBLIC_FEATURE_NOTIFICATIONS` flag), legal pages, and in-feed filters on the article and project feeds.
 
-## What Is Planned
+## Roadmap
 
-The repository README describes the full product vision: pods, DAO governance, a token reward system, project funding and donations, an educational hub with quizzes, and API access for mobile apps and third parties. **None of that is built yet.** It is roadmap work, tracked in the internal product roadmap.
+Planned work includes:
+- pods and DAO governance
+- a token reward system
+- project funding, donations and tipping
+- an educational resources hub with quizzes
+- events
+- messaging
+- notes and bookmarks
+- connections and blocking
+- search across every content type
 
-Some of it already has tables in the database schema, for example `pods`, `dao_proposals`, `token_transactions`, `educational_resources`, `events`, `bookmark_folders` and `open_calls`. Treat those as placeholders. A table existing does not mean the feature ships. A few planned features also have disconnected code: `/api/connections` and `/api/blocks` (not wired into profiles), `/api/events` with an unused `NewEventDialog`, and a pod branch in `/api/users/memberships`. `/search` is a basic name and title search; search across every content type is planned. [Data Model & Database Schema](../../architecture/data-model-and-schema/) marks which tables back live features.
+The database schema already contains tables for several of these, such as `pods`, `dao_proposals`, `token_transactions`, `educational_resources`, `events`, `bookmark_folders` and `open_calls`. These tables have no application features behind them yet. A few API routes also exist with no UI calling them: `/api/connections`, `/api/blocks` and `/api/events`. [Data Model & Database Schema](../../architecture/data-model-and-schema/) lists the placeholder tables.
 
 ## Architecture
 
@@ -63,22 +71,22 @@ flowchart TD
 
 The decisions that shape the codebase:
 
-- **The Supabase client decides how a route renders.** Public pages that only use `createPublicClient()` prerender statically. Anything that calls `await createClient()` reads cookies and becomes dynamic. The project does not use manual `dynamic`/`revalidate` directives. See [SSR, Rendering & Caching](../../architecture/ssr-rendering-and-caching/) and [Supabase Client Patterns](../../architecture/supabase-client-patterns/).
-- **Postgres does the deterministic work.** Row-Level Security covers authorization, and triggers handle counters, audit timestamps and cascades. See [Data Model & Database Schema](../../architecture/data-model-and-schema/).
-- **Types are derived from the generated Supabase types**, never written by hand. See [Type System & Generated Types](../../architecture/type-system/).
-- **All file access goes through `StorageAdapter`**, never the raw R2 binding. See [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/).
-- **It deploys to Cloudflare Workers through OpenNext**, and every PR gets its own preview Worker and Supabase branch. See [Cloudflare Deployment](../../operations/cloudflare-deployment/) and [CI/CD Workflows](../../operations/ci-cd-workflows/).
+- **The Supabase client decides how a route renders.** Public pages that use only `createPublicClient()` prerender statically. Anything that calls `await createClient()` reads cookies and renders dynamically. Rendering is never set with `dynamic`/`revalidate` exports. See [SSR, Rendering & Caching](../../architecture/ssr-rendering-and-caching/) and [Supabase Client Patterns](../../architecture/supabase-client-patterns/).
+- **Postgres does the deterministic work.** Row-Level Security handles authorization, and triggers maintain counters, audit timestamps and cascades. See [Data Model & Database Schema](../../architecture/data-model-and-schema/).
+- **Types are derived from the generated Supabase types.** See [Type System & Generated Types](../../architecture/type-system/).
+- **All file access goes through `StorageAdapter`**, not the raw R2 binding. See [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/).
+- **It deploys to Cloudflare Workers through OpenNext.** Every PR gets its own preview Worker and Supabase branch. See [Cloudflare Deployment](../../operations/cloudflare-deployment/) and [CI/CD Workflows](../../operations/ci-cd-workflows/).
 
 ## Where to Go Next
 
 - [Getting Started & Local Setup](../getting-started/): run the app locally.
 - [Technology Stack & Scripts](../technology-stack/): the libraries in use and the pnpm scripts.
-- [Coding Conventions & Linting Rules](../../developer-guide/conventions-and-linting/): the rules contributors are expected to follow.
+- [Coding Conventions & Linting Rules](../../developer-guide/conventions-and-linting/): the rules contributors follow.
 - [Adding a New Feature End-to-End](../../developer-guide/adding-a-feature/): a worked path through the layers.
 
 ## Related Links
 
-- [README.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/README.md): product vision and live environments. Much of its feature list is roadmap.
+- [README.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/README.md): product vision and live environments.
 - [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md): engineering conventions and commands.
-- [docs/](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/docs): in-repo deep dives (deployment, R2, component library, design system).
+- [docs/](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/docs): in-repo deep dives on deployment, R2, the component library and the design system.
 - Live: [ozeaon.com](https://ozeaon.com) (landing), [app.ozeaon.com](https://app.ozeaon.com) (production), [app.ozeaon.dev](https://app.ozeaon.dev) (staging).
