@@ -5,7 +5,7 @@ sidebar:
   order: 12
 ---
 
-Skeleton placeholders built on the shadcn `Skeleton`. Use them in `loading.tsx` files and Suspense fallbacks instead of hand-rolled pulsing `<div>`s. Import from `@/components/ui/skeletons` (also re-exported from `@/components/ui`). See also [Cards, Feeds & Layout Shells](../../../design-system/cards-and-layout/).
+Skeleton placeholders built on the shadcn `Skeleton`. Use them in `loading.tsx` files and Suspense fallbacks instead of hand-rolled pulsing `<div>`s. Import from `@/components/ui/skeletons` (also re-exported from `@/components/ui`). See also [Cards & Layout](../../../design-system/cards-and-layout/).
 
 ## PostSkeleton
 

@@ -11,11 +11,11 @@ OZEAON V2 is the web application behind the OZEAON ocean conservation platform. 
 
 These areas are live in the codebase today:
 
-- **Accounts:** sign up, sign in, email verification, password reset, profile settings, switching between a personal account and an organization account, and account hard deletion. See [Authentication Flows & Pages](../../auth-and-accounts/auth-flows/) and [Account Switching & Active Account](../../auth-and-accounts/account-switching/).
+- **Accounts:** sign up, sign in, email verification, password reset, profile settings, switching between a personal account and an organization account, and account hard deletion. See [Auth Flows](../../auth-and-accounts/auth-flows/) and [Account Switching & Active Account](../../auth-and-accounts/account-switching/).
 - **Organizations:** public profiles, members and roles, invitations and join requests, and organization hard deletion. See [Organization Profiles, Membership & Roles](../../features/organizations/).
 - **Projects:** multi-section project pages, drafts and publishing, My Projects, and hard deletion. See [Project Lifecycle & Discovery](../../features/projects/).
 - **Articles:** a Tiptap-based authoring flow, publishing, My Articles, and a reader view. See [Article Authoring & Publishing](../../features/articles-authoring/) and [Article Reader Experience](../../features/articles-reader/).
-- **Posts:** a community feed with attachments and reposts. See [Posts Feed & Post Creation](../../features/posts/).
+- **Posts:** a community feed with attachments and reposts. See [Posts](../../features/posts/).
 - **Comments** on posts, projects and articles, and **likes** on posts and comments. See [Comments & Reactions](../../features/comments-and-reactions/).
 - **Automated moderation:** content is checked with the OpenAI moderation API before it publishes. See [Content Moderation Pipeline](../../moderation-and-storage/moderation/).
 - **Alpha badges** for users and organizations created during the alpha.
@@ -63,11 +63,11 @@ flowchart TD
 
 The decisions that shape the codebase:
 
-- **The Supabase client decides how a route renders.** Public pages that only use `createPublicClient()` prerender statically. Anything that calls `await createClient()` reads cookies and becomes dynamic. The project does not use manual `dynamic`/`revalidate` directives. See [SSR, Rendering Model & Caching](../../architecture/ssr-rendering-and-caching/) and [Supabase Client Patterns](../../architecture/supabase-client-patterns/).
+- **The Supabase client decides how a route renders.** Public pages that only use `createPublicClient()` prerender statically. Anything that calls `await createClient()` reads cookies and becomes dynamic. The project does not use manual `dynamic`/`revalidate` directives. See [SSR, Rendering & Caching](../../architecture/ssr-rendering-and-caching/) and [Supabase Client Patterns](../../architecture/supabase-client-patterns/).
 - **Postgres does the deterministic work.** Row-Level Security covers authorization, and triggers handle counters, audit timestamps and cascades. See [Data Model & Database Schema](../../architecture/data-model-and-schema/).
 - **Types are derived from the generated Supabase types**, never written by hand. See [Type System & Generated Types](../../architecture/type-system/).
 - **All file access goes through `StorageAdapter`**, never the raw R2 binding. See [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/).
-- **It deploys to Cloudflare Workers through OpenNext**, and every PR gets its own preview Worker and Supabase branch. See [Cloudflare Deployment (OpenNext & Wrangler)](../../operations/cloudflare-deployment/) and [CI/CD Workflows & Preview Deployments](../../operations/ci-cd-workflows/).
+- **It deploys to Cloudflare Workers through OpenNext**, and every PR gets its own preview Worker and Supabase branch. See [Cloudflare Deployment](../../operations/cloudflare-deployment/) and [CI/CD Workflows](../../operations/ci-cd-workflows/).
 
 ## Where to Go Next
 

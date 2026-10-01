@@ -29,8 +29,8 @@ The toolchain is pinned: `packageManager` fixes the pnpm version, and `devEngine
 Most of the build configuration lives in [`next.config.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/next.config.ts). The decisions worth knowing:
 
 - **Next.js is pinned to an exact version**, and so is `eslint-config-next`. Minor Next releases change build output, and OpenNext has to stay compatible with it.
-- **`cacheComponents` is off.** The Supabase client a route uses decides whether it renders dynamically (see [SSR, Rendering Model & Caching](../../architecture/ssr-rendering-and-caching/)).
-- **Images use a custom loader** (`src/lib/image-loader.ts`). The built-in Next optimizer needs Node and a filesystem, and Workers provides neither. See [Media, Images & Attachments](../../features/media-and-images/).
+- **`cacheComponents` is off.** The Supabase client a route uses decides whether it renders dynamically (see [SSR, Rendering & Caching](../../architecture/ssr-rendering-and-caching/)).
+- **Images use a custom loader** (`src/lib/image-loader.ts`). The built-in Next optimizer needs Node and a filesystem, and Workers provides neither. See [Media & Images](../../features/media-and-images/).
 - **The CSP is built from environment URLs, not `NODE_ENV`.** `pnpm preview` and `ci:build` emit production headers while still pointing at a local Supabase. Both R2 storage hosts are always allowed, because stored content keeps absolute URLs from whichever environment uploaded it. Security headers are skipped in development.
 - **`typedRoutes` is on**, so `href`s are type-checked.
 - **`pdfjs-dist` is in `serverExternalPackages`** so its worker loading works on the server.
@@ -70,6 +70,6 @@ Script definitions are in the `scripts` block of [`package.json`](https://github
 ## Related Links
 
 - [Getting Started & Local Setup](../getting-started/)
-- [Cloudflare Deployment (OpenNext & Wrangler)](../../operations/cloudflare-deployment/)
+- [Cloudflare Deployment](../../operations/cloudflare-deployment/)
 - [Database Migrations & Seeding](../../operations/migrations-and-seeding/)
 - [`package.json`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/package.json), [`next.config.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/next.config.ts), [`tsconfig.json`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/tsconfig.json), [`eslint.config.mjs`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/eslint.config.mjs)

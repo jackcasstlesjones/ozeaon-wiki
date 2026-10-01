@@ -128,5 +128,5 @@ sequenceDiagram
 - Supabase session + guard implementation: [src/lib/supabase/middleware.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/middleware.ts)
 - Auth helpers (server-side guards used in layouts): [src/lib/supabase/queries/auth.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/auth.ts)
 - Supabase client patterns: [Supabase Client Patterns](../supabase-client-patterns/)
-- Auth flows: [Authentication Flows & Pages](../../auth-and-accounts/auth-flows/)
+- Auth flows: [Auth Flows](../../auth-and-accounts/auth-flows/)
 - Logging: [Logging & Observability](../../operations/logging-observability/)
