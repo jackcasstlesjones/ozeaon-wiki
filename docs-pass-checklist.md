@@ -296,35 +296,35 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### moderation-and-storage/email-and-marketing.md (639 → ~150)
 
-- [ ] FORMAT: house-style sweep; delete the empty Source blockquote and the "source budget" wording
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; delete the empty Source blockquote and the "source budget" wording
+- [x] ROADMAP/accuracy:
   - auth emails come from Supabase Auth, and org invites are in-app only (no email)
   - the live Resend sends are just the email-change security notice and the account-deletion confirmation
   - `handleSendPost`/`SHARE_POST`/`sendTemplateEmail`/`resolveUserEmails`/`sendBatchEmails` have no callers → mark them unwired
   - "Transactional email & delivery" is planned
-- [ ] ROADMAP: `subscribeToAudience` runs on every signup (no opt-in) and its errors are swallowed and logged, not "fail loudly"
-- [ ] STALE-DETAIL: the Mailchimp deep dive (→ ~10 lines of why), env.ts copied twice (keep one env table), the files-at-a-glance table and helper bodies, the API Reference, the line-pinned failure table → cut
+- [x] ROADMAP: `subscribeToAudience` runs on every signup (no opt-in) and its errors are swallowed and logged, not "fail loudly"
+- [x] STALE-DETAIL: the Mailchimp deep dive (→ ~10 lines of why), env.ts copied twice (keep one env table), the files-at-a-glance table and helper bodies, the API Reference, the line-pinned failure table → cut
 
 ### moderation-and-storage/moderation.md (880 → ~200)
 
-- [ ] FORMAT: house-style sweep; rename the colon-form sections ("Transport Layer", "Verdict Mapping"); remove the hidden `Writeout` mermaid node
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; rename the colon-form sections ("Transport Layer", "Verdict Mapping"); remove the hidden `Writeout` mermaid node
+- [x] ROADMAP/accuracy:
   - `moderateAndLog` returns 503 on a `ModerationError` (fail-closed) and 422 with categories on a rejection → state it
   - the link-row answer is in the migration header: 5 typed link tables, and post and comment creates get none
   - list the real surfaces: the `moderation_surface` enum, org create/update, post creates, the profile bio via `moderateField`, image uploads
   - the reporting queue is planned (the report button is a Google Form link)
   - remove the `PREVIEW_ACCESS_TOKEN` row
-- [ ] STALE-DETAIL: transport walkthrough (→ ~10 lines), verdict/entry-point/failed-record copies (→ a short paragraph per concept), ER columns and migration table, constants table, API Reference, line-pinned edge and cost tables (keep the batching lever) → cut
+- [x] STALE-DETAIL: transport walkthrough (→ ~10 lines), verdict/entry-point/failed-record copies (→ a short paragraph per concept), ER columns and migration table, constants table, API Reference, line-pinned edge and cost tables (keep the batching lever) → cut
 
 ### moderation-and-storage/storage-r2.md (504 → ~150)
 
-- [ ] FORMAT: house-style sweep; delete the generator wording and the "30+ tables" filler
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; delete the generator wording and the "30+ tables" filler
+- [x] ROADMAP/accuracy:
   - `/api/storage` uses no Cache API and no 304. It streams `R2BindingStorage.getAsResponse` with an immutable Cache-Control, `X-Cache: MISS` and a quoted ETag
   - `getPublicUrl` falls back to `/api/storage` only when `NEXT_PUBLIC_STORAGE_URL` is unset
   - the serving route and the audit use `R2BindingStorage` directly
   - buckets: top-level and production use `app-content`; preview and staging use `staging-app-content`
-- [ ] STALE-DETAIL: method tables, numbered upload steps plus the duplicate diagram, the `uploadImage` column lists, audit internals, next.config/open-next duplication, the API Reference → cut
+- [x] STALE-DETAIL: method tables, numbered upload steps plus the duplicate diagram, the `uploadImage` column lists, audit internals, next.config/open-next duplication, the API Reference → cut
 
 ### operations/ci-cd-workflows.md (649 → ~200)
 
