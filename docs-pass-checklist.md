@@ -206,9 +206,9 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### features/notifications.md (620 → ~180)
 
-- [ ] FORMAT: title "Notifications & Real-Time Updates" → "Notifications"; house-style sweep; remove ticket/AC codes from prose
-- [ ] ROADMAP: in progress (first release). The bell renders only when `NEXT_PUBLIC_FEATURE_NOTIFICATIONS === "true"`, and `/posts/[id]` 404s when the flag is off. There is no notifications page yet. Realtime is wired (`supabase_realtime` publication, `REPLICA IDENTITY FULL`, `subscribeWithAuth`). Summarise the 18 triggers in `20260921000000_notifications_triggers.sql` in one line. Grouping, settings and digests are "second pass" (planned)
-- [ ] STALE-DETAIL: hook and query body copies (keep the scope-ref and `.is("read_at", null)` snippets), the API Reference, the constants table, the channel table (→ 2 bullets), the terminology table → cut
+- [x] FORMAT: title "Notifications & Real-Time Updates" → "Notifications"; house-style sweep; remove ticket/AC codes from prose
+- [x] ROADMAP: in progress (first release). The bell renders only when `NEXT_PUBLIC_FEATURE_NOTIFICATIONS === "true"`, and `/posts/[id]` 404s when the flag is off. There is no notifications page yet. Realtime is wired (`supabase_realtime` publication, `REPLICA IDENTITY FULL`, `subscribeWithAuth`). Summarise the 18 triggers in `20260921000000_notifications_triggers.sql` in one line. Grouping, settings and digests are "second pass" (planned)
+- [x] STALE-DETAIL: hook and query body copies (keep the scope-ref and `.is("read_at", null)` snippets), the API Reference, the constants table, the channel table (→ 2 bullets), the terminology table → cut
 
 ### features/profiles-and-social-graph.md (769 → ~200)
 
