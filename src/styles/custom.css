@@ -1,12 +1,13 @@
-/* OZEAON brand green, from ozeaon-v2 src/styles/globals.css */
+/* OZEAON brand blue (--ozeaon-blue / --slate-blue #4c647e), from ozeaon-v2 src/styles/globals.css.
+   Dark theme uses lighter tints of the same hue so links stay readable on the dark background. */
 :root {
-	--sl-color-accent-low: #002b27;
-	--sl-color-accent: #009880;
-	--sl-color-accent-high: #36d47e;
+	--sl-color-accent-low: #1e2935;
+	--sl-color-accent: #8ea5bd;
+	--sl-color-accent-high: #d6e0ea;
 }
 
 :root[data-theme='light'] {
-	--sl-color-accent-low: #c4fbcc;
-	--sl-color-accent: #00786f;
-	--sl-color-accent-high: #004540;
+	--sl-color-accent-low: #dfe6ee;
+	--sl-color-accent: #4c647e;
+	--sl-color-accent-high: #2c3b4b;
 }
