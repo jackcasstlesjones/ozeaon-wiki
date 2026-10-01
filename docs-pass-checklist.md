@@ -410,26 +410,26 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### design-system/ui-primitives.md (377 → ~50)
 
-- [ ] FORMAT: title → "UI Primitives"; house-style sweep; delete `## Summary`, the `8-design-system` slug and the hedging
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: title → "UI Primitives"; house-style sweep; delete `## Summary`, the `8-design-system` slug and the hedging
+- [x] ROADMAP/accuracy:
   - `src/components/ui/` has 11 folders plus root files, and `display/` has ~15 components and a barrel
   - consumers mostly import from the root `@/components/ui`
   - the guessed comment hierarchy and its sequence diagram are wrong
   - the example props are invented
 
   → replace with a one-line-per-folder list linking `components/ui/*`
-- [ ] STALE-DETAIL: the file-level mermaid, per-family tables, barrel and source lists → cut
+- [x] STALE-DETAIL: the file-level mermaid, per-family tables, barrel and source lists → cut
 
 ### design-system/cards-and-layout.md (435 → ~70)
 
-- [ ] FORMAT: house-style sweep; delete the "## API Reference" heading
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; delete the "## API Reference" heading
+- [x] ROADMAP/accuracy:
   - `settings/(organizations)` and `(personal)` layouts are account-type guards (they redirect on mismatch). The chrome comes from `(dashboard)/layout.tsx`; `members/layout.tsx` adds an owner/admin guard plus header and tabs
   - a card/feed API exists (`CondensedCard*`, `CollapsibleCard`, `GenericInfiniteFeed`, `ResponsiveCardList`, `TwoColumnShell`, `SidebarShell`)
   - the auth shell renders `AuthMarketingPanel`
   - the text colour ramp and "DM Mono" are stale → link design-tokens
   - fix the feed table
-- [ ] STALE-DETAIL: token tables repeated three times, route-tree diagrams (keep one small one), file-by-file tables, generic layout claims → cut
+- [x] STALE-DETAIL: token tables repeated three times, route-tree diagrams (keep one small one), file-by-file tables, generic layout claims → cut
 
 ### design-system/design-tokens.md (1104 → ~150)
 
