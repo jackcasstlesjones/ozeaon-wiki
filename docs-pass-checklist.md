@@ -54,7 +54,7 @@ Codebase pin: ozeaon-v2 `0a4f1a95`.
 - [x] ROADMAP project-overview: "comments and likes on posts, projects and articles" overstated the likes → likes are on posts and comments only
 - [x] ROADMAP project-overview: noted the planned features that have disconnected code (connections/blocks APIs, events API with unused dialog, pod membership branch, basic search) and the notifications feature flag
 - [x] FORMAT technology-stack: reworded the backwards CSP failure bullet, and the `ci:deploy` row now says CI-only
-- [ ] ROADMAP project-overview: it promises that the data-model page marks which tables are placeholders. Keep that sentence only once the data-model "Tables for Unbuilt Features" item below is done
+- [x] ROADMAP project-overview: it promises that the data-model page marks which tables are placeholders. Keep that sentence only once the data-model "Tables for Unbuilt Features" item below is done
 
 ## Site-wide format sweep (apply to every topic page as it is rewritten)
 
@@ -77,9 +77,9 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### architecture/data-model-and-schema.md (864 → ~250)
 
-- [ ] FORMAT: house-style sweep; merge "Configuration & Conventions Reference" and "API Reference: Migration-Defined Database Objects" into `## Conventions`; delete the "safe aliases" and "migrations read for this page" leftovers
-- [ ] ROADMAP: the intro says "content, governance, identity, and lookup entities" → drop "governance"
-- [ ] ROADMAP: add `### Tables for Unbuilt Features` with these placeholder groups:
+- [x] FORMAT: house-style sweep; merge "Configuration & Conventions Reference" and "API Reference: Migration-Defined Database Objects" into `## Conventions`; delete the "safe aliases" and "migrations read for this page" leftovers
+- [x] ROADMAP: the intro says "content, governance, identity, and lookup entities" → drop "governance"
+- [x] ROADMAP: add `### Tables for Unbuilt Features` with these placeholder groups:
   - pods (`pods`, `pod_members`, `pod_invites`, `pod_join_requests`, `pod_types`)
   - DAO (`dao_proposals`, `dao_votes`, `proposal_types`, `vote_choice`)
   - tokens (`token_transactions`, `transaction_types`)
@@ -89,18 +89,18 @@ These apply to every one of the 46 non-component pages. Each page section below 
   - connections and blocking (`user_connections`, `user_blocks`): APIs exist but nothing calls them from the UI
 
   `resource_categories`/`resource_subcategories` are live only as the subject taxonomy for articles and projects
-- [ ] ROADMAP: the `funding_sources` seeds (`dao_treasury`, `crowdfunding`) are article attribution metadata only → say so
-- [ ] ROADMAP/accuracy: `article_attachments` was replaced by `article_documents` and `article_images` (`20260430104609`), and `notification_types` was dropped (notifications now come from `20260918000000_notifications_foundation.sql`) → update the text, diagrams and ER
-- [ ] FORMAT: the page covers only 20 of the 80 migrations → say it covers the V2 cutover and conventions, and link Migrations & Seeding for the full chain
-- [ ] STALE-DETAIL: column groups, `ADD COLUMN` SQL, per-table column tables, the enum value table, seed value lists (keep one empty-guard snippet), SQL drop blocks, ER attribute blocks (keep relationships), and the full `project_faqs` DDL → cut; link `docs/db/schema.sql`
+- [x] ROADMAP: the `funding_sources` seeds (`dao_treasury`, `crowdfunding`) are article attribution metadata only → say so
+- [x] ROADMAP/accuracy: `article_attachments` was replaced by `article_documents` and `article_images` (`20260430104609`), and `notification_types` was dropped (notifications now come from `20260918000000_notifications_foundation.sql`) → update the text, diagrams and ER
+- [x] FORMAT: the page covers only 20 of the 80 migrations → say it covers the V2 cutover and conventions, and link Migrations & Seeding for the full chain
+- [x] STALE-DETAIL: column groups, `ADD COLUMN` SQL, per-table column tables, the enum value table, seed value lists (keep one empty-guard snippet), SQL drop blocks, ER attribute blocks (keep relationships), and the full `project_faqs` DDL → cut; link `docs/db/schema.sql`
 
 ### architecture/middleware-sessions.md (376 → ~120)
 
-- [ ] FORMAT: house-style sweep; delete the "not fully enumerable from the excerpt" leftover
-- [ ] ROADMAP/accuracy: `PUBLIC_PATHS = ["/theme", "/educational-resources", "/auth/signin", "/reset-password"]` is a prefix match that skips `getClaims()`. The middleware never redirects anonymous users to sign-in; gating happens in the layouts. The first three paths are leftovers for routes that don't exist (the educational hub is roadmap)
-- [ ] ROADMAP/accuracy: document the password-reset guard. If `user_metadata.password_reset_pending` is set, the user is redirected to `/reset-password` from everywhere except `/reset-password` and `/auth/signout`. `getUser()` runs only in that case, so normally there is one `getClaims()` call. Fix the sequence diagram and the "two sequential round-trips" claim
-- [ ] ROADMAP/accuracy: the matcher excludes `/api`, static and image assets, and prefetch requests → remove Api from the diagram and add a short Matcher paragraph. The auth-page redirect goes to `/`. The key is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. `withContext` sets requestId, route and method
-- [ ] STALE-DETAIL: Configuration Options and API Reference tables with line-number notes, and the line numbers in the failure table → cut
+- [x] FORMAT: house-style sweep; delete the "not fully enumerable from the excerpt" leftover
+- [x] ROADMAP/accuracy: `PUBLIC_PATHS = ["/theme", "/educational-resources", "/auth/signin", "/reset-password"]` is a prefix match that skips `getClaims()`. The middleware never redirects anonymous users to sign-in; gating happens in the layouts. The first three paths are leftovers for routes that don't exist (the educational hub is roadmap)
+- [x] ROADMAP/accuracy: document the password-reset guard. If `user_metadata.password_reset_pending` is set, the user is redirected to `/reset-password` from everywhere except `/reset-password` and `/auth/signout`. `getUser()` runs only in that case, so normally there is one `getClaims()` call. Fix the sequence diagram and the "two sequential round-trips" claim
+- [x] ROADMAP/accuracy: the matcher excludes `/api`, static and image assets, and prefetch requests → remove Api from the diagram and add a short Matcher paragraph. The auth-page redirect goes to `/`. The key is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. `withContext` sets requestId, route and method
+- [x] STALE-DETAIL: Configuration Options and API Reference tables with line-number notes, and the line numbers in the failure table → cut
 
 ### architecture/ssr-rendering-and-caching.md (586 → ~150)
 
@@ -133,25 +133,25 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### auth-and-accounts/account-switching.md (622 → ~200)
 
-- [ ] FORMAT: house-style sweep; fold the non-standard top-level sections under `## Architecture`
-- [ ] ROADMAP/accuracy: the org `ActiveAccount` variant is `Pick<organizations,"id"|"slug"|"name"> & {type:"org"; logo_path}`. The cookie carries slug, name and logo, which is why an org rename rewrites it. `/api/active-account` checks owner/admin inline (not via `isOrgManager`) and returns 400/403/404
-- [ ] STALE-DETAIL: copies of `getActiveAccount`/`setActiveAccount`/`clearActiveAccount`/`getOrgActiveAccount` and the cookie table (→ one paragraph: cached, malformed → user mode, httpOnly/lax/30 days, org-only pages redirect to /settings), `requestAccountSwitch`/`useAccountSwitch` copies, switcher JSX (keep the promise-as-prop + Suspense pattern), the `isOrgManager`/`resolveOrgId`/`canManageArticle` bodies (keep the security-model prose), the API Reference, the failure table with line links, and the hooks barrel link → cut
+- [x] FORMAT: house-style sweep; fold the non-standard top-level sections under `## Architecture`
+- [x] ROADMAP/accuracy: the org `ActiveAccount` variant is `Pick<organizations,"id"|"slug"|"name"> & {type:"org"; logo_path}`. The cookie carries slug, name and logo, which is why an org rename rewrites it. `/api/active-account` checks owner/admin inline (not via `isOrgManager`) and returns 400/403/404
+- [x] STALE-DETAIL: copies of `getActiveAccount`/`setActiveAccount`/`clearActiveAccount`/`getOrgActiveAccount` and the cookie table (→ one paragraph: cached, malformed → user mode, httpOnly/lax/30 days, org-only pages redirect to /settings), `requestAccountSwitch`/`useAccountSwitch` copies, switcher JSX (keep the promise-as-prop + Suspense pattern), the `isOrgManager`/`resolveOrgId`/`canManageArticle` bodies (keep the security-model prose), the API Reference, the failure table with line links, and the hooks barrel link → cut
 
 ### auth-and-accounts/auth-flows.md (580 → ~180)
 
-- [ ] FORMAT: house-style sweep; fold Core Flow, Usage Examples and Configuration Options into Architecture and Operational Notes
-- [ ] ROADMAP/accuracy: `authorizeUser()` (`src/lib/supabase/auth.ts`) is dead code. The real guard is `getAuthUserOrRedirect()` (`queries/auth.ts`) in the `(dashboard)` layout and in pages; feed, profile and reader are public → rewrite the guard section and remove both guard diagrams
-- [ ] ROADMAP/accuracy: the auth flows are server actions in `src/lib/supabase/actions.ts`: `login`, `signup` (ACCESS_TOKEN gate), `forgotPassword`, `resetPassword`, `verifyOtpForRecovery`, `verifyEmailOtp`, `resendVerificationEmail`, `signOut`. Signup and recovery use in-app OTP; `/auth/confirm` is the link fallback. Add the middleware password-reset guard and the redirect of signed-in users away from auth pages
-- [ ] ROADMAP/accuracy: `/auth/error` reads only `message`. `AuthError` lives on `(main)/error` and reads `code`. `AuthFormPanel` is presentational; `LoginPageForm` calls `useAuth()`. Mention `GoogleSignIn` is disabled
-- [ ] STALE-DETAIL: the line-by-line confirm-route walkthrough (keep the decision mermaid), the config.toml table, the API Reference, the 13-row edge-case table, and the speculative "request-level deduplication" claim → cut
+- [x] FORMAT: house-style sweep; fold Core Flow, Usage Examples and Configuration Options into Architecture and Operational Notes
+- [x] ROADMAP/accuracy: `authorizeUser()` (`src/lib/supabase/auth.ts`) is dead code. The real guard is `getAuthUserOrRedirect()` (`queries/auth.ts`) in the `(dashboard)` layout and in pages; feed, profile and reader are public → rewrite the guard section and remove both guard diagrams
+- [x] ROADMAP/accuracy: the auth flows are server actions in `src/lib/supabase/actions.ts`: `login`, `signup` (ACCESS_TOKEN gate), `forgotPassword`, `resetPassword`, `verifyOtpForRecovery`, `verifyEmailOtp`, `resendVerificationEmail`, `signOut`. Signup and recovery use in-app OTP; `/auth/confirm` is the link fallback. Add the middleware password-reset guard and the redirect of signed-in users away from auth pages
+- [x] ROADMAP/accuracy: `/auth/error` reads only `message`. `AuthError` lives on `(main)/error` and reads `code`. `AuthFormPanel` is presentational; `LoginPageForm` calls `useAuth()`. Mention `GoogleSignIn` is disabled
+- [x] STALE-DETAIL: the line-by-line confirm-route walkthrough (keep the decision mermaid), the config.toml table, the API Reference, the 13-row edge-case table, and the speculative "request-level deduplication" claim → cut
 
 ### auth-and-accounts/user-settings.md (841 → ~220)
 
-- [ ] FORMAT: house-style sweep; use real links for the sibling topics
-- [ ] ROADMAP: privacy settings are planned. `/api/user-settings` has no callers; only the profile layout filters on `user_settings.privacy`/`public_profile` → mark as roadmap and state what's wired
-- [ ] ROADMAP/accuracy: the dialogs use server actions: `initiateEmailChange`/`verifyEmailChange` (OTP), `changePassword` (`settings/actions.ts`) and `deleteAccount` (`lib/supabase/actions.ts`)
-- [ ] ROADMAP: add `## Account Deletion` (built): `delete_user_account` RPC → admin `deleteUser` → best-effort R2 purge → confirmation email → sign out and `clearActiveAccount`. Org owners get an extra dialog step (`isOrgOwner`)
-- [ ] STALE-DETAIL: form props and defaults copies, the full `profileSettingsSchema` and field table, the server action copied block by block (keep the why), ER/SQL/RLS SQL (→ one paragraph), the API Reference, dialog JSX, the second failure diagram, index/O(log n) notes, the extension table → cut
+- [x] FORMAT: house-style sweep; use real links for the sibling topics
+- [x] ROADMAP: privacy settings are planned. `/api/user-settings` has no callers; only the profile layout filters on `user_settings.privacy`/`public_profile` → mark as roadmap and state what's wired
+- [x] ROADMAP/accuracy: the dialogs use server actions: `initiateEmailChange`/`verifyEmailChange` (OTP), `changePassword` (`settings/actions.ts`) and `deleteAccount` (`lib/supabase/actions.ts`)
+- [x] ROADMAP: add `## Account Deletion` (built): `delete_user_account` RPC → admin `deleteUser` → best-effort R2 purge → confirmation email → sign out and `clearActiveAccount`. Org owners get an extra dialog step (`isOrgOwner`)
+- [x] STALE-DETAIL: form props and defaults copies, the full `profileSettingsSchema` and field table, the server action copied block by block (keep the why), ER/SQL/RLS SQL (→ one paragraph), the API Reference, dialog JSX, the second failure diagram, index/O(log n) notes, the extension table → cut
 
 ### api-layer/api-routes.md (922 → ~250)
 
@@ -469,7 +469,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### components/account.md (175 → ~60)
 
-- [ ] STALE-DETAIL: all 5 entries → 1–3 sentences plus Source. Keep: two-step OTP email change, `current_password_incorrect` mapped to its field, the extra org-owner step in `DeleteAccountDialog`, the bio moderation rejection. Compress the intro's join list. At most one usage snippet
+- [x] STALE-DETAIL: all 5 entries → 1–3 sentences plus Source. Keep: two-step OTP email change, `current_password_incorrect` mapped to its field, the extra org-owner step in `DeleteAccountDialog`, the bio moderation rejection. Compress the intro's join list. At most one usage snippet
 
 ### components/articles.md (880 → ~250)
 
@@ -485,7 +485,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### components/auth.md (207 → ~80)
 
-- [ ] STALE-DETAIL: all 10 entries → 1–3 sentences plus Source. Keep: login hydrates `useAuth`, forgot-password Resend returns to the email step, the Firefox 100 ms delay, `AuthError` needs Suspense. GoogleSignIn → one line (unused; nonce + ID token; profile bootstrap; hard-coded client ID). At most one snippet
+- [x] STALE-DETAIL: all 10 entries → 1–3 sentences plus Source. Keep: login hydrates `useAuth`, forgot-password Resend returns to the email step, the Firefox 100 ms delay, `AuthError` needs Suspense. GoogleSignIn → one line (unused; nonce + ID token; profile bootstrap; hard-coded client ID). At most one snippet
 
 ### components/events.md (30 → ~12)
 
@@ -494,9 +494,9 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### components/home.md (220 → ~70)
 
-- [ ] ROADMAP: `HowOzeaonWorks` describes planned features (quizzes, funding, DAO, Progress) and isn't rendered. `SubjectCard` is unused Educational Resources scaffolding. `ComingSoonPage` has no call sites
-- [ ] FORMAT: drop the Kind lines; shorten the barrel bullet
-- [ ] STALE-DETAIL: all 12 entries → 1–3 sentences plus Source. Compress the ActivitySlot query details (keep the Suspense/`getAuthUser` streaming note). At most one snippet
+- [x] ROADMAP: `HowOzeaonWorks` describes planned features (quizzes, funding, DAO, Progress) and isn't rendered. `SubjectCard` is unused Educational Resources scaffolding. `ComingSoonPage` has no call sites
+- [x] FORMAT: drop the Kind lines; shorten the barrel bullet
+- [x] STALE-DETAIL: all 12 entries → 1–3 sentences plus Source. Compress the ActivitySlot query details (keep the Suspense/`getAuthUser` streaming note). At most one snippet
 
 ### components/icons.md (106 → ~45)
 
