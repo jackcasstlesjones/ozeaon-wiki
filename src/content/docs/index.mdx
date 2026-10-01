@@ -12,3 +12,29 @@ hero:
       link: /ozeaon-wiki/overview/getting-started/
       variant: minimal
 ---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Start Here
+
+<CardGrid>
+  <LinkCard title="Project Overview" description="What the platform does, what is planned, and the decisions that shape the code." href="/ozeaon-wiki/overview/project-overview/" />
+  <LinkCard title="Getting Started" description="Run the app and a local Supabase in a few commands." href="/ozeaon-wiki/overview/getting-started/" />
+  <LinkCard title="Adding a Feature" description="A worked path through the database, API, UI and deployment layers." href="/ozeaon-wiki/developer-guide/adding-a-feature/" />
+</CardGrid>
+
+## Sections
+
+<CardGrid>
+  <LinkCard title="Architecture" description="Route groups, rendering and caching, Supabase clients, the data model and generated types." href="/ozeaon-wiki/architecture/app-structure/" />
+  <LinkCard title="Authentication & Accounts" description="Sign-in flows, account switching and user settings." href="/ozeaon-wiki/auth-and-accounts/auth-flows/" />
+  <LinkCard title="Content & Social Features" description="Posts, projects, articles, organizations, profiles, comments, search and notifications." href="/ozeaon-wiki/features/posts/" />
+  <LinkCard title="Rich Text Editor" description="The Tiptap editor core, toolbar, upload registry and editor API." href="/ozeaon-wiki/editor/tiptap-core/" />
+  <LinkCard title="API & Server Actions" description="Route handler conventions, server actions, queries and edge functions." href="/ozeaon-wiki/api-layer/api-routes/" />
+  <LinkCard title="Content Moderation & Storage" description="The moderation pipeline, R2 storage and email integrations." href="/ozeaon-wiki/moderation-and-storage/moderation/" />
+  <LinkCard title="Design System" description="Design tokens, UI primitives, layout shells, navigation and form patterns." href="/ozeaon-wiki/design-system/design-tokens/" />
+  <LinkCard title="Components" description="A catalog of the components under src/components, grouped by domain." href="/ozeaon-wiki/components/account/" />
+  <LinkCard title="Configuration & Utilities" description="Environment config, constants, shared hooks, utilities and Zod schemas." href="/ozeaon-wiki/config-and-utils/config-constants/" />
+  <LinkCard title="Operations & Deployment" description="Cloudflare deployment, CI/CD and previews, logging, migrations and seeding." href="/ozeaon-wiki/operations/cloudflare-deployment/" />
+  <LinkCard title="Developer Guide" description="Coding conventions, lint rules and the end-to-end feature workflow." href="/ozeaon-wiki/developer-guide/conventions-and-linting/" />
+</CardGrid>
