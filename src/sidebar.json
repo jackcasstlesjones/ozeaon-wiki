@@ -4,17 +4,7 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "overview"
-        }
-      }
-    ]
-  },
-  {
-    "label": "Getting Started",
-    "items": [
-      {
-        "autogenerate": {
-          "directory": "getting-started"
+          "directory": "1-overview"
         }
       }
     ]
@@ -24,107 +14,97 @@
     "items": [
       {
         "autogenerate": {
-          "directory": "architecture"
+          "directory": "2-architecture"
         }
       }
     ]
   },
   {
-    "label": "Authentication & Session Management",
+    "label": "Authentication & Accounts",
     "items": [
       {
         "autogenerate": {
-          "directory": "authentication"
+          "directory": "3-auth-and-accounts"
         }
       }
     ]
   },
   {
-    "label": "API Layer",
+    "label": "Content & Social Features",
     "items": [
       {
         "autogenerate": {
-          "directory": "api-layer"
+          "directory": "4-features"
         }
       }
     ]
   },
   {
-    "label": "Core Product Workflows",
+    "label": "Rich Text Editor",
     "items": [
       {
         "autogenerate": {
-          "directory": "core-workflows"
+          "directory": "5-editor"
         }
       }
     ]
   },
   {
-    "label": "Rich Text Editor & Content Documents",
+    "label": "API & Server Actions",
     "items": [
       {
         "autogenerate": {
-          "directory": "editor-and-documents"
+          "directory": "6-api-layer"
         }
       }
     ]
   },
   {
-    "label": "UI Component Library & Design System",
+    "label": "Content Moderation & Storage",
     "items": [
       {
         "autogenerate": {
-          "directory": "design-system"
+          "directory": "7-moderation-and-storage"
         }
       }
     ]
   },
   {
-    "label": "State, Hooks & Utilities",
+    "label": "Design System & Component Library",
     "items": [
       {
         "autogenerate": {
-          "directory": "hooks-and-utilities"
+          "directory": "8-design-system"
         }
       }
     ]
   },
   {
-    "label": "Data Model & Database",
+    "label": "Configuration & Utilities",
     "items": [
       {
         "autogenerate": {
-          "directory": "data-model"
+          "directory": "9-config-and-utils"
         }
       }
     ]
   },
   {
-    "label": "Integrations & Platform Services",
+    "label": "Operations & Deployment",
     "items": [
       {
         "autogenerate": {
-          "directory": "integrations"
+          "directory": "10-operations"
         }
       }
     ]
   },
   {
-    "label": "Deployment & Operations",
+    "label": "Developer Guide",
     "items": [
       {
         "autogenerate": {
-          "directory": "operations"
-        }
-      }
-    ]
-  },
-  {
-    "label": "Developer Guide & Reference",
-    "items": [
-      {
-        "autogenerate": {
-          "directory": "developer-guide"
+          "directory": "11-developer-guide"
         }
       }
     ]
