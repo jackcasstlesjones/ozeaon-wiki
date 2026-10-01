@@ -56,14 +56,14 @@ Script definitions are in the `scripts` block of [`package.json`](https://github
 | `pnpm db:reset-real` | Reset the local DB and load the real data dump instead of the preview fixture |
 | `pnpm db:seed-dump` | Dump remote data to `supabase/seed.sql` |
 | `pnpm preview` | Build the Worker bundle and serve it locally with real Worker semantics |
-| `pnpm ci:build` / `ci:deploy` | Build and deploy the Worker. Always pass `--env staging` or `--env production` to deploy |
+| `pnpm ci:build` / `ci:deploy` | Build and deploy the Worker. CI runs this as `pnpm ci:deploy --env staging` or `--env production`. Never deploy from a laptop |
 | `pnpm clean-cache` | Clear `.next`, `.open-next`, `.wrangler` and the other tool caches when builds misbehave |
 
 `pnpm build` is a plain `next build`. It is **not** the Worker build. Use `ci:build` or `preview` to check what actually ships.
 
 ## Failure Modes & Edge Cases
 
-- **Preview CSP breaks against local Supabase:** this happens if the CSP is derived from `NODE_ENV`. Keep it derived from `NEXT_PUBLIC_SUPABASE_URL`.
+- **Preview breaks against local Supabase if the CSP is derived from `NODE_ENV`.** Keep it derived from `NEXT_PUBLIC_SUPABASE_URL`.
 - **`db:reset-real` stops on the first error.** It fails if `DB_URL` can't be read and on the first SQL error, so you never get a half-seeded database.
 - **Stale `.open-next` or `.wrangler` state after switching environments:** run `pnpm clean-cache`.
 

@@ -16,18 +16,18 @@ These areas are live in the codebase today:
 - **Projects:** multi-section project pages, drafts and publishing, My Projects, and hard deletion. See [Project Lifecycle & Discovery](../../features/projects/).
 - **Articles:** a Tiptap-based authoring flow, publishing, My Articles, and a reader view. See [Article Authoring & Publishing](../../features/articles-authoring/) and [Article Reader Experience](../../features/articles-reader/).
 - **Posts:** a community feed with attachments and reposts. See [Posts Feed & Post Creation](../../features/posts/).
-- **Comments and likes** on posts, projects and articles. See [Comments & Reactions](../../features/comments-and-reactions/).
+- **Comments** on posts, projects and articles, and **likes** on posts and comments. See [Comments & Reactions](../../features/comments-and-reactions/).
 - **Automated moderation:** content is checked with the OpenAI moderation API before it publishes. See [Content Moderation Pipeline](../../moderation-and-storage/moderation/).
 - **Alpha badges** for users and organizations created during the alpha.
 - **UN SDG tagging** on projects and articles.
 
-These are **in progress**: notifications (first release), legal pages, and in-feed filters on the article and project feeds.
+These are **in progress**: notifications (first release, behind the `NEXT_PUBLIC_FEATURE_NOTIFICATIONS` flag), legal pages, and in-feed filters on the article and project feeds.
 
 ## What Is Planned
 
 The repository README describes the full product vision: pods, DAO governance, a token reward system, project funding and donations, an educational hub with quizzes, and API access for mobile apps and third parties. **None of that is built yet.** It is roadmap work, tracked in the internal product roadmap.
 
-Some of it already has tables in the database schema, for example `pods`, `dao_proposals`, `token_transactions`, `educational_resources`, `events`, `bookmark_folders` and `open_calls`. Treat those as placeholders. A table existing does not mean the feature ships. [Data Model & Database Schema](../../architecture/data-model-and-schema/) marks which tables back live features.
+Some of it already has tables in the database schema, for example `pods`, `dao_proposals`, `token_transactions`, `educational_resources`, `events`, `bookmark_folders` and `open_calls`. Treat those as placeholders. A table existing does not mean the feature ships. A few planned features also have disconnected code: `/api/connections` and `/api/blocks` (not wired into profiles), `/api/events` with an unused `NewEventDialog`, and a pod branch in `/api/users/memberships`. `/search` is a basic name and title search; search across every content type is planned. [Data Model & Database Schema](../../architecture/data-model-and-schema/) marks which tables back live features.
 
 ## Architecture
 
