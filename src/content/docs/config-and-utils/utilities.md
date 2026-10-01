@@ -19,7 +19,7 @@ Eight structural groups live under `src/utils/`:
 | `validators/` | `src/utils/validators/` | Input checking: email, file size/type, image files, article attachment quotas; barrel at `index.ts` |
 | `url/` | `src/utils/url/` | Filename-to-MIME lookup, document-type queries, image and search URL helpers |
 | `data/` | `src/utils/data/` | Stateless gzip compression, comment-thread shaping, sidebar cookie pair |
-| `form/` | `src/utils/form/` | Form-value normalization; `data.ts` is documented with the [UI forms](../../design-system/forms-and-validation/) component pages |
+| `form/` | `src/utils/form/` | Form-value normalization; `data.ts` is documented with the [UI forms](../../forms/field-wrappers/) component pages |
 | `shadcn/` | `src/utils/shadcn/utils.ts` | `cn` — `clsx` + `tailwind-merge` class-merge helper |
 
 The key split is between **pure transformation** (formatters, generators) and **I/O-bearing helpers** (data, fetch, api-error). Pure modules are safe to import from both client and server contexts. `nav-history.ts` is `client-only` guarded. The sidebar-state pair enforces the server boundary through the `.server.ts` module name convention.
@@ -46,7 +46,7 @@ Two functions are consumed downstream. `buildSlugBase` is called directly by the
 - `date.ts` — absolute date formats (locale strings, ISO snippets).
 - `number.ts` — locale-aware number and percentage formatting.
 - `file-size.ts` — converts bytes to human-readable size strings (used by [Media & Images](../../storage/media-and-images/) upload feedback).
-- `string.ts` — `capitalize`, `truncate`, `toLabel` (camel/snake → sentence case). `toLabel` is also consumed by the [Zod validation](../zod-validation/) custom-error hook to derive field display names.
+- `string.ts` — `capitalize`, `truncate`, `toLabel` (camel/snake → sentence case). `toLabel` is also consumed by the [Zod validation](../../forms/zod-schemas/) custom-error hook to derive field display names.
 - `array.ts` — dedupe, chunk, and sort helpers.
 - `object.ts` — `omit`, `pick`, and deep-equality helpers.
 
@@ -78,7 +78,7 @@ Two functions are consumed downstream. `buildSlugBase` is called directly by the
 - [`toast.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/toast.ts) — `showUndoToast` shows a Sonner toast with an Undo button. The `onCommit` callback fires after the toast duration expires, not on dismiss, so the action is deferred.
 - [`project.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/project.ts) — `parseProjectFilters`, `getProjectTags`, `getSubcategoryIds`, `getSDGIds`, `getDisplayProjectType`, and `updateDraftUrl`. `getDisplayCurrency`, `getDisplayCurrencySymbol`, and `formatFundingAmount` are scaffolding for planned project funding and have no current callers in components.
 - [`api-error.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/api-error.ts) / [`supabase-error.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/supabase-error.ts) — normalize thrown values into structured `ApiError` objects that route handlers and server actions return.
-- [`zod-to-db.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/zod-to-db.ts) — bridges validated [Zod](../zod-validation/) form data to the DB row shape expected by Supabase mutations.
+- [`zod-to-db.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/zod-to-db.ts) — bridges validated [Zod](../../forms/zod-schemas/) form data to the DB row shape expected by Supabase mutations.
 
 :::note[Project funding — roadmap]
 `getDisplayCurrency`, `getDisplayCurrencySymbol`, and `formatFundingAmount` in `project.ts` are defined but have no callers. Project funding (currency selection, funding rounds, donations) is a planned feature not yet built.
@@ -110,7 +110,7 @@ All `formatters/`, `generators/`, `validators/`, and `shadcn/` modules are pure 
 
 ## Related Links
 
-- [Zod Validation](../zod-validation/) — schema and form validation layer; `zod-to-db.ts` bridges the two
+- [Zod Schemas](../../forms/zod-schemas/) — schema and form validation layer; `zod-to-db.ts` bridges the two
 - [Config Constants](../config-constants/) — env vars and constants that some validators and formatters reference
 - [Storage (R2)](../../storage/storage-r2/) — `storage-key.ts` builds keys for R2 uploads
 - [Media & Images](../../storage/media-and-images/) — image validation and upload pipeline

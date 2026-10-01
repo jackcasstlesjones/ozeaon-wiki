@@ -89,7 +89,7 @@ flowchart TD
     Queries --> Joins
 ```
 
-API routes own validation and authorization. The query module owns shape and filtering of read models. `useProjectForm` owns client-side form state and step gating. Keeping slug generation and moderation in the API layer means a direct API caller gets the same guarantees as the UI.
+API routes own validation and authorization. The query module owns shape and filtering of read models. `useProjectForm` owns client-side form state, completion tracking and the save calls (see [Forms & Validation](../../forms/form-architecture/)). Keeping slug generation and moderation in the API layer means a direct API caller gets the same guarantees as the UI.
 
 ## Lifecycle: From Draft to Published
 
@@ -97,7 +97,7 @@ The PATCH handler in [`src/app/api/projects/[id]/route.ts`](https://github.com/o
 
 1. **Existence check** — select the columns needed for authorization and image cleanup; return 404 on missing.
 2. **Authorization** — `canManageProject(supabase, existingProject, user.id, activeAccount)` using the already-fetched row to avoid a second round trip. Return 403 on failure.
-3. **Schema selection** — `body.published === true` promotes the request to `projectPublishSchema`; otherwise `projectDraftSchema`. Invalid payloads return 400 with a field-keyed error map (`result.error.flatten().fieldErrors`) that `react-hook-form` can surface inline.
+3. **Schema selection** — `body.published === true` promotes the request to `projectPublishSchema`; otherwise `projectDraftSchema`. Invalid payloads return 400 with a field-keyed error map (`result.error.flatten().fieldErrors`). The project form doesn't map it onto fields and shows a toast instead (see [Server Errors & Moderation](../../forms/server-errors-and-moderation/)).
 4. **Referential checks** — `currency_id` and `project_type_id` are looked up against their tables. Free-form IDs from the client are not trusted to reference real rows.
 5. **Subcategory → category resolution** — the client sends subcategory IDs; the handler resolves the parent `category_id` for each. Category alignment is derived, not trusted.
 6. **Zod → DB transformation + moderation** — `transformProjectForUpdate` maps validated data to the database shape; `collectProjectModerationTexts` derives the strings passed to `moderateAndLog`. What is moderated is what will be stored. The handler returns 422 on rejection, 503 on a moderation service error (fail-closed).
@@ -231,6 +231,7 @@ The `v_project_status` view computes draft-vs-published status server-side so th
 
 ## Related Links
 
+- [Forms & Validation](../../forms/form-architecture/) — how the project editor form saves, validates and maps errors
 - [PATCH route](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/projects/[id]/route.ts)
 - [Query helpers](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/projects.ts)
 - [Zod schemas](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/zod/projects/index.ts)

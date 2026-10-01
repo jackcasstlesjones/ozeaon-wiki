@@ -7,7 +7,7 @@ sidebar:
 
 Everything needed to build a form: collapsible section cards and the sticky section sidebar, drag-and-drop and image upload controls, and a set of React Hook Form (RHF) wrappers that bind shadcn inputs to a field by `name`. Import layout and upload components from `@/components/ui/forms`; import RHF wrappers from `@/components/ui/forms/hook-form`. The wrappers read the form through `useFormContext` and must render inside a `<Form {...form}>` provider in a client component. `InputContent` is not in the hook-form barrel — import it from `@/components/ui/forms/hook-form/InputContent` directly.
 
-See also: [Forms & Validation](../../../design-system/forms-and-validation/) in the design system.
+See also: the [Forms & Validation](../../../forms/form-architecture/) section, which covers how these pieces fit together in the editor forms.
 
 ## Layout and Navigation
 

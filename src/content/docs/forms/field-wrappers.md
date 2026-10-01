@@ -1,8 +1,8 @@
 ---
-title: "Forms, Hooks & Validation Patterns"
-description: "How Ozeaon wires React Hook Form into shadcn primitives: context-consuming field wrappers, cross-field derivation, conditional visibility with ShowWhen, and Zod-schema-backed domain form hooks."
+title: "Field Wrappers & Conditional Fields"
+description: "How React Hook Form is wired into shadcn primitives: context-consuming field wrappers, cross-field derivation, conditional visibility with ShowWhen, and required-field markers."
 sidebar:
-  order: 4
+  order: 2
 ---
 
 Ozeaon's form layer combines React Hook Form, Zod, and shadcn primitives into a family of context-consuming field wrappers. The core contract is simple: every wrapper calls `useFormContext` internally, so a developer renders `<InputText name="title" label="Title" />` anywhere under a `<Form>` (which wraps `FormProvider`) and gets labelling, error styling, and cross-field hooks for free — without threading a `control` prop through intermediate components.
@@ -13,7 +13,7 @@ Three layers cooperate. The state engine is React Hook Form: it holds values, di
 
 The wrappers are re-exported from the [barrel](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/index.ts). The barrel also exports `RequiredFieldsProvider`/`useRequiredFields` from [`RequiredFieldsContext.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/RequiredFieldsContext.tsx), which lets a form surface a set of required field names to a label renderer without prop drilling.
 
-For the per-component detail see [UI Primitives](../ui-primitives/).
+For per-component props see the [Forms components catalogue](../../components/ui/forms/). For how the wrappers fit into the big editor forms, see [Form Architecture](../form-architecture/).
 
 ## Architecture
 
@@ -28,7 +28,7 @@ flowchart TD
     ShowWhen["ShowWhen"]
     RHF["react-hook-form"]
     Resolver["Zod resolver"]
-    Schemas["src/zod/articles/step1-6.ts"]
+    Schemas["src/zod/<domain>/"]
 
     Form --> FormContext
     FormContext --> InputText
@@ -40,7 +40,7 @@ flowchart TD
     Resolver --> Schemas
 ```
 
-The domain form passes a resolver and step-level schemas; the wrappers stay schema-agnostic.
+The domain form passes a resolver; the wrappers stay schema-agnostic.
 
 ## FormProvider Contract
 
@@ -50,7 +50,7 @@ Every wrapper:
 - Never accepts a `control` prop.
 - Must be rendered inside a shadcn `<Form>`, which wraps `FormProvider`.
 
-`ArticleForm` sets `shouldUnregister: false` in the `useForm` call. This is required: `ShowWhen` can mount and unmount fields, and without `shouldUnregister: false` the field value would be discarded on unmount, defeating the point of keeping a joined object in sync with its FK.
+All three editor forms set `shouldUnregister: false` in `useForm`. This is required. `ShowWhen` mounts and unmounts fields, and without it a hidden field's value would be discarded, defeating the point of keeping a joined object in sync with its FK. It also lets `useWatch` read fields that have no mounted input, such as the article `slug`.
 
 ## Field Wrappers
 
@@ -98,9 +98,9 @@ The FK-plus-joined-object pattern (`article_type_id` + `article_type`) is why th
 
 Available on `InputText` and `InputBoolean`. Lists sibling field names to re-trigger via `control.trigger(name)` on blur or change — useful when one field's validity depends on another and RHF would not re-validate the sibling on its own.
 
-## Conditional Rendering with `ShowWhen`
+## Conditional Fields with `ShowWhen`
 
-`ShowWhen` reads a field value with `useWatch` and mounts or unmounts its children based on a `check` predicate (defaults to `!!value`). Unmounting means the field never registers with RHF while hidden, so conditional required-ness works naturally.
+`ShowWhen` reads a field value with `useWatch` and mounts or unmounts its children based on a `check` predicate. Without `check` it shows when `!!value`, or when `!value` with `invert`. Because the forms use `shouldUnregister: false`, a hidden field **keeps its value** and is still submitted and validated. Conditional required-ness belongs in the schema (for example a `superRefine` keyed on `article_type.code`), not in whether the input is mounted.
 
 ```tsx
 <ShowWhen
@@ -112,17 +112,23 @@ Available on `InputText` and `InputBoolean`. Lists sibling field names to re-tri
 </ShowWhen>
 ```
 
-The `unregisterFields` prop explicitly sets the listed fields to `null` then calls `unregister` when the predicate goes false. This matters because `shouldUnregister: false` keeps values alive across unmounts by default — `unregisterFields` opts specific fields back out of that behaviour.
+The `unregisterFields` prop sets the listed fields to `null` (marking them dirty) and then calls `unregister` when the predicate goes false. Use it when a hidden value must not be saved, such as a linked project left over after the article type changes. It only fires on the visible → hidden transition, and it doesn't restore anything when the field reappears.\n\n`ShowWhen` is used throughout the article sections (type-specific fields, embargo dates, attachments) and in the project Configuration section.
 
 ## Error State & Description Styling
 
 `FieldWrapper` applies `border-destructive bg-error-surface` when `fieldState.invalid` is true. The `description` text is suppressed while an error is active — `FormMessage` takes its place — so the field shows exactly one message and its vertical height stays stable.
 
-## Domain Form Hooks
+## Required Field Markers
 
-`useProjectForm` (`src/hooks/use-project-form.ts`) is the only dedicated domain form hook. It owns step orchestration, accumulated values, and per-step validation gating for the five-step project form, backed by Zod step schemas in `src/zod/projects/`.
+A field's label shows a required marker when its `name` is in the nearest [`RequiredFieldsProvider`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/RequiredFieldsContext.tsx)'s `fields` list. `FieldWrapper`'s label checks both the exact name and a version with inner array indexes removed (`.0.` → `.`). Listing `faqs.question` therefore marks every `faqs.<n>.question`. A trailing index, as in `tags.0`, is not removed.
 
-`ArticleForm` uses six step schemas (`src/zod/articles/step1-6.ts`) but does not have a parallel `useArticleForm` hook — the form is a single page that switches active step schemas inline. The access-level and embargo fields exist in the schema (`access_level.requires_embargo_date` drives `ShowWhen` for `embargo_end_date`); the `token_gated` access level is defined as an enum value but token-gating is planned and not wired in the UI.
+The list is maintained by hand, separately from the Zod schema:
+
+- projects: `Object.keys(REQUIRED_FIELD_MESSAGES)` from `config/constants/projects.ts`
+- organisations: `ORG_REQUIRED_FIELDS` from `config/constants/organizations.ts`
+- articles and profile settings: their own lists
+
+Providers nest. The project `ContentSectionCard` wraps a required content block in its own provider listing `sections.<index>.intro` and `sections.<index>.body`. The inner provider **replaces** the outer set rather than adding to it, which is fine there because the block contains no other fields.
 
 ## Failure Modes & Edge Cases
 
@@ -133,7 +139,7 @@ A wrapper rendered outside a `<Form>` will throw at `useFormContext` — every w
 - New field wrapper: create a component in `src/components/ui/forms/hook-form/`, call `useFormContext`, render through `FieldWrapper`, and re-export from `index.ts`. Error/description styling is automatic.
 - New cross-field rule: prefer `updates` (derivation) or `validates` (re-validation) at the call site; reach for `useEffect` only when neither suffices.
 - New validation rule: add it to the Zod schema in `src/zod/`, not to a component.
-- New domain form: follow the `useProjectForm` pattern — a `use*Form` hook plus step schemas.
+- New domain form: see [Form Architecture](../form-architecture/#extension-points).
 - shadcn primitives: always add via `pnpm dlx shadcn@latest add <component-name>`; never install `@radix-ui/react-*` directly.
 
 ## Related Links
@@ -142,7 +148,6 @@ A wrapper rendered outside a `<Form>` will throw at `useFormContext` — every w
 - [ShowWhen](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/ShowWhen.tsx)
 - [FieldWrapper](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/FieldWrapper.tsx)
 - [RequiredFieldsContext](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/RequiredFieldsContext.tsx)
-- [useProjectForm](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-project-form.ts)
-- [Article step schemas](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/zod/articles)
-- [Zod Schemas & Form Validation](../../config-and-utils/zod-validation/) — Zod schema conventions
-- [UI Primitives](../ui-primitives/) — per-component detail
+- [Zod Schemas](../zod-schemas/): schema conventions
+- [Forms components catalogue](../../components/ui/forms/): per-component props
+- [UI Primitives](../../design-system/ui-primitives/)

@@ -78,11 +78,11 @@ Details worth knowing when extending it:
 
 ### Other Generic Hooks
 
-`useTransitionRouter` wraps navigation to coordinate view transitions; `useUnsavedChangesGuard` provides a reusable guard for forms with unsaved changes. Both are in [`src/hooks/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks) and exported from the barrel.
+`useTransitionRouter` wraps navigation to coordinate view transitions; `useUnsavedChangesGuard` provides a reusable guard for forms with unsaved changes (see [Drafts, Saving & Publishing](../../forms/saving-and-publishing/#leaving-with-unsaved-changes)). Both are in [`src/hooks/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks) and exported from the barrel.
 
 ## Feature Hooks
 
-Notifications, comments, posting, moderation, and form hooks are documented on their feature pages: [Notifications](../../community/notifications/), [Comments & Reactions](../../community/comments-and-reactions/), [Posts](../../posts/posts/). Three hooks are described here because they sit at the intersection of multiple features or have unusual conventions.
+Notifications, comments, posting, moderation, and form hooks are documented on their feature pages: [Notifications](../../community/notifications/), [Comments & Reactions](../../community/comments-and-reactions/), [Posts](../../posts/posts/). The form hooks (`useProjectForm`, `useOrganizationForm`, `useModerationRejection`) are covered in [Forms & Validation](../../forms/form-architecture/). Three hooks are described here because they sit at the intersection of multiple features or have unusual conventions.
 
 ### `useArticleValidation`
 
@@ -94,6 +94,7 @@ Gotchas before extending it:
 - **Corresponding-author errors are per-index.** When no corresponding author is set the error appears on every author row, not a single summary.
 - **Content rules are article-type-dependent.** `isResearchOrIP(article_type?.code)` decides whether a PDF is mandatory. All limits and messages come from `@/config/constants/articles`.
 - **Not in the barrel.** Its sole consumer, `ArticleFormSidebar.tsx`, imports directly from `@/hooks/use-article-validation`.
+- **It isn't Zod.** Its rules overlap with `articlePublishSchema` but don't match it. See [Sections, Progress & Completion](../../forms/sections-and-progress/#articles-hand-written-rules-only-after-a-save).
 
 ### `useDeleteArticle`
 
@@ -125,3 +126,4 @@ The hook also returns `handleRepost(postId)`, which only logs the call and retur
 - [Comments & Reactions](../../community/comments-and-reactions/) — `useThreadComments`, `useCommentIdentity`
 - [Posts](../../posts/posts/) — `useCreatePost`, `usePostImages`, `useRepost`
 - [Logging & Observability](../../operations/logging-observability/) — logger consumed by `useAsyncAction`
+- [Forms & Validation](../../forms/form-architecture/) — `useProjectForm`, `useOrganizationForm`, `useModerationRejection`, `useUnsavedChangesGuard`

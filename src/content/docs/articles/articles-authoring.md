@@ -171,6 +171,7 @@ The slug is locked from the moment of publishing; the form-wide lock applies onl
 
 ## Related Links
 
+- [Forms & Validation](../../forms/form-architecture/) — the shared form machinery behind `ArticleForm`
 - [Editor route](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(editor)/articles/new/page.tsx)
 - [ArticleForm](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/form/ArticleForm.tsx)
 - [Zod schemas](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/zod/articles/index.ts)

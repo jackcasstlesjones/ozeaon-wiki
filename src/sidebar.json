@@ -110,6 +110,16 @@
     ]
   },
   {
+    "label": "Forms & Validation",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "forms"
+        }
+      }
+    ]
+  },
+  {
     "label": "Moderation",
     "items": [
       {

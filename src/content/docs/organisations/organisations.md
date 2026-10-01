@@ -130,6 +130,7 @@ flowchart TD
 
 ## Related Links
 
+- [Forms & Validation](../../forms/form-architecture/) — the organisation create form and shared form machinery
 - [src/types/organizations.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/organizations.ts) — domain types (`OrganizationMember`, `OrgMemberRole`, `OrgFeedRow`, `OrgInvite`, `OrgJoinRequest`, `OrganizationForLayout`, …)
 - [src/config/constants/organizations.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/organizations.ts) — field limits and required-field definitions
 - [src/lib/supabase/queries/organizations.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts) — organisation, member, role, invite and join-request reads

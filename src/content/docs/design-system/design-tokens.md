@@ -122,5 +122,5 @@ To re-skin shadcn components: change only the bridge block (`--background`, `--f
 - [`eslint.rules.base.mjs`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/eslint.rules.base.mjs) — `better-tailwindcss/no-unknown-classes`
 - [UI Primitives](../ui-primitives/) — shadcn & Radix component wrappers that consume these tokens
 - [Cards & Layout](../cards-and-layout/) — card components and layout shells
-- [Forms & Validation](../forms-and-validation/) — form field wrappers
+- [Field Wrappers & Conditional Fields](../../forms/field-wrappers/) — form field wrappers
 - [Conventions & Linting](../../developer-guide/conventions-and-linting/) — full ESLint config including caching bans
