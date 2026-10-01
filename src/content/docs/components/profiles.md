@@ -726,7 +726,7 @@ A "Members" heading and a one- or two-column grid of `UserCard`s. Returns `null`
 
 #### OrgPostsFeed
 
-An empty placeholder for an Organization-scoped posts feed section. The file has no content and exports nothing, and the sections barrel does not list it. The Organization posts tab renders the shared `PostsInfiniteFeed` with an `organizationId` directly instead (see [Posts Feed & Post Creation](../features/posts/)).
+An empty placeholder for an Organization-scoped posts feed section. The file has no content and exports nothing, and the sections barrel does not list it. The Organization posts tab renders the shared `PostsInfiniteFeed` with an `organizationId` directly instead (see [Posts Feed & Post Creation](../../features/posts/)).
 
 - **Source:** [src/components/profiles/organizations/sections/OrgPostsFeed.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/sections/OrgPostsFeed.tsx)
 - **Kind:** Empty file (no exports)

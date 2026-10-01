@@ -478,7 +478,7 @@ Single export `getAllCategoriesWithSubcategories(): Promise<CategoryWithSubcateg
 
 ### `queries/comment-sources.ts`
 
-The query half of the comment API (the route factories that consume it are covered on the [data-access page](../api-layer/server-actions-and-queries/)). `CommentSource<TComment>` is one entity's read/write surface: `label`, the four writes (`insert`, `update`, `softDelete`, `hardDelete`), and seven reads (`entityFlag`, `roots`, `liveCount`, `replies`, `replyTotals`, `replyTarget`, `answerCount`).
+The query half of the comment API (the route factories that consume it are covered on the [data-access page](../../api-layer/server-actions-and-queries/)). `CommentSource<TComment>` is one entity's read/write surface: `label`, the four writes (`insert`, `update`, `softDelete`, `hardDelete`), and seven reads (`entityFlag`, `roots`, `liveCount`, `replies`, `replyTotals`, `replyTarget`, `answerCount`).
 
 `createCommentSource(label, select, writes)` derives every read from the label — `post` yields `posts`, `post_comments`, `post_id`, and the `post_comment_replies` / `post_comment_reply_totals` RPCs — so the reads are written once. Two consequences are load-bearing:
 

@@ -8,7 +8,7 @@ Object storage for the platform is centralized behind a single `StorageAdapter` 
 
 ## Purpose and Scope
 
-This page documents how the application performs binary object storage: the `StorageAdapter` abstraction (`@/lib/storage/adapter`), the Cloudflare R2 bucket binding defined in `wrangler.jsonc`, the per-environment bucket configuration, the public URL scheme (`storage-r2.ozeaon.com` / `storage-r2.ozeaon.dev`), and the file-serving cache path under `/api/storage`. It also carries the per-file reference for the rest of `src/lib/storage` — the `R2BindingStorage` class behind the adapter, the module barrel, and the storage audit / orphan-cleanup pair — plus the server-side upload and delete pipelines built on top of the adapter (`src/lib/documents/upload.ts`, `src/lib/images/upload.ts`, `src/lib/images/delete.ts`). The browser-side, moderation-aware upload helper (`src/lib/images/client.ts`) is documented on [Media, Images & Attachments](../features/media-and-images/).
+This page documents how the application performs binary object storage: the `StorageAdapter` abstraction (`@/lib/storage/adapter`), the Cloudflare R2 bucket binding defined in `wrangler.jsonc`, the per-environment bucket configuration, the public URL scheme (`storage-r2.ozeaon.com` / `storage-r2.ozeaon.dev`), and the file-serving cache path under `/api/storage`. It also carries the per-file reference for the rest of `src/lib/storage` — the `R2BindingStorage` class behind the adapter, the module barrel, and the storage audit / orphan-cleanup pair — plus the server-side upload and delete pipelines built on top of the adapter (`src/lib/documents/upload.ts`, `src/lib/images/upload.ts`, `src/lib/images/delete.ts`). The browser-side, moderation-aware upload helper (`src/lib/images/client.ts`) is documented on [Media, Images & Attachments](../../features/media-and-images/).
 
 It is intentionally bounded to the **storage layer**. Related topics that live on sibling pages:
 
@@ -245,7 +245,7 @@ The full image pipeline, in order:
 
 1. **Validation** — `validateFileType(file.name, IMAGE_CONFIG.allowedTypes)` and `validateFileSize(file.size, maxSize)` return `400` with the shared `IMAGE_ERROR_MESSAGES` wording before anything is written.
 2. **Key + write** — `generateUniqueKey(storageKeyPrefix, file.name)` then `StorageAdapter.uploadFile` with `cacheControl: "public, max-age=31536000, immutable"` and custom metadata (`userId`, `uploadType`, `originalName`, `uploadedAt`). An `onMark` callback is forwarded so routes can time the write.
-3. **Moderation gate** — `resolveModerationImage` + `checkUploadedImage` run the asset through the content-moderation pipeline (see [Content Moderation Pipeline](./moderation/)). A `rejected` decision deletes the just-uploaded object (best-effort, logged on failure) and returns `422` with `moderation: [{ field: uploadType, categories }]`; any other non-`allowed` decision returns `503` with the shared "We couldn't complete the content check" message.
+3. **Moderation gate** — `resolveModerationImage` + `checkUploadedImage` run the asset through the content-moderation pipeline (see [Content Moderation Pipeline](../moderation/)). A `rejected` decision deletes the just-uploaded object (best-effort, logged on failure) and returns `422` with `moderation: [{ field: uploadType, categories }]`; any other non-`allowed` decision returns `503` with the shared "We couldn't complete the content check" message.
 4. **DB record** — inserts into `images` (`path`, `uploader_id`, `alt`, `title` derived by stripping the extension, `mime_type`, `file_size_bytes`, caller-measured `width`/`height`). On insert failure the object is deleted and `500` returned.
 5. **Result** — `{ imageId, imageUrl: StorageAdapter.getPublicUrl(path), path }`.
 
@@ -308,7 +308,7 @@ Takes an audit result and deletes both orphan sets: R2 orphans through `storage.
 
 ### Caller
 
-The pair is exposed by the secret-gated `/api/storage/audit` route: `GET` runs `auditStorage()` and returns the report; `DELETE` runs the audit and then `cleanupOrphans`, returning what was deleted. Both require an `x-audit-secret` header matching the `STORAGE_AUDIT_SECRET` environment variable and return `403` otherwise — appropriate, given the admin client and bulk-delete behaviour. The route is one of the plain-export handlers that pass `route`/`method` to `logError` explicitly (see [Logging & Observability](../operations/logging-observability/)).
+The pair is exposed by the secret-gated `/api/storage/audit` route: `GET` runs `auditStorage()` and returns the report; `DELETE` runs the audit and then `cleanupOrphans`, returning what was deleted. Both require an `x-audit-secret` header matching the `STORAGE_AUDIT_SECRET` environment variable and return `403` otherwise — appropriate, given the admin client and bulk-delete behaviour. The route is one of the plain-export handlers that pass `route`/`method` to `logError` explicitly (see [Logging & Observability](../../operations/logging-observability/)).
 
 > Source: [route.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/storage/audit/route.ts#L4-L39)
 
@@ -496,7 +496,7 @@ Because source exploration was bounded, the following are the failure characteri
 - [Storage audit](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/audit.ts) — `auditStorage` / `cleanupOrphans`; exposed by the [audit route](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/storage/audit/route.ts).
 - [Image upload pipeline](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/upload.ts) and [image delete](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/delete.ts) — server-side helpers.
 - [Document upload pipeline](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/documents/upload.ts) — `uploadDocument`.
-- Client-side moderated uploads live on [Media, Images & Attachments](../features/media-and-images/); the moderation gate itself on [Content Moderation Pipeline](./moderation/).
+- Client-side moderated uploads live on [Media, Images & Attachments](../../features/media-and-images/); the moderation gate itself on [Content Moderation Pipeline](../moderation/).
 - [wrangler.jsonc](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/wrangler.jsonc#L29-L72) — R2 bucket bindings per environment.
 - [next.config.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/next.config.ts#L32-L34) — `storage-r2` remote host allow-listing.
 - [open-next.config.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/open-next.config.ts#L1-L7) — commented-out R2 incremental cache overrides.

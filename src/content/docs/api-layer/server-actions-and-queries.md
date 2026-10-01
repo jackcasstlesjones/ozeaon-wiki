@@ -491,7 +491,7 @@ export const { PATCH, DELETE } = createCommentItemRoutes(POST_COMMENT_SOURCE);
 | `createCommentItemRoutes(source)` | `item-routes.ts` (re-exported by `index.ts`) | `{ PATCH, DELETE }` — edit and delete of one comment |
 | `createCommentThreadRoutes(source)` | `thread-routes.ts` (re-exported by `index.ts`) | `{ GET, POST }` — thread listing and creation |
 
-Both are factories called once at module load: they close over the `CommentSource` for their entity and hand Next.js ready-made handlers; nothing is decided per request. The threading rules, redaction, and placeholder behaviour these handlers implement are documented on [Comments & Reactions](../features/comments-and-reactions/), and the six concrete routes on [API Routes](./api-routes/).
+Both are factories called once at module load: they close over the `CommentSource` for their entity and hand Next.js ready-made handlers; nothing is decided per request. The threading rules, redaction, and placeholder behaviour these handlers implement are documented on [Comments & Reactions](../../features/comments-and-reactions/), and the six concrete routes on [API Routes](../api-routes/).
 
 ### `PATCH` / `DELETE` — one comment (`item-routes.ts`)
 
@@ -507,7 +507,7 @@ Both are factories called once at module load: they close over the `CommentSourc
 
 > Source: [thread-routes.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/thread-routes.ts#L28-L179)
 
-Both factories are generic over `TComment extends RoutableComment` and receive the entity's `CommentSource` — the query half of this layer, documented with the client patterns on [Supabase Client Patterns](../architecture/supabase-client-patterns/).
+Both factories are generic over `TComment extends RoutableComment` and receive the entity's `CommentSource` — the query half of this layer, documented with the client patterns on [Supabase Client Patterns](../../architecture/supabase-client-patterns/).
 
 ## Authentication Helper
 
@@ -689,7 +689,7 @@ Builds the thread listing/creation handlers. `GET` (public, own client): paralle
 - [Notification queries (shared client)](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/notifications.ts)
 - [Block-check helpers](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/blocks.ts) — `isBlocked`, `getBlockedUserIds`, `getBlockedByUserIds`
 - [Comment route factories](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/index.ts) — [item routes](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/item-routes.ts) and [thread routes](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/thread-routes.ts)
-- Comment sources these factories consume: see [Supabase Client Patterns](../architecture/supabase-client-patterns/)
+- Comment sources these factories consume: see [Supabase Client Patterns](../../architecture/supabase-client-patterns/)
 - [Reaction queries](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/reactions.ts)
 - [Cache components model — SSR/caching rules](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/ssr/cache-components-model.md)
 - [Workflows and environment variables](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/workflows.md)

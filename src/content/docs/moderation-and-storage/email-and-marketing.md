@@ -443,7 +443,7 @@ export async function resolveUserEmails(
 
 > Source: [user-emails.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/services/user-emails.ts#L51-L64)
 
-Failure is partial, not fatal: if the Edge Function errors, the directly-known emails are still returned and every fetched ID lands in `failedUserIds` so the caller can log which recipients were dropped. `hasResolvableEmails(users)` is the cheap pre-check — it returns true when any user has an email-shaped username or any ID at all, so callers can bail before doing work. The service logs under the `["lib", "email"]` category through `@/lib/logger` (see [Logging & Observability](../operations/logging-observability/)).
+Failure is partial, not fatal: if the Edge Function errors, the directly-known emails are still returned and every fetched ID lands in `failedUserIds` so the caller can log which recipients were dropped. `hasResolvableEmails(users)` is the cheap pre-check — it returns true when any user has an email-shaped username or any ID at all, so callers can bail before doing work. The service logs under the `["lib", "email"]` category through `@/lib/logger` (see [Logging & Observability](../../operations/logging-observability/)).
 
 ### Key consumers
 

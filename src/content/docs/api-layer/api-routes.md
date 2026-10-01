@@ -218,7 +218,7 @@ Note labels for the signed-in user. `GET` returns the caller's `note_labels` ord
 
 ### Organizations
 
-The organization family is the largest in the tree; the membership model and the roles behind `owner`/`admin` checks below are documented in [Organizations: Profiles, Membership & Roles](../features/organizations/). All gated routes resolve the caller's role with `getUserOrgRole`, which returns `"owner" | "admin" | "member" | null` from a single `organization_members` → `member_roles` join.
+The organization family is the largest in the tree; the membership model and the roles behind `owner`/`admin` checks below are documented in [Organizations: Profiles, Membership & Roles](../../features/organizations/). All gated routes resolve the caller's role with `getUserOrgRole`, which returns `"owner" | "admin" | "member" | null` from a single `organization_members` → `member_roles` join.
 
 #### Feed and Creation
 
@@ -263,7 +263,7 @@ The replaced image is purged through `deleteImageById` on an **admin** client: t
 
 > Source: [route.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/organizations/image/route.ts#L33-L43)
 
-`DELETE /api/organizations/image` mirrors the tail of that flow: null the FK, then purge the current image through the same admin-client path. Both handlers `revalidatePath("/")` so cached pages drop the old asset. The generic upload/moderation pipeline is described in [Media, Images & Attachments](../features/media-and-images/).
+`DELETE /api/organizations/image` mirrors the tail of that flow: null the FK, then purge the current image through the same admin-client path. Both handlers `revalidatePath("/")` so cached pages drop the old asset. The generic upload/moderation pipeline is described in [Media, Images & Attachments](../../features/media-and-images/).
 
 #### Search
 
@@ -300,7 +300,7 @@ The listing mirrors invites (owner/admin, pending only, requester profile joined
 
 ### Profile
 
-The profile family owns the caller's own `user_profiles` row and its satellite tables; the client-side forms it backs are covered in [User Settings & Account Management](../../auth-and-accounts/user-settings/) and the social-graph context in [User Profiles & Social Graph](../features/profiles-and-social-graph/).
+The profile family owns the caller's own `user_profiles` row and its satellite tables; the client-side forms it backs are covered in [User Settings & Account Management](../../auth-and-accounts/user-settings/) and the social-graph context in [User Profiles & Social Graph](../../features/profiles-and-social-graph/).
 
 - `/api/profile` — `GET` returns the caller's row; `PUT` casts the entire body to `TablesUpdate<"user_profiles">` and applies it. There is no Zod schema at this boundary — shape validation happens client-side through the schemas on the [Zod Schemas & Form Validation](../../config-and-utils/zod-validation/) page, and RLS confines the write to the caller's own row.
 - `/api/profile/bio` — single-field `PUT` over `user_profiles.bio`, same pattern in miniature.
@@ -330,7 +330,7 @@ The factories hold the logic shared with the post and article comment routes (al
 - `PATCH` re-validates content with `commentContentSchema`, runs the same open and moderation checks (this time with a linked moderation target, since the comment row exists), and updates — scoped to the identity that posted the comment, so a mismatch is a 404 rather than a silent no-op.
 - `DELETE` keeps a comment that still carries replies as a redacted placeholder and removes leaf comments outright; a `RESTRICT_VIOLATION` from the trigger that guards against a reply landing mid-delete falls back to the placeholder branch. The response distinguishes the two: `{ success: true, deleted: "placeholder" }` vs `{ deleted: "removed" }`.
 
-The comment domain (threading rules, placeholders, moderation surfaces) is documented in [Comments & Reactions](../features/comments-and-reactions/).
+The comment domain (threading rules, placeholders, moderation surfaces) is documented in [Comments & Reactions](../../features/comments-and-reactions/).
 
 ### Project Documents
 
@@ -366,7 +366,7 @@ The `DELETE` verb is the outlier in the image family: it is a **plain exported h
 
 ### Search
 
-`GET /api/search` is the federated search endpoint. It is public, takes `q`, `page`, and `limit` (clamped to `[1, 50]`, defaulting to `SEARCH_PAGE_LIMIT`), and delegates entirely to `searchContent` in `src/lib/supabase/queries/search.ts`, which runs per-entity match queries on a public client, merges the hits newest-first, and hydrates the winners through the feed queries. The query layer logs and swallows individual match failures, so one broken entity degrades to fewer results rather than a 500. The matching rules per entity are documented in [Search & Discovery](../features/search/).
+`GET /api/search` is the federated search endpoint. It is public, takes `q`, `page`, and `limit` (clamped to `[1, 50]`, defaulting to `SEARCH_PAGE_LIMIT`), and delegates entirely to `searchContent` in `src/lib/supabase/queries/search.ts`, which runs per-entity match queries on a public client, merges the hits newest-first, and hydrates the winners through the feed queries. The query layer logs and swallows individual match failures, so one broken entity degrades to fewer results rather than a 500. The matching rules per entity are documented in [Search & Discovery](../../features/search/).
 
 > Source: [route.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/search/route.ts)
 
@@ -918,5 +918,5 @@ const organizationId = await resolveOrgId(
 - Logging conventions used by route modules: [logging-conventions.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md)
 - Reference route modules: [projects/route.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/projects/route.ts), [articles/[id]/route.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/articles/[id]/route.ts)
 - Data-access layer: `src/lib/supabase/queries/`
-- Feature pages for the route families above: [Organizations](../features/organizations/), [Comments & Reactions](../features/comments-and-reactions/), [User Profiles & Social Graph](../features/profiles-and-social-graph/), [Search & Discovery](../features/search/), [Media, Images & Attachments](../features/media-and-images/)
+- Feature pages for the route families above: [Organizations](../../features/organizations/), [Comments & Reactions](../../features/comments-and-reactions/), [User Profiles & Social Graph](../../features/profiles-and-social-graph/), [Search & Discovery](../../features/search/), [Media, Images & Attachments](../../features/media-and-images/)
 - Cross-cutting concerns invoked by these routes: [Content Moderation Pipeline](../../moderation-and-storage/moderation/), [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/), [Zod Schemas & Form Validation](../../config-and-utils/zod-validation/), [Middleware, Sessions & Routing Guards](../../architecture/middleware-sessions/), [Account Switching](../../auth-and-accounts/account-switching/), [User Settings & Account Management](../../auth-and-accounts/user-settings/)

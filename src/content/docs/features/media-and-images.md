@@ -164,7 +164,7 @@ Behaviours worth knowing:
 
 > Source: [client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/client.ts#L38-L91)
 
-Consumers: `use-profile-image-upload`, `use-post-images`, `FormImageUpload`, `OrganizationSettingsForm`, the article attachments hook (`useArticleAttachments`), and the Tiptap editor's image upload node (`ImageUploadNodeView` via `components/tiptap/lib/api`) — i.e. every client surface that uploads an image, which is why the normalisation lives here and not in a hook. The server side of these routes (moderation gate, R2 write, `images` insert) is the `uploadImage` pipeline documented on [Storage Abstraction & R2 Integration](../moderation-and-storage/storage-r2/).
+Consumers: `use-profile-image-upload`, `use-post-images`, `FormImageUpload`, `OrganizationSettingsForm`, the article attachments hook (`useArticleAttachments`), and the Tiptap editor's image upload node (`ImageUploadNodeView` via `components/tiptap/lib/api`) — i.e. every client surface that uploads an image, which is why the normalisation lives here and not in a hook. The server side of these routes (moderation gate, R2 write, `images` insert) is the `uploadImage` pipeline documented on [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/).
 
 ## The Read Path and Edge Caching
 
@@ -303,7 +303,7 @@ Note the asymmetry between `img-src` and `media-src`: images may be loaded from 
 
 - [R2 Storage Patterns](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/r2-storage.md) — the first-party storage usage notes this page is built from.
 - [Client upload transport](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/client.ts) — `uploadModeratedFiles` / `uploadModeratedImage` / `imageRejectedMessage`.
-- [Storage Abstraction & R2 Integration](../moderation-and-storage/storage-r2/) — the server-side `uploadImage` / `uploadDocument` / `deleteImageById` pipelines these routes call into.
+- [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/) — the server-side `uploadImage` / `uploadDocument` / `deleteImageById` pipelines these routes call into.
 - [Storage adapter](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/adapter.ts) — `StorageAdapter` implementation.
 - [Image URL helper](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/url/image.ts) — `getImageUrl` / `getImageUrlFromKey`.
 - [Storage utilities](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/index.ts) — `generateUniqueKey`, `validateFileType`, `validateFileSize` barrel exports.
