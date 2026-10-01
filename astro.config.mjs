@@ -12,6 +12,8 @@ export default defineConfig({
 		mermaid({ autoTheme: true }),
 		starlight({
 			title: 'OZEAON Developer Wiki',
+			logo: { src: './src/assets/ozeaon-logo.svg' },
+			favicon: '/favicon.svg',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/ozeaon/ozeaon-v2' }],
 			sidebar,
 			customCss: ['./src/styles/custom.css'],
