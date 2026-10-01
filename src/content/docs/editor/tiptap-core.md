@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-The rich-text editing subsystem is built on Tiptap 3.x (`@tiptap/core`, `@tiptap/react`, `@tiptap/starter-kit`) with a custom extension layer for headings, images, uploads, drag/paste handling, and loading state. The public entry point is `src/components/tiptap/index.ts`. For the toolbar, selectors, and upload registry, see [Toolbar, Upload Registry & Editor API](../toolbar-and-api/); for the app consumer, see [components/tiptap](../../components/tiptap/).
+The rich-text editing subsystem is built on Tiptap 3.x (`@tiptap/core`, `@tiptap/react`, `@tiptap/starter-kit`) with a custom extension layer for headings, images, uploads, drag/paste handling, and loading state. The public entry point is `src/components/tiptap/index.ts`. For the toolbar, selectors, and upload registry, see [Toolbar, Upload Registry & Editor API](../toolbar-and-api/); for the app consumer, see [Tiptap Components](../../components/tiptap/).
 
 ## Overview
 
@@ -135,4 +135,4 @@ On unmount: clears the debounce timer, aborts any in-flight request, and calls `
 - [upload-registry.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/hooks/upload-registry.ts), [api.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/lib/api.ts), [types.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/lib/types.ts)
 - [README.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/README.md)
 - Toolbar, selectors, upload registry — [Toolbar, Upload Registry & Editor API](../toolbar-and-api/)
-- App consumer — [components/tiptap](../../components/tiptap/)
+- App consumer — [Tiptap Components](../../components/tiptap/)

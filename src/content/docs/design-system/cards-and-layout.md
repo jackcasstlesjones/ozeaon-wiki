@@ -24,7 +24,7 @@ Key components from [`src/components/ui/cards/`](https://github.com/ozeaon/ozeao
 - [`TwoColumnShell`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/layout/shells/TwoColumnShell.tsx) — the primary page shell (topbar + sidebar + main content); used by `(dashboard)/layout.tsx`
 - [`SidebarShell`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/layout/shells/SidebarShell.tsx) — a simpler sidebar + content shell for single-entity pages
 
-The full catalog for cards is at [components/ui/cards](../../components/ui/cards/) and for layout at [components/ui/layout](../../components/ui/layout/).
+The full catalog for cards is at [UI Cards](../../components/ui/cards/) and for layout at [UI Layout](../../components/ui/layout/).
 
 ## Architecture
 
@@ -68,7 +68,7 @@ Token-driven styling keeps the generated CSS bounded by the token list rather th
 
 - [UI Primitives](../ui-primitives/) — all ui component folders
 - [Design Tokens](../design-tokens/) — color and typography tokens used by cards and shells
-- [components/ui/cards](../../components/ui/cards/) — card component catalog
-- [components/ui/layout](../../components/ui/layout/) — layout component catalog
+- [UI Cards](../../components/ui/cards/) — card component catalog
+- [UI Layout](../../components/ui/layout/) — layout component catalog
 - [dashboard layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/layout.tsx)
 - [docs/design-system.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/design-system.md) — token definitions source

@@ -242,4 +242,4 @@ The schema contains placeholder tables for features that are on the roadmap but 
 - Articles full schema: [20260328000000_articles_full_schema.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260328000000_articles_full_schema.sql)
 - Project content migrations: [supabase/migrations/](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations)
 - Current schema reference: [docs/db/schema.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/db/schema.sql)
-- Migrations & Seeding: [../../operations/migrations-and-seeding/](../../operations/migrations-and-seeding/)
+- Migrations & Seeding: [Database Migrations & Seeding](../../operations/migrations-and-seeding/)

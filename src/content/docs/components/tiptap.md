@@ -46,5 +46,5 @@ flowchart LR
 
 - [Tiptap Editor Core & Extensions](../../editor/tiptap-core/)
 - [Toolbar, Upload Registry & Editor API](../../editor/toolbar-and-api/)
-- [components/ui/forms](../ui/forms/) — `InputContent` lives in `hook-form/`
-- [features/articles-authoring](../../articles/articles-authoring/) — the article form that uses `InputContent`
+- [UI Forms](../ui/forms/) — `InputContent` lives in `hook-form/`
+- [Article Authoring & Publishing](../../articles/articles-authoring/) — the article form that uses `InputContent`

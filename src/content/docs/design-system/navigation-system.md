@@ -5,7 +5,7 @@ sidebar:
   order: 5
 ---
 
-The navigation shell is built from two independent context layers: `SidebarProvider` (from shadcn, extended in [`src/components/ui/sidebar.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/sidebar.tsx)) owns sidebar open/close state and persistence, while `NavSlotProvider` (in [`src/components/nav/NavSlotContext.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/NavSlotContext.tsx)) owns the top nav's slot content, variant, mega-menu state, and mobile search mode. For per-component detail see [../../components/nav/](../../components/nav/). The original layout spec lives in [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md) and describes the intended end state; the sections below reflect what is in the code at the pinned commit.
+The navigation shell is built from two independent context layers: `SidebarProvider` (from shadcn, extended in [`src/components/ui/sidebar.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/sidebar.tsx)) owns sidebar open/close state and persistence, while `NavSlotProvider` (in [`src/components/nav/NavSlotContext.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/NavSlotContext.tsx)) owns the top nav's slot content, variant, mega-menu state, and mobile search mode. For per-component detail see [Navigation Components](../../components/nav/). The original layout spec lives in [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md) and describes the intended end state; the sections below reflect what is in the code at the pinned commit.
 
 ## Overview
 
@@ -98,9 +98,9 @@ New sidebar entries go into `sitemap.tsx` (`leftNav`, `footerNav`, or `addItems`
 
 ## Related Links
 
-- [../../components/nav/](../../components/nav/) — per-component detail for all nav components
-- [../../design-system/design-tokens/](../../design-system/design-tokens/) — design tokens consumed by the shell
-- [../../architecture/app-structure/](../../architecture/app-structure/) — route groups and layout hierarchy
+- [Navigation Components](../../components/nav/) — per-component detail for all nav components
+- [Design Tokens](../../design-system/design-tokens/) — design tokens consumed by the shell
+- [Application Structure & Route Groups](../../architecture/app-structure/) — route groups and layout hierarchy
 - [sidebar.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/sidebar.tsx)
 - [sidebar-state.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/data/sidebar-state.ts)
 - [sitemap.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/sitemap.tsx)

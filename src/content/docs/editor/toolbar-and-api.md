@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-The consumer-facing tooling layer of the Tiptap editor package: the default toolbar and its sub-components, the aggregate state selectors that drive it, the IndexedDB-backed upload registry that keeps `File` objects out of ProseMirror state, and the curated public API exported from [`src/components/tiptap/index.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/index.ts). For the editor lifecycle and extension architecture, see [Tiptap Editor Core & Extensions](../tiptap-core/); for the app consumer, see [components/tiptap](../../components/tiptap/).
+The consumer-facing tooling layer of the Tiptap editor package: the default toolbar and its sub-components, the aggregate state selectors that drive it, the IndexedDB-backed upload registry that keeps `File` objects out of ProseMirror state, and the curated public API exported from [`src/components/tiptap/index.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/index.ts). For the editor lifecycle and extension architecture, see [Tiptap Editor Core & Extensions](../tiptap-core/); for the app consumer, see [Tiptap Components](../../components/tiptap/).
 
 ## Overview
 
@@ -120,4 +120,4 @@ Key behaviours:
 - [Toolbar.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/toolbar/Toolbar.tsx), [ToolbarButton.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/toolbar/ToolbarButton.tsx), [selectors.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/toolbar/selectors.ts)
 - [upload-registry.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/hooks/upload-registry.ts)
 - Editor lifecycle and extensions — [Tiptap Editor Core & Extensions](../tiptap-core/)
-- App consumer — [components/tiptap](../../components/tiptap/)
+- App consumer — [Tiptap Components](../../components/tiptap/)

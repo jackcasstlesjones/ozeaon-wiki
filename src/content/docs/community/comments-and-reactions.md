@@ -13,7 +13,7 @@ Comments are modelled once and projected onto three entity tables (`post_comment
 
 What is built: like-only reactions on posts (via `togglePostLike` and [`/api/posts/[id]/like`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/posts/%5Bid%5D/like/route.ts)) and on post, project and article comments (via `toggleLikeComment` and its siblings in [`queries/reactions.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/reactions.ts)). Comment likes are server actions, not API routes. The `article_reactions` and `project_reactions` tables exist in the schema but nothing in `src` uses them — article and project (non-comment) reactions are on the roadmap.
 
-Comment and reaction notifications come from DB triggers in [20260921000000_notifications_triggers.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260921000000_notifications_triggers.sql), behind the notifications feature flag. See [../notifications/](../notifications/).
+Comment and reaction notifications come from DB triggers in [20260921000000_notifications_triggers.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260921000000_notifications_triggers.sql), behind the notifications feature flag. See [Notifications](../notifications/).
 
 ## Architecture
 
@@ -91,5 +91,5 @@ The hook's option contract injects `basePath`, `fetchLiked` and an optional `onC
 - [use-thread-comments.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-thread-comments.ts)
 - [EntityComments.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/comments/EntityComments.tsx)
 - [config/constants/comments.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/comments.ts)
-- [../../components/ui/comments/](../../components/ui/comments/)
-- [../notifications/](../notifications/)
+- [UI Comments](../../components/ui/comments/)
+- [Notifications](../notifications/)
