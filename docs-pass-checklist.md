@@ -662,3 +662,4 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [x] NAME: site renamed "OZEAON Developer Wiki"; "V2" removed from prose across the wiki
 - [x] STRUCTURE: "Content & Social Features" split into Posts, Projects, Articles, Organisations, Profiles & Social and Community sections; Media & Images moved to Moderation & Storage; URLs changed from `/features/*` and all internal links rewritten
 - [x] SPELLING: UK "organisation" across prose, titles, descriptions and link labels (123 changes); code, paths and link targets unchanged
+- [x] STRUCTURE: "Moderation & Storage" split into Moderation (`/moderation/`) and Storage & Media (`/storage/`); Email & Marketing moved to Operations & Deployment; links rewritten and cross-linked

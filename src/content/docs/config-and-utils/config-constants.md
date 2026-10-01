@@ -104,4 +104,4 @@ All constant modules under `src/config/constants/` are importable via `@/config`
 - [`src/config/constants/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants) — all constant modules
 - [Logging & Observability](../../operations/logging-observability/) — `src/lib/logger/config.ts` and instrumentation setup
 - [Zod Validation](../zod-validation/) — Zod schemas that consume `articles.ts` limits and messages
-- [Media & Images](../../moderation-and-storage/media-and-images/) — `IMAGE_CONFIG` consumers
+- [Media & Images](../../storage/media-and-images/) — `IMAGE_CONFIG` consumers

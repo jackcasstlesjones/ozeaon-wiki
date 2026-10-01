@@ -115,7 +115,7 @@ A migration that changes what the preview fixture writes to must update `supabas
 
 ## Step 7 — Storage: Always Use StorageAdapter
 
-For any file upload, URL generation, or deletion, use `StorageAdapter` from [`@/lib/storage/adapter`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/adapter.ts). Never use the raw R2 binding directly. See [Storage (R2)](../../moderation-and-storage/storage-r2/).
+For any file upload, URL generation, or deletion, use `StorageAdapter` from [`@/lib/storage/adapter`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/adapter.ts). Never use the raw R2 binding directly. See [Storage (R2)](../../storage/storage-r2/).
 
 ## Step 8 — Verification Gates
 
@@ -173,7 +173,7 @@ See [Cloudflare Deployment](../../operations/cloudflare-deployment/) for the dep
 - [Cloudflare Deployment](../../operations/cloudflare-deployment/) — deployment pipeline
 - [Migrations & Seeding](../../operations/migrations-and-seeding/) — migration conventions and history
 - [Supabase Client Patterns](../../architecture/supabase-client-patterns/) — client factory details
-- [Storage (R2)](../../moderation-and-storage/storage-r2/) — upload/URL/delete patterns
+- [Storage (R2)](../../storage/storage-r2/) — upload/URL/delete patterns
 - [Design Tokens](../../design-system/design-tokens/) — type scale and color tokens
 - [docs/workflows.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/workflows.md) — branch, commit, PR and ticket lifecycle
 - [docs/db/schema.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/db/schema.sql) — current database schema

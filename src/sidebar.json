@@ -110,11 +110,21 @@
     ]
   },
   {
-    "label": "Moderation & Storage",
+    "label": "Moderation",
     "items": [
       {
         "autogenerate": {
-          "directory": "moderation-and-storage"
+          "directory": "moderation"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Storage & Media",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "storage"
         }
       }
     ]

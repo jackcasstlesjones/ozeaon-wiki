@@ -203,7 +203,7 @@ Most domain files are pure `Pick`/`Omit` compositions over generated tables. A f
 ## Related Links
 
 - Supabase client selection and per-request client memoization: [Supabase Client Patterns](../supabase-client-patterns/)
-- Storage/R2 adapters and file-type validation: [Storage & R2](../../moderation-and-storage/storage-r2/)
+- Storage/R2 adapters and file-type validation: [Storage & R2](../../storage/storage-r2/)
 - Scripts and commands reference: [Technology Stack](../../overview/technology-stack/)
 - Generated database types: [`src/types/supabase.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/supabase.ts)
 - Domain type modules: [`src/types/`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types) — `shared.ts`, `articles.ts`, `projects.ts`, `posts.ts`, `documents.ts`, `images.ts`, `memberships.ts`

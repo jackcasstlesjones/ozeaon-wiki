@@ -72,4 +72,4 @@ All three `settings/actions.ts` actions use `createActionClient` so session cook
 
 - [Auth Flows](../auth-flows/) — login, signup, and password reset
 - [Account Switching & Active Account](../account-switching/) — org mode and the active account cookie
-- [Moderation](../../moderation-and-storage/moderation/) — how bio moderation works
+- [Moderation](../../moderation/moderation/) — how bio moderation works

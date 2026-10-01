@@ -1,7 +1,7 @@
 ---
 title: "Media & Images"
 sidebar:
-  order: 4
+  order: 2
 description: "How images and files are uploaded, validated, moderated and turned back into URLs."
 ---
 
@@ -83,6 +83,7 @@ Every host that serves media must be listed in `STORAGE_HOSTS`, which is interpo
 
 ## Related Links
 
+- [Moderation](../../moderation/moderation/): images are moderated before the upload is recorded
 - [`src/lib/images/client.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/client.ts) — `uploadModeratedImage` / `uploadModeratedFiles` / `imageRejectedMessage`
 - [`src/utils/url/image.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/url/image.ts) — `getImageUrl` / `getImageUrlFromKey`
 - [`src/utils/generators/storage-key.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/generators/storage-key.ts) — `generateUniqueKey`

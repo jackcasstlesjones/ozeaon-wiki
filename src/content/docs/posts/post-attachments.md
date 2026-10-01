@@ -17,7 +17,7 @@ This pre-upload pattern means a moderation rejection names the specific image ra
 
 The `post_images` table (schema in [`src/types/supabase.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/supabase.ts)) links each image to its post via `post_id` and to a shared `images` record via `image_id`.
 
-The client side uses [`use-post-images`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-post-images.ts) and `uploadModeratedImage` from [`src/lib/images/client.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/client.ts). The upload transport (FormData assembly, moderation result normalisation) is documented on [Media & Images](../../moderation-and-storage/media-and-images/); the server-side pipeline (moderation gate, R2 write, `images` insert) is documented on [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/).
+The client side uses [`use-post-images`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-post-images.ts) and `uploadModeratedImage` from [`src/lib/images/client.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/client.ts). The upload transport (FormData assembly, moderation result normalisation) is documented on [Media & Images](../../storage/media-and-images/); the server-side pipeline (moderation gate, R2 write, `images` insert) is documented on [Storage Abstraction & R2 Integration](../../storage/storage-r2/).
 
 ## Reposts
 
@@ -35,8 +35,8 @@ Feed components receive `repostedPosts` (an array of post ids the viewer has rep
 ## Related Links
 
 - [Posts](../posts/) — feed, composer and pagination
-- [Media & Images](../../moderation-and-storage/media-and-images/) — client upload transport and image URL helpers
-- [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/) — server-side upload pipeline
+- [Media & Images](../../storage/media-and-images/) — client upload transport and image URL helpers
+- [Storage Abstraction & R2 Integration](../../storage/storage-r2/) — server-side upload pipeline
 - [`/api/posts/image` route](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/posts/image/route.ts)
 - [`use-post-images.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-post-images.ts)
 - [`RepostButton.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/RepostButton.tsx)

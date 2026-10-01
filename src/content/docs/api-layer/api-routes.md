@@ -81,7 +81,7 @@ The full route tree is in [`src/app/api`](https://github.com/ozeaon/ozeaon-v2/tr
 
 **Posts** — `GET`/`POST` on the posts collection, `GET`/`PATCH`/`DELETE` on individual posts, and post image upload at `/api/posts/image`. Post comments use the shared comment factory (see [Comments & Reactions](../../community/comments-and-reactions/)).
 
-**Storage** — `/api/storage` serves R2 objects with an immutable `Cache-Control` and a quoted ETag. See [Storage & R2](../../moderation-and-storage/storage-r2/).
+**Storage** — `/api/storage` serves R2 objects with an immutable `Cache-Control` and a quoted ETag. See [Storage & R2](../../storage/storage-r2/).
 
 **Follows** — read-only endpoints for followers/following lists and follow status. Follow and unfollow are server actions in `queries/profile.ts`, not routes. The status endpoint (`/api/follows/:userId/status`) degrades gracefully for anonymous callers, returning `{ isFollowing: false }` rather than 401. See [Profiles & Social Graph](../../profiles/profiles-and-social-graph/).
 
@@ -219,8 +219,8 @@ To add an endpoint:
 - [withAuthUser — src/lib/supabase/queries/auth.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/auth.ts)
 - [Server Actions & Queries](../server-actions-and-queries/) — data-access layer below the route handlers
 - [Edge Functions](../edge-functions/) — Supabase edge functions
-- [Content Moderation](../../moderation-and-storage/moderation/) — the `moderateAndLog` pipeline called by routes
-- [Storage & R2](../../moderation-and-storage/storage-r2/) — image and document upload
+- [Content Moderation](../../moderation/moderation/) — the `moderateAndLog` pipeline called by routes
+- [Storage & R2](../../storage/storage-r2/) — image and document upload
 - [Comments & Reactions](../../community/comments-and-reactions/) — comment thread rules and shared factory
 - [Organisations](../../organisations/organisations/) — org membership model
 - [Profiles & Social Graph](../../profiles/profiles-and-social-graph/) — follows and blocks

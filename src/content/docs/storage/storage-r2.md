@@ -2,7 +2,7 @@
 title: "Storage (R2)"
 description: "Cloudflare R2 storage for user images and article content, accessed through a StorageAdapter layer that switches between a public URL and a fallback API route."
 sidebar:
-  order: 2
+  order: 1
 ---
 
 User-uploaded images (avatars, cover images, project and article images) and article content documents are stored in Cloudflare R2. The storage layer has three parts: [`R2BindingStorage`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/r2-binding.ts) — the low-level class wrapping the R2 binding, [`StorageAdapter`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/adapter.ts) — the application-level write path, and [`/api/storage`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/storage/route.ts) — a fallback read route for environments without a public bucket URL. Note: `docs/r2-storage.md` in the codebase is stale and does not reflect the current implementation.
@@ -62,6 +62,6 @@ The full `StorageAdapter` API (including `uploadBuffer`, `getFile`, `headFile`, 
 
 ## Related Links
 
-- [Moderation](../moderation/) — image moderation runs inside the upload pipeline
+- [Moderation](../../moderation/moderation/) — image moderation runs inside the upload pipeline
 - [Media & Images](../media-and-images/) — image upload hooks and routes
-- [Email & Marketing](../email-and-marketing/) — other external integrations
+- [Email & Marketing](../../operations/email-and-marketing/) — other external integrations

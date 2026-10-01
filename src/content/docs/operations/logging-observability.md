@@ -231,4 +231,4 @@ The following are planned additions, not built today:
 - [`docs/logging-conventions.md`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md) — authoritative conventions, limits, and deferred extension points
 - For HTTP error-response shaping and status mapping, see [API Routes](../../api-layer/api-routes/) and [Server Actions & Queries](../../api-layer/server-actions-and-queries/).
 - For authentication flows producing `userId` context, see [Auth Flows](../../auth-and-accounts/auth-flows/).
-- For the moderation-specific logging wrapper (`src/lib/moderation/log.ts`), see [Moderation](../../moderation-and-storage/moderation/).
+- For the moderation-specific logging wrapper (`src/lib/moderation/log.ts`), see [Moderation](../../moderation/moderation/).

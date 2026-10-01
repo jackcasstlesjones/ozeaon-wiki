@@ -2,7 +2,7 @@
 title: "Email & Marketing"
 description: "A minimal Resend client for two live security notices, and a Mailchimp client that subscribes every new account to the marketing audience."
 sidebar:
-  order: 3
+  order: 5
 ---
 
 The platform has two outbound communication concerns: [Resend](https://resend.com) handles account-related security notices and [Mailchimp](https://mailchimp.com) manages the marketing audience. Both are implemented as small edge-compatible clients in [`src/lib/email/`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email) and [`src/lib/marketing/`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/marketing). General transactional email — notification emails, digests, share-by-email — is on the roadmap and not yet built.
@@ -57,6 +57,6 @@ When notification emails and other transactional sends ship, they will go throug
 
 ## Related Links
 
-- [Moderation](../moderation/) — content moderation pipeline
-- [Storage (R2)](../storage-r2/) — object storage
+- [Moderation](../../moderation/moderation/) — content moderation pipeline
+- [Storage (R2)](../../storage/storage-r2/) — object storage
 - [Notifications](../../community/notifications/) — notification pipeline (in progress)

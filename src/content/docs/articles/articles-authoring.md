@@ -177,4 +177,4 @@ The slug is locked from the moment of publishing; the form-wide lock applies onl
 - [Article API routes](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/articles/route.ts)
 - [Article Reader](../articles-reader/) — reader route and static generation
 - [Article components](../../components/articles/)
-- [Media & Images](../../moderation-and-storage/media-and-images/) — upload transport and image URL helpers
+- [Media & Images](../../storage/media-and-images/) — upload transport and image URL helpers

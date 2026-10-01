@@ -16,7 +16,7 @@ OZEAON is the web application behind the OZEAON ocean conservation platform. Org
 - **Posts:** a community feed with image attachments and reposts. See [Posts](../../posts/posts/).
 - **Comments** on posts, projects and articles, and **likes** on posts and comments. See [Comments & Reactions](../../community/comments-and-reactions/).
 - **Search:** name and title search across organisations, projects, articles and people. See [Search & Discovery](../../community/search/).
-- **Automated moderation:** content is checked with the OpenAI moderation API before it publishes. See [Content Moderation Pipeline](../../moderation-and-storage/moderation/).
+- **Automated moderation:** content is checked with the OpenAI moderation API before it publishes. See [Content Moderation Pipeline](../../moderation/moderation/).
 - **Founding-member (alpha) badges** for users and organisations created before the alpha cutoff. See [Founding Member Badges](../../profiles/founding-member-badges/).
 - **UN SDG tagging** on projects and articles.
 
@@ -74,7 +74,7 @@ The decisions that shape the codebase:
 - **The Supabase client decides how a route renders.** Public pages that use only `createPublicClient()` prerender statically. Anything that calls `await createClient()` reads cookies and renders dynamically. Rendering is never set with `dynamic`/`revalidate` exports. See [SSR, Rendering & Caching](../../architecture/ssr-rendering-and-caching/) and [Supabase Client Patterns](../../architecture/supabase-client-patterns/).
 - **Postgres does the deterministic work.** Row-Level Security handles authorization, and triggers maintain counters, audit timestamps and cascades. See [Data Model & Database Schema](../../architecture/data-model-and-schema/).
 - **Types are derived from the generated Supabase types.** See [Type System & Generated Types](../../architecture/type-system/).
-- **All file access goes through `StorageAdapter`**, not the raw R2 binding. See [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/).
+- **All file access goes through `StorageAdapter`**, not the raw R2 binding. See [Storage Abstraction & R2 Integration](../../storage/storage-r2/).
 - **It deploys to Cloudflare Workers through OpenNext.** Every PR gets its own preview Worker and Supabase branch. See [Cloudflare Deployment](../../operations/cloudflare-deployment/) and [CI/CD Workflows](../../operations/ci-cd-workflows/).
 
 ## Where to Go Next

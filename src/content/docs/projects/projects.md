@@ -237,4 +237,4 @@ The `v_project_status` view computes draft-vs-published status server-side so th
 - [useProjectForm hook](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-project-form.ts)
 - [Projects feed layout](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(feed)/(public)/projects/layout.tsx)
 - [Project components](../../components/projects/)
-- [Moderation](../../moderation-and-storage/moderation/)
+- [Moderation](../../moderation/moderation/)

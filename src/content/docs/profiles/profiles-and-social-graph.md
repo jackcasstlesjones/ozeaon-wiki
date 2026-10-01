@@ -51,7 +51,7 @@ flowchart TD
 
 ## Profile Images
 
-Avatar and cover uploads share one hook, [`use-profile-image-upload`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-profile-image-upload.ts), parameterized by `type` (`avatar` or `coverImage`). It uploads through the shared moderated upload helper to [`/api/profile/image?type=…`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/profile/image/route.ts) (removal is a `DELETE` to the same endpoint), so both slots get the same moderation and error mapping; see [Media & Images](../../moderation-and-storage/media-and-images/). After either operation it calls `refreshProfile()` from `useAuth()` and `router.refresh()`, so the new image shows across the session without a reload.
+Avatar and cover uploads share one hook, [`use-profile-image-upload`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-profile-image-upload.ts), parameterized by `type` (`avatar` or `coverImage`). It uploads through the shared moderated upload helper to [`/api/profile/image?type=…`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/profile/image/route.ts) (removal is a `DELETE` to the same endpoint), so both slots get the same moderation and error mapping; see [Media & Images](../../storage/media-and-images/). After either operation it calls `refreshProfile()` from `useAuth()` and `router.refresh()`, so the new image shows across the session without a reload.
 
 ## Connection Request Lifecycle
 
@@ -119,7 +119,7 @@ The other dormant actions in `queries/profile.ts` are `disconnectConnection`, `u
 
 - [Founding Member Badges](../founding-member-badges/): who gets the alpha badge and when the window closes
 
-- [Media & Images](../../moderation-and-storage/media-and-images/)
+- [Media & Images](../../storage/media-and-images/)
 - [Organisation Profiles, Membership & Roles](../../organisations/organisations/)
 - [Posts](../../posts/posts/)
 - [Profiles components](../../components/profiles/)

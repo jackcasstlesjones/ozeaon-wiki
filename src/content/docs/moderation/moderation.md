@@ -71,5 +71,5 @@ The full exported surface is at [`src/lib/moderation/index.ts`](https://github.c
 
 ## Related Links
 
-- [Storage (R2)](../storage-r2/) — image upload pipeline that triggers image moderation
+- [Storage (R2)](../../storage/storage-r2/) — image upload pipeline that triggers image moderation
 - [Notifications](../../community/notifications/) — notification pipeline (in progress)

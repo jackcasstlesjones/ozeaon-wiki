@@ -5,7 +5,7 @@ sidebar:
   order: 7
 ---
 
-Thin wrappers around `next/image`, imported from `@/components/ui/images`. Both render nothing when `src` is empty, so callers don't need their own null checks. See also [Media & Images](../../../moderation-and-storage/media-and-images/).
+Thin wrappers around `next/image`, imported from `@/components/ui/images`. Both render nothing when `src` is empty, so callers don't need their own null checks. See also [Media & Images](../../../storage/media-and-images/).
 
 ## ImageContainer
 

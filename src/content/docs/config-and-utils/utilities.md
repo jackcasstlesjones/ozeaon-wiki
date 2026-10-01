@@ -36,7 +36,7 @@ Two functions are consumed downstream. `buildSlugBase` is called directly by the
 
 - [`date.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/generators/date.ts) — formats timestamps as relative strings ("2 hours ago").
 - [`username.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/generators/username.ts) — derives a unique username from display name with a numeric suffix.
-- [`storage-key.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/generators/storage-key.ts) — builds the upload path key passed to [R2 storage](../../moderation-and-storage/storage-r2/).
+- [`storage-key.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/generators/storage-key.ts) — builds the upload path key passed to [R2 storage](../../storage/storage-r2/).
 - [`static-params.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/generators/static-params.ts) — `staticParams` calls a fetch function to populate `generateStaticParams`; on fetch failure or empty result it falls back to a single `__placeholder__` entry so the build never fails. `notFoundIfPlaceholder` must be called inside the page component to convert a placeholder route visit into a runtime 404.
 
 ### Formatters
@@ -45,7 +45,7 @@ Two functions are consumed downstream. `buildSlugBase` is called directly by the
 
 - `date.ts` — absolute date formats (locale strings, ISO snippets).
 - `number.ts` — locale-aware number and percentage formatting.
-- `file-size.ts` — converts bytes to human-readable size strings (used by [Media & Images](../../moderation-and-storage/media-and-images/) upload feedback).
+- `file-size.ts` — converts bytes to human-readable size strings (used by [Media & Images](../../storage/media-and-images/) upload feedback).
 - `string.ts` — `capitalize`, `truncate`, `toLabel` (camel/snake → sentence case). `toLabel` is also consumed by the [Zod validation](../zod-validation/) custom-error hook to derive field display names.
 - `array.ts` — dedupe, chunk, and sort helpers.
 - `object.ts` — `omit`, `pick`, and deep-equality helpers.
@@ -112,8 +112,8 @@ All `formatters/`, `generators/`, `validators/`, and `shadcn/` modules are pure 
 
 - [Zod Validation](../zod-validation/) — schema and form validation layer; `zod-to-db.ts` bridges the two
 - [Config Constants](../config-constants/) — env vars and constants that some validators and formatters reference
-- [Storage (R2)](../../moderation-and-storage/storage-r2/) — `storage-key.ts` builds keys for R2 uploads
-- [Media & Images](../../moderation-and-storage/media-and-images/) — image validation and upload pipeline
+- [Storage (R2)](../../storage/storage-r2/) — `storage-key.ts` builds keys for R2 uploads
+- [Media & Images](../../storage/media-and-images/) — image validation and upload pipeline
 - [Notifications](../../community/notifications/) — `CATALOGUE` in `notifications.ts` is the notification copy source
 - [Search](../../community/search/) — `searchHref` in `url/search.ts` supports search routing
 - [Nav](../../components/nav/) — `nav-history.ts` and `safe-router-back.ts` back the safe back-navigation component
