@@ -142,6 +142,30 @@ Passing `contentType` explicitly rather than relying on the adapter to infer it 
 
 The `1 year + immutable` combination is the aggressive end of HTTP caching and is only defensible in a key-per-upload model. It also means **asset replacement must not overwrite a key** — overwriting would leave clients serving the stale object for up to a year.
 
+## Client-Side Upload Transport — `src/lib/images/client.ts`
+
+The browser side of the upload path is one small module that every upload surface shares. It exists because every image route answers with the same three outcomes — success, moderation rejection (`422` with categories), or failure (`503` when the moderation service is unreachable, or anything else) — so the FormData assembly and response normalisation can be written once.
+
+| Export | Signature | Purpose |
+| --- | --- | --- |
+| `uploadModeratedFiles<T>` | `(url, files: File[], { fields?, signal? }?) => Promise<ModeratedUploadResult<T>>` | Posts the files plus extra `fields` to a moderating upload route and normalises the response. |
+| `uploadModeratedImage<T>` | `(url, file: File, options?) => Promise<ModeratedUploadResult<T>>` | Single-file wrapper over `uploadModeratedFiles` — what most routes take. |
+| `imageRejectedMessage` | `(categories: string[]) => string` | The single rejection wording every surface shows: `"We couldn't add this image because it may contain <categories>."` |
+| `ModeratedUploadResult<T>` | type | `{ status: "uploaded", data: T } \| { status: "rejected", categories } \| { status: "failed", message }` |
+
+> Source: [client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/client.ts#L15-L29)
+
+Behaviours worth knowing:
+
+- **Dimensions travel with the bytes.** For each `image/*` file the module measures the image (`getImageDimensions`) and appends `width`/`height` form fields *in file order*, because that is how the server-side routes reading the FormData map them back to files. Server routes store these on the `images` row.
+- **Rejections are structured, not messages.** A `422` response is flattened to the de-duplicated union of `moderation[].categories`, so callers render `imageRejectedMessage(categories)` without parsing the error shape.
+- **`503` has dedicated wording.** When moderation is unavailable the module substitutes `"We couldn't complete the content check. Please try again."` so every surface says the same thing.
+- **Aborts are rethrown.** A caller passing an `AbortSignal` (e.g. cancelling a form) keeps its own `AbortError` handling; only genuine failures collapse into `{ status: "failed" }`.
+
+> Source: [client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/client.ts#L38-L91)
+
+Consumers: `use-profile-image-upload`, `use-post-images`, `FormImageUpload`, `OrganizationSettingsForm`, the article attachments hook (`useArticleAttachments`), and the Tiptap editor's image upload node (`ImageUploadNodeView` via `components/tiptap/lib/api`) — i.e. every client surface that uploads an image, which is why the normalisation lives here and not in a hook. The server side of these routes (moderation gate, R2 write, `images` insert) is the `uploadImage` pipeline documented on [Storage Abstraction & R2 Integration](../moderation-and-storage/storage-r2/).
+
 ## The Read Path and Edge Caching
 
 Reads are served by the `/api/storage` route, which is documented as a three-tier cache chain:
@@ -264,6 +288,9 @@ Note the asymmetry between `img-src` and `media-src`: images may be loaded from 
 | Media host missing from CSP | Browser blocks a valid asset; object store shows the object present | Every serving host must be in `STORAGE_HOSTS`. |
 | Cache miss at edge | Falls through to ETag revalidation, then an R2 read | Expected; the first visitor to an asset pays origin cost. |
 | Key referenced but object absent (or deleted) | Read path fails for that asset | Treat the stored key as a soft reference; validate existence where the UX requires it. |
+| Client upload rejected on moderation (`422`) | `uploadModeratedFiles` returns `{ status: "rejected", categories }` | Render `imageRejectedMessage(categories)`; nothing was persisted server-side. |
+| Moderation service unreachable (`503`) | Returns `{ status: "failed", message }` with the shared "content check" wording | Surfaced as retryable, not as a policy rejection. |
+| Upload cancelled by the caller | `AbortError` is rethrown, not folded into `{ status: "failed" }` | Callers passing a `signal` keep their own cancellation handling. |
 
 ## Extension Points
 
@@ -275,6 +302,8 @@ Note the asymmetry between `img-src` and `media-src`: images may be loaded from 
 ## Related Links
 
 - [R2 Storage Patterns](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/r2-storage.md) — the first-party storage usage notes this page is built from.
+- [Client upload transport](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/client.ts) — `uploadModeratedFiles` / `uploadModeratedImage` / `imageRejectedMessage`.
+- [Storage Abstraction & R2 Integration](../moderation-and-storage/storage-r2/) — the server-side `uploadImage` / `uploadDocument` / `deleteImageById` pipelines these routes call into.
 - [Storage adapter](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/adapter.ts) — `StorageAdapter` implementation.
 - [Image URL helper](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/url/image.ts) — `getImageUrl` / `getImageUrlFromKey`.
 - [Storage utilities](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/index.ts) — `generateUniqueKey`, `validateFileType`, `validateFileSize` barrel exports.

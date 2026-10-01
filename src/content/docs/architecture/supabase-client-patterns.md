@@ -18,7 +18,7 @@ This page covers the Supabase client construction layer of the repository:
 
 It intentionally does **not** cover:
 
-- Individual query modules under `src/lib/supabase/queries/*` (see the query-layer documentation)
+- The wider query layer beyond the five modules given a per-file reference below under [Query Modules Built on These Clients](#query-modules-built-on-these-clients) (see the query-layer documentation)
 - Storage uploads (`StorageAdapter`) and R2 integration
 - Row-level security policy definitions in the database schema
 - Route handler authoring details beyond the client-injection contract
@@ -439,6 +439,80 @@ Route-handler wrapper that injects `{ user, supabase }` into the handler's conte
 
 > Source: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L109-L122)
 
+## Query Modules Built on These Clients
+
+Five modules under `src/lib/supabase/queries/` show the factories above in real use. Each one's client choice is the load-bearing decision: the public client where the read is cacheable, the server client where RLS must scope the rows.
+
+### `queries/articles.ts`
+
+The largest query module, organised around five exported select projections:
+
+| Constant | Shape | Used by |
+|----------|-------|---------|
+| `ARTICLE_FORM_SELECT` | Full row plus every form-related junction (`sdgs`, `article_tags`, `article_type`, `access_level`, `license_type`, `funding_source`, `subcategories`, `cover_image`, `pdf_file`, `author`, `authors`, linked project/organization) | `getArticleForForm` (draft editing) |
+| `ARTICLE_ATTACHMENTS_SELECT` | `pdf_file` plus `article_documents` / `article_images` joins filtered to `image_type = "attachment"` | `getArticleAttachments` |
+| `ARTICLE_PUBLIC_SELECT` | Full public display row, including documents/images, author and orgs, and `stats:article_stats` | `getArticleBySlug` |
+| `ARTICLE_FEED_SELECT` | Card fields only, with the linked-project join needed for the feed | `getArticlesFeed` |
+| `ARTICLE_DASHBOARD_SELECT` | Minimal dashboard-card fields; no project join, so no status lookup | `getDashboardArticlesFeed` |
+
+> Source: [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/articles.ts#L29-L156)
+
+Functions:
+
+- `getArticleForForm(supabase, value, by: "id" | "slug")` — fetches with `ARTICLE_FORM_SELECT` and flattens the junctions into form shape (`transformArticleForForm`: subcategories → id array, sdgs → string ids, tags → comma-joined string, cover/PDF paths → `StorageAdapter.getPublicUrl` URLs). Visibility is RLS's job; the caller must authorise with `canManageArticle`.
+- `getArticleAttachments(supabase, articleId)` — deliberately unscoped by author so an org admin sees the same files the author does; RLS scopes, the caller authorises.
+- `getArticleBySlug(supabase, slug, includeUnpublished?)` — public display read; adds `published = true` unless asked otherwise; errors are logged and returned.
+- Lookup helpers `getArticleTypes`, `getAccessLevels`, `getLicenseTypes`, `getFundingSources`, `getIndigenousRegions` — reference-table reads ordered by `sort_order`, empty array on failure.
+- `getArticleContentData(article)` — React-`cache`d. Reads the gzipped Tiptap document for an article: first through `StorageAdapter.getFile` (R2 binding), falling back to a public-URL fetch decompressed with `DecompressionStream` — the fallback exists because `getCloudflareContext()` opts a page out of SSG, so build-time rendering must go over HTTP. Both failures degrade to `""`.
+- `getCachedArticleBySlug(slug)` — `cache`d wrapper that always passes `createPublicClient()`, keeping the cache key stable.
+- `getArticlesFeed(options)` / `getDashboardArticlesFeed(options)` — shared `buildFeedQuery` with `publishedStatus` selecting the client: `"published"` uses `createPublicClient()` so feeds never read cookies and stay prerenderable; `"draft"` awaits the cookie-bound `createClient()` because only RLS can scope drafts. The public feed then hydrates linked-project status from `v_project_status` per project id. Errors return `[]`, never throw.
+- `getPublishedArticlesSlugs(limit = 10)` and `getPublishedArticlesCount()` — public-client helpers for sitemap/landing counts; the count is React-`cache`d and logs rather than throws.
+
+> Sources: [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/articles.ts#L446-L522), [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/articles.ts#L548-L566)
+
+### `queries/categories.ts`
+
+Single export `getAllCategoriesWithSubcategories(): Promise<CategoryWithSubcategories[]>` — one `createPublicClient()` query joining `resource_categories` to `resource_subcategories`, sorted by `sort_order`, with subcategories re-sorted in memory. Errors return `[]`.
+
+> Source: [categories.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/categories.ts#L16-L58)
+
+### `queries/comment-sources.ts`
+
+The query half of the comment API (the route factories that consume it are covered on the [data-access page](../api-layer/server-actions-and-queries/)). `CommentSource<TComment>` is one entity's read/write surface: `label`, the four writes (`insert`, `update`, `softDelete`, `hardDelete`), and seven reads (`entityFlag`, `roots`, `liveCount`, `replies`, `replyTotals`, `replyTarget`, `answerCount`).
+
+`createCommentSource(label, select, writes)` derives every read from the label — `post` yields `posts`, `post_comments`, `post_id`, and the `post_comment_replies` / `post_comment_reply_totals` RPCs — so the reads are written once. Two consequences are load-bearing:
+
+- **The label is a type parameter, not a string.** At each call site `` `${Label}_comments` `` collapses to one literal table, so PostgREST resolves the select and rows stay exact; widened to `string`, rows degrade to a union of all three tables.
+- **Reads use `.filter(column, "eq", value)` instead of `.eq`.** Inside the generic body `.eq` checks the value against the column's type, which needs the row resolved — still a type parameter there — while `.filter` issues the identical request without the check.
+
+The three writes per entity cannot be shared the same way: PostgREST types insert/update payloads against the literal table, and that resolution fails outright for a generic table, so `POST_COMMENT_SOURCE`, `PROJECT_COMMENT_SOURCE`, and `ARTICLE_COMMENT_SOURCE` each spell out their four writes against a literal table. All writes pass through `scopeToOwnComment`, which joins the acting organisation to the authorship filter. Two details worth keeping when editing:
+
+- `softDelete` blanks `content` as well as stamping `deleted_at`, so redacted placeholders carry no text.
+- `answerCount` counts *both* `parent_comment_id` and `reply_to_comment_id` pointing at the comment — a sibling "answered" reply also blocks a hard delete, because the FK's `ON DELETE SET NULL` would otherwise erase who it answered.
+
+> Sources: [comment-sources.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/comment-sources.ts#L101-L187), [comment-sources.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/comment-sources.ts#L189-L322)
+
+### `queries/generate-unique-slug.ts`
+
+`generateUniqueSlug(title, objectType: "articles" | "projects" | "organizations", objectId, maxRetries = 3): Promise<string | null>` — builds a slug base from the title, then probes candidate `base-<suffix>` values on the **public client** (slug uniqueness is public knowledge), excluding the object's own row with `.neq("id", objectId)`, and returns the first free candidate or `null` after the retries. Consumed by the article and project write routes and re-exported from the queries barrel.
+
+> Source: [generate-unique-slug.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/generate-unique-slug.ts#L6-L29)
+
+### `queries/posts.ts`
+
+Feed reads for the posts surface, built around two large select constants: `POST_SELECT_FIELDS` (the full hydrated post: author, authoring org, tagged project/article/organization, post images, stats, plus feed flags like `show_in_feed` and `allow_repost`) and `REPOSTED_POST_SELECT` (the same shape minus the repost-specific flags), joined through `reposted_post:post_tag` so a repost embeds its source post.
+
+| Function | Behaviour |
+|----------|-----------|
+| `buildFeedQuery(supabase)` | Selects both constants and filters `show_in_feed = true`; the caller supplies ordering/paging and scoping filters. |
+| `getPostById(supabase, id)` | The permalink read: any single post by id, feed visibility aside; `.maybeSingle()`, errors logged to `null`. |
+| `getFeedPosts(supabase, options)` | Feed page with optional `userIds` / `organizationIds` scoping (user-only scope excludes org posts unless org ids are also given), default `FEED_PAGE_LIMIT`; errors return `[]`. |
+| `getFeedPostsCount()` | React-`cache`d head-count of feed-visible posts on the public client; `0` on error. |
+
+Every function takes the client as a parameter, so the same read runs on the public client for visitors and the session client for personalised feeds — the inject-the-client rule from [Client Reuse Rules](#client-reuse-rules) applied at module scale.
+
+> Source: [posts.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/posts.ts#L243-L332)
+
 ## Failure Modes and Edge Cases
 
 | Failure | Trigger | Observed behavior | Mitigation in source |
@@ -495,6 +569,10 @@ The extension point of note is that `public.ts` is the only factory that binds t
 - Generated database types: [src/types/supabase.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/supabase.ts)
 - Supabase error normalization: [src/utils/supabase-error.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/supabase-error.ts)
 - Query layer built on these clients: [src/lib/supabase/queries/index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/index.ts)
+- [Article queries](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/articles.ts) — select projections, feeds, content hydration
+- [Post queries](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/posts.ts) — feed selects and permalink read
+- [Category queries](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/categories.ts) and [slug generator](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/generate-unique-slug.ts)
+- [Comment sources](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/comment-sources.ts) — `POST`/`PROJECT`/`ARTICLE_COMMENT_SOURCE`
 - Client pattern source table and reuse rules: [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L82-L131)
 
 ## Summary

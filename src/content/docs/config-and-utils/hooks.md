@@ -17,6 +17,7 @@ In scope:
 - The generic async orchestration hook `useAsyncAction` and its success/error envelope handling
 - Client-only utilities such as `useHydration` and `useIsMobile`
 - Feature hooks that build on the above (notifications, comments, moderation, posting, forms, navigation guards)
+- The article-administration hooks: section-scoped form validation (`useArticleValidation`), the shared delete flow (`useDeleteArticle`), and the repost composer context (`useRepost` / `RepostProvider`)
 
 Out of scope (covered by sibling pages):
 
@@ -38,7 +39,7 @@ The library mixes two categories of hook:
 | Category | Examples | Characteristic |
 |---|---|---|
 | Generic infrastructure hooks | `useAsyncAction`, `useHydration`, `useIsMobile`, `useTransitionRouter` | Domain-agnostic; usable in any feature |
-| Feature/domain hooks | `useNotifications`, `useThreadComments`, `useCreatePost`, `useRepost`, `useOrganizationForm`, `useProjectForm`, `useProfileImageUpload`, `useDeleteArticle`, `useImageModeration`, `useModerationRejection`, `useAccountSwitch`, `useCommentIdentity` | Bind to a specific domain concept and usually compose the infrastructure hooks |
+| Feature/domain hooks | `useNotifications`, `useThreadComments`, `useCreatePost`, `useRepost`, `useOrganizationForm`, `useProjectForm`, `useProfileImageUpload`, `useDeleteArticle`, `useArticleValidation`, `useImageModeration`, `useModerationRejection`, `useAccountSwitch`, `useCommentIdentity` | Bind to a specific domain concept and usually compose the infrastructure hooks |
 
 ## Architecture
 
@@ -75,6 +76,7 @@ flowchart TD
         Posting["useCreatePost / usePostImages / useRepost"]
         Moderation["useImageModeration / useModerationRejection"]
         Forms["useOrganizationForm / useProjectForm"]
+        ArticleAdmin["useArticleValidation / useDeleteArticle"]
     end
 
     subgraph sg_Support["Support Modules"]
@@ -97,6 +99,7 @@ flowchart TD
     Index --> Posting
     Index --> Moderation
     Index --> Forms
+    Index --> ArticleAdmin
 
     UseAuth --> SessionProvider
     UseActiveAccount --> SessionProvider
@@ -150,7 +153,7 @@ Design notes visible in this file:
 
 - **Value exports and type exports are separated.** Types are exported with `export type { ... }` so they are erased at build time and never become runtime imports.
 - **Two provider components are exported alongside hooks**: `SessionProvider` and `RepostProvider`. This is the pattern used for hooks that require a context — the provider lives in the same module as the consumer hook, guaranteeing they cannot drift apart.
-- **Notably absent from the barrel**: `useArticleValidation` and `useIsMobile` is exported but `useAsyncAction` types (`UseAsyncActionOptions`, `UseAsyncActionReturn`) are *not* re-exported, unlike the `use-create-post` types. Type re-exporting is per-hook, not uniform.
+- **Notably absent from the barrel**: `useArticleValidation` is *not* re-exported — its sole consumer imports it from `@/hooks/use-article-validation` directly (see [Feature Hooks](#feature-hooks)). Meanwhile `useIsMobile` is exported but `useAsyncAction` types (`UseAsyncActionOptions`, `UseAsyncActionReturn`) are *not* re-exported, unlike the `use-create-post` types. Type re-exporting is per-hook, not uniform.
 
 ## Session Context Layer
 
@@ -387,3 +390,123 @@ Both are `.tsx` files despite `useHydration` returning a boolean with no JSX —
 | `useUnsavedChangesGuard` | [`use-unsaved-changes-guard.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-unsaved-changes-guard.ts) | `useUnsavedChangesGuard` |
 
 The presence of `useTransitionRouter` and `useUnsavedChangesGuard` alongside the navigation-independent hooks shows the library absorbs **navigation concerns** too: routing must go through a wrapper hook (likely to coordinate view transitions), and unsaved-work protection is provided as a reusable guard rather than reimplemented per form. Implementation details of those two modules were not read for this page.
+
+## Feature Hooks
+
+Three feature hooks are documented here in full: the article-administration pair (`useArticleValidation`, `useDeleteArticle`) and the repost context (`useRepost` / `RepostProvider`). The rest of the feature layer — notifications, comments, posting, moderation, forms, account switching — is documented with its feature and component pages (Notifications, Comments and Reactions, Posts), which own those behaviours.
+
+### `useArticleValidation` — section-scoped form validation
+
+`useArticleValidation` backs the article editor's per-section completeness checks. Despite the hook naming, it registers **no React state, effects, or refs** — it returns a single `validateSection` function that closes over nothing, so the hook wrapper is call-site ergonomics rather than reactivity.
+
+```typescript
+export function useArticleValidation() {
+  const validateSection = (
+    section: string,
+    data: Partial<ArticleFormData>,
+  ): ValidationError[] => { /* switch (section) { ... } */ };
+  return { validateSection };
+}
+```
+
+> Source: [use-article-validation.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-article-validation.ts#L8-L162)
+
+`validateSection` switches over the five editor sections and returns every violated rule as a `{ field, message, code }` error (the shared `ValidationError` type):
+
+| Section | Rules enforced | Codes emitted |
+|---|---|---|
+| `core_identity` | `article_type` required; a `project_log` article additionally requires `linked_project_id`; title present and at least `ARTICLE_FIELD_LIMITS.title.min` | `MISSING_ARTICLE_TYPE`, `PROJECT_LOG_MISSING_PROJECT`, `MISSING_TITLE` |
+| `access_license` | `license_type_id` required | `MISSING_LICENSE` |
+| `authorship` | At least one author; every author has a `display_name`; at least one author flagged `is_corresponding` | `MISSING_AUTHORS`, `MISSING_AUTHOR_NAME`, `MISSING_CORRESPONDING_AUTHOR` |
+| `alignment` | At least one subcategory, at least one tag (a comma-separated string, filtered on trim), at least one SDG | `MISSING_CATEGORIES` for all three |
+| `content` | PDF required for research/IP types (via `isResearchOrIP` from `@/zod/articles/combined`) unless `text_only_publication`; text-only mode requires `content_text` of at least `ARTICLE_FIELD_LIMITS.content.min`; non-text-only mode requires a PDF **or** content of that minimum length | `MISSING_CONTENT` |
+
+Details worth knowing before extending it:
+
+- **Alignment failures share one code.** Missing tags and missing SDGs both emit `MISSING_CATEGORIES`, so the code alone does not identify which alignment input is missing — only the `field` does.
+- **Corresponding-author errors are emitted per author index** (`authors.${index}.is_corresponding`), so when no corresponding author is designated the error array highlights every author row rather than one.
+- **The content rules are type-dependent.** `isResearchOrIP(article_type?.code)` decides whether a PDF is mandatory; `VALIDATION_MESSAGES.pdf_file_url` (from `@/config/constants/articles`) supplies that message. Text-only and PDF modes have separate minimum-length messages.
+- All limits and messages come from `@/config/constants/articles` (`ARTICLE_FIELD_LIMITS`, `VALIDATION_MESSAGES`) — the same constants the server side validates against.
+
+Sole consumer: [`ArticleFormSidebar.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/form/ArticleFormSidebar.tsx#L70), which calls `validateSection(s.code, getValues())` per section to decide each step's saved/complete state.
+
+### `useDeleteArticle` — shared delete flow
+
+```typescript
+export function useDeleteArticle(
+  articleId: string | null,
+  { onDeleted }: { onDeleted?: () => void } = {},
+) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const deleteArticle = async () => {
+    if (!articleId) return;
+    setIsDeleting(true);
+
+    try {
+      const res = await fetch(`/api/articles/${articleId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw await ApiError.fromResponse(res);
+
+      toast.success("Article deleted", {
+        description: "Your article has been deleted successfully.",
+      });
+      onDeleted?.();
+    } catch (error) {
+      showErrorToast(
+        "Failed to delete article",
+        {},
+        error instanceof ApiError
+          ? error.details || error.message
+          : error instanceof Error
+            ? error.message
+            : "Unknown error occurred.",
+      );
+      setIsDeleting(false);
+    }
+  };
+
+  return { deleteArticle, isDeleting };
+}
+```
+
+> Source: [use-delete-article.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-delete-article.ts#L14-L49)
+
+Its doc comment states the intent: it is shared by the dashboard cards and the article form *so both surface the same copy and the same server-side error detail*. Behaviour notes:
+
+- **Server error detail is preserved.** A non-OK response is converted with `ApiError.fromResponse` (from `@/utils/api-error`), and the toast prefers `error.details` over `error.message` — the API's structured detail reaches the user, not a generic string. The toast itself comes from `showErrorToast` in `src/utils/toast.ts`.
+- **`isDeleting` resets only on the error path.** After a successful delete the flag intentionally stays `true` — both consumers navigate away or unmount inside `onDeleted` (the form closes; the dashboard card removes itself), so a reset is moot. A future consumer that stays mounted after `onDeleted` would be left with a stuck spinner.
+- **No-op guard:** a `null` `articleId` makes `deleteArticle` a no-op rather than a request to `/api/articles/null`.
+
+Consumers: [`ArticleForm.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/form/ArticleForm.tsx) and [`MyArticleCard.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/cards/MyArticleCard.tsx).
+
+### `useRepost` / `RepostProvider` — repost composer context
+
+Reposting is modelled as **composer pre-fill**, not as a request issued from the button: a context carries "which post is being reposted" from the button to the composer. `RepostProvider` holds that state and is mounted once in [`app/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/layout.tsx); like `SessionProvider`, the provider and its consumer hook live in the same module and are exported together from the barrel.
+
+```typescript
+interface RepostContextType {
+  postFormOpen: boolean;
+  setPostFormOpen: (open: boolean) => void;
+  repostPost: PublicPost | null;
+  setRepostPost: (post: PublicPost | null) => void;
+  /** Bumped on every repost request so consumers can react to repeat clicks. */
+  repostRequestId: number;
+  requestRepost: (post: PublicPost) => void;
+}
+```
+
+> Source: [use-repost.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-repost.tsx#L15-L23)
+
+`requestRepost(post)` (a stable `useCallback`) does three things atomically: stores the post, opens the post form, and **increments `repostRequestId`**. The counter exists because the open flag alone cannot signal a *second* repost click — [`DesktopComposer.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/create-form/layouts/DesktopComposer.tsx#L71-L76) keys its scroll-to-top effect on the request id, with a comment spelling out that `isRepostMode` stays true between clicks and would not re-trigger.
+
+The consumer flow:
+
+1. [`RepostButton.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/RepostButton.tsx#L33) calls `requestRepost(post)`.
+2. [`useCreatePost`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-create-post.ts#L54-L60) reads `postFormOpen`, `repostPost`, and `repostRequestId` from the context; in repost mode it appends `post_tag = repostPost.id` to the submitted FormData and switches to repost-specific success copy — the repost record is created by that submit flow, not by this hook.
+3. The composer layouts pass `repostPost` down to the attachment previews so the quoted post renders inside the composer.
+
+The accessor follows the library's fail-fast convention: `useRepost` throws `"useRepost must be used within RepostProvider"` when the context is missing.
+
+**Placeholder flag:** the hook also returns `handleRepost(postId)`, which only logs `"Reposting post {postId}"` and returns `{ status: true }`. It performs no request and has **no call sites anywhere in the repository** — reposts go through `useCreatePost`'s submit. It is dead scaffolding, noted here so it is not mistaken for the live repost path.

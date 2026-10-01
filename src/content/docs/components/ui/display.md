@@ -418,7 +418,69 @@ Notable behaviour:
 
 These live under `PDFViewer/` and are used only by the viewer itself. None has a `"use client"` directive; they run on the client because they are imported from `PDFViewer.tsx`.
 
-- **`PDFWebViewer`** (default export of [PDFViewer/PDFViewer.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/PDFViewer/PDFViewer.tsx)) — the `react-pdf` viewer loaded dynamically by `PDFViewer`. Takes `fileUrl: string`, `fileName?: string`, `allowDownload?: boolean`.
-- **`FullScreenWrapper`** ([PDFViewer/FullScreenWrapper.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/PDFViewer/FullScreenWrapper.tsx)) — render-prop component; `children` receives `{ isFullscreen, toggleFullscreen }`, plus an optional `className` applied to the fullscreen content box. In fullscreen it renders a fixed blurred backdrop and closes on Escape or on mousedown outside the content.
-- **`ViewerToolbar`** ([PDFViewer/ViewerToolbar.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/PDFViewer/ViewerToolbar.tsx)) — file name, page count (spinner until known), download, zoom out/in and fullscreen buttons. Props: `fileName`, `fileUrl`, `fullScreen`, `setScaleFactor`, `toggleFullscreen`, `scaleFactor`, `totalPages?`, `allowDownload?`.
-- **`ViewerToolbarButton`** ([PDFViewer/ViewerToolbarButton.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/PDFViewer/ViewerToolbarButton.tsx)) — a ghost `Button` with an `icon: LucideIcon` passed as `iconLeft`; takes `onClick`, `disabled?`, `className?` plus all `<button>` props. `onClick` is not attached while disabled.
+- **`PDFWebViewer`** (default export of [PDFViewer/PDFViewer.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/PDFViewer/PDFViewer.tsx)) — the `react-pdf` viewer loaded dynamically by `PDFViewer`. Takes `fileUrl: string`, `fileName?: string`, `allowDownload?: boolean`. The directory's other parts — `FullScreenWrapper`, `ViewerToolbar` and `ViewerToolbarButton` — each have their own section below.
+
+## FullScreenWrapper
+
+Render-prop wrapper owning the viewer's fullscreen state. Inline it renders its children in a plain relative flex container; in fullscreen it moves them into a fixed, blurred backdrop overlay and reports the state through the render prop.
+
+- **Source:** [src/components/ui/display/PDFViewer/FullScreenWrapper.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/PDFViewer/FullScreenWrapper.tsx)
+- **Kind:** No `"use client"` directive (uses React state; runs on the client inside `PDFViewer`)
+- **Used in:** `src/components/ui/display/PDFViewer/PDFViewer.tsx`
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `children` | `(props: { isFullscreen: boolean; toggleFullscreen: () => void }) => ReactNode` | — | Render function, called in both modes; `toggleFullscreen` flips the state. Required. |
+| `className` | `ClassNameValue` | — | Extra classes for the fullscreen content box; ignored while inline. |
+
+Notable behaviour:
+
+- Inline mode wraps the children in a `relative flex` div (`w-full min-w-0 max-w-full`).
+- Fullscreen mode is a fixed `inset-0 z-50` overlay (`bg-overlay-scrim backdrop-blur-sm`) holding a centred `max-w-6xl max-h-[90vh]` content box; `className` is merged onto that box.
+- While fullscreen, `Escape` or a `mousedown` outside the content box closes it; the window listeners exist only while fullscreen. The outside check uses `mousedown` so it reacts the moment a press starts on the backdrop, which is safe only while nothing inside portals outside the content box.
+- The root element differs per mode, so toggling remounts everything below the wrapper — which is why `PDFViewer` keeps page, zoom and file state above it.
+
+## ViewerToolbar
+
+The bar above the pages: file name and page count on the left, download, zoom out/in and fullscreen buttons on the right. Every button is a `ViewerToolbarButton`.
+
+- **Source:** [src/components/ui/display/PDFViewer/ViewerToolbar.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/PDFViewer/ViewerToolbar.tsx)
+- **Kind:** No `"use client"` directive (no hooks; runs on the client inside `PDFViewer`)
+- **Used in:** `src/components/ui/display/PDFViewer/PDFViewer.tsx`
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `fileName` | `string` | — | Truncated label on the left. |
+| `fileUrl` | `string` | — | File handed to `downloadFile` by the download button. |
+| `fullScreen` | `boolean` | — | Always shows the download button and caps zoom-in at 1.25. |
+| `scaleFactor` | `number` | — | Current zoom; disables zoom out at the minimum and zoom in at the cap. |
+| `setScaleFactor` | `Dispatch<SetStateAction<number>>` | — | Receives the zoom writes. |
+| `toggleFullscreen` | `() => void` | — | Fullscreen button handler. |
+| `totalPages` | `number` | — | Shown as "N pages"; a spinner shows until it arrives. |
+| `allowDownload` | `boolean` | — | Shows the download button outside fullscreen. |
+
+Notable behaviour:
+
+- Zoom steps by 0.25 between 0.5 and 2.5; in fullscreen zoom-in is disabled from 1.25 up.
+- Download calls `downloadFile(fileUrl, fileName)`.
+- The page count is formatted with `pluralizeMetric`; a spinning `Loader2` shows while `totalPages` is unknown.
+- Page previous/next controls are commented out in the source, along with their `onChangePage` prop.
+
+## ViewerToolbarButton
+
+The toolbar's compact ghost icon button.
+
+- **Source:** [src/components/ui/display/PDFViewer/ViewerToolbarButton.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/PDFViewer/ViewerToolbarButton.tsx)
+- **Kind:** No `"use client"` directive (no hooks; runs on the client inside `ViewerToolbar`)
+- **Used in:** `src/components/ui/display/PDFViewer/ViewerToolbar.tsx`
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `icon` | `LucideIcon` | — | Icon, passed to `Button` as `iconLeft`. Required. |
+| `onClick` | `() => void` | — | Click handler. Required. |
+| `disabled` | `boolean` | — | Disables the button and detaches `onClick`. |
+| `className` | `string` | — | Extra classes. |
+
+Plus all `<button>` props.
+
+Notable behaviour: renders a ghost `Button` fixed at `size-6 p-0 rounded-sm` with muted text and a 1.5px icon stroke. While `disabled`, `onClick` is not attached at all rather than merely ignored.

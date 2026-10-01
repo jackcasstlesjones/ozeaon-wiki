@@ -459,6 +459,56 @@ type NotificationsClient = SupabaseClient<Database>;
 
 This yields a consistent authoring rule: **inject the client, do not construct it.** Helpers receive a `SupabaseClient<Database>` parameter. The caller — a Server Component, a Server Action, or a browser hook — decides which client to pass. `sendConnectionRequest` follows this rule too: it does not call `createClient()` itself; it destructures `supabase` from `getAuthUser()` and passes it to `isBlocked(user.id, recipientId, supabase)`.
 
+## Block-Check Helpers (`src/lib/blocks.ts`)
+
+Despite the file name, this module is about **user blocking**, not editor blocks: it is the read side of the `user_blocks` table that the authorization phase of the action skeleton (above) leans on. It follows the same inject-the-client rule, with the client argument optional — omit it and the helper creates a session client itself:
+
+| Function | Signature | Behaviour |
+|----------|-----------|-----------|
+| `isBlocked` | `(userId1, userId2, supabase?) => Promise<boolean>` | One `.or()` query matching either direction (`blocker→blocked` in both orderings), `.maybeSingle()`. Bidirectional by construction, so one call is a complete guard. |
+| `getBlockedUserIds` | `(userId, supabase?) => Promise<string[]>` | IDs the given user has blocked (`blocker_id = userId`). |
+| `getBlockedByUserIds` | `(userId, supabase?) => Promise<string[]>` | IDs that have blocked the given user (`blocked_id = userId`). |
+
+> Sources: [blocks.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/blocks.ts#L7-L23), [blocks.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/blocks.ts#L28-L57)
+
+All three swallow query errors into a benign default (`false` / `[]`) rather than throwing — a failed block check degrades to "not blocked", which is the safe direction for a social feature. Consumers: `queries/profile.ts` (the `isBlocked` guard in `sendConnectionRequest` and the follow action) and the `/api/users/[userId]/stats` route (`getBlockedUserIds`, to filter the stats a profile exposes). The social-graph semantics of blocking are documented on the profiles page.
+
+## Comment Route Factories (`src/lib/api/comments/`)
+
+Posts, projects, and articles each carry a comment thread with identical rules — who may edit, when a delete leaves a placeholder, which status a missing entity gets — differing only in storage (`post_comments`/`post_id`, `project_comments`/`project_id`, `article_comments`/`article_id`). `src/lib/api/comments` is the single copy of that logic; each route file is now three lines:
+
+```ts
+import { createCommentItemRoutes } from "@/lib/api/comments";
+import { POST_COMMENT_SOURCE } from "@/lib/supabase/queries/comment-sources";
+
+export const { PATCH, DELETE } = createCommentItemRoutes(POST_COMMENT_SOURCE);
+```
+
+> Source: [item-routes.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/item-routes.ts#L14-L19)
+
+| Export | File | Returns |
+|--------|------|---------|
+| `createCommentItemRoutes(source)` | `item-routes.ts` (re-exported by `index.ts`) | `{ PATCH, DELETE }` — edit and delete of one comment |
+| `createCommentThreadRoutes(source)` | `thread-routes.ts` (re-exported by `index.ts`) | `{ GET, POST }` — thread listing and creation |
+
+Both are factories called once at module load: they close over the `CommentSource` for their entity and hand Next.js ready-made handlers; nothing is decided per request. The threading rules, redaction, and placeholder behaviour these handlers implement are documented on [Comments & Reactions](../features/comments-and-reactions/), and the six concrete routes on [API Routes](./api-routes/).
+
+### `PATCH` / `DELETE` — one comment (`item-routes.ts`)
+
+- **`PATCH`** validates both IDs with `isUuid` and the body with `commentContentSchema` (`400` on failure), checks the entity's `comments_enabled` flag via `assertCommentsOpen` (so editing follows the thread's open state), resolves the caller's organisation to attribute moderation (`ownerId: organizationId ? null : user.id`), and runs `moderateComment` **before** the update — the target comment already exists, so this check logs *linked*. The write itself is `source.update`, which filters on authorship *and* the acting organisation, so a comment can only be changed by the identity that posted it. Errors funnel to `500` with `"Something went wrong"`; a scoped-out comment returns `404`.
+- **`DELETE`** implements the placeholder rule (AC-22): if `source.answerCount` says the comment still carries replies, it soft-deletes (`deleted: "placeholder"`) so the replies stay readable; a leaf comment is hard-deleted (`deleted: "removed"`). If a reply lands between the count and the delete, the `trg_<entity>_comment_block_answered_delete` trigger raises a restrict violation (`PG_ERROR_CODES.RESTRICT_VIOLATION`) and the handler falls back to the soft-delete branch rather than cascading away somebody else's reply. There is deliberately **no** comments-open check: being switched off must not trap an author with a comment they can no longer retract (AC-47).
+
+> Source: [item-routes.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/item-routes.ts#L112-L249)
+
+### `GET` / `POST` — the thread (`thread-routes.ts`)
+
+- **`GET`** is public (a plain handler creating its own `createClient()`, not `withAuthUser`). It runs `source.roots` (with `parseCommentLimit`) and `source.liveCount` in parallel — the count covers every live comment in the thread, not just the loaded page (CO-05) — then partitions roots into expanded (validated against the loaded set via `parseExpandedRoots`) and folded, and fetches replies in parallel with per-root caps: `REPLY_FOLD_THRESHOLD` for folded roots, `REPLY_EXPANDED_LIMIT` for expanded ones. Capping is per thread rather than one swept query, because past the row ceiling a single query truncates across all threads at once, silently returning replies for none of them. The response merges roots and replies through `redactDeletedComments` and returns `total`, `commentCount`, and `replyTotals`.
+- **`POST`** is a `withAuthUser` handler: `commentBodySchema` validation (`400`), entity flag + `assertCommentsOpen` (404/403 split per AC-48), and reply-target validation — only the target is checked, because the `trg_<entity>_comment_set_parent` trigger derives `parent_comment_id` from it, so replies can never nest past level 2. A deleted or missing target returns `404`. Moderation runs *before* the insert; no row exists yet, so this check logs *unlinked*. Success returns `201` with the inserted comment.
+
+> Source: [thread-routes.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/thread-routes.ts#L28-L179)
+
+Both factories are generic over `TComment extends RoutableComment` and receive the entity's `CommentSource` — the query half of this layer, documented with the client patterns on [Supabase Client Patterns](../architecture/supabase-client-patterns/).
+
 ## Authentication Helper
 
 `getAuthUser()` (in `src/lib/supabase/auth.ts`) is the single entry point actions use to obtain both a client and the current user. The call site is always the same two-line pattern, destructuring `{ user, supabase }`:
@@ -595,6 +645,30 @@ The injected client type used by the notification query helpers so they can run 
 
 > Source: [notifications.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/notifications.ts#L9-L10)
 
+### `isBlocked(userId1: string, userId2: string, supabase?: SupabaseClient): Promise<boolean>`
+
+True when either user has blocked the other — a single `.or()` over both directions of the `user_blocks` pair, resolved with `.maybeSingle()`. Creates a session client when `supabase` is omitted. Query errors collapse to `false`.
+
+> Source: [blocks.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/blocks.ts#L7-L23)
+
+### `getBlockedUserIds(userId: string, supabase?): Promise<string[]>` / `getBlockedByUserIds(userId: string, supabase?): Promise<string[]>`
+
+The IDs a user has blocked, and the IDs that have blocked them, respectively. Errors collapse to `[]`.
+
+> Source: [blocks.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/blocks.ts#L28-L57)
+
+### `createCommentItemRoutes<TComment>(source: CommentSource<TComment>): { PATCH, DELETE }`
+
+Builds the edit/delete handlers for one commentable entity. `PATCH`: `isUuid` + `commentContentSchema` validation (`400`), `assertCommentsOpen`, pre-update moderation (linked), authorship-and-organisation-scoped `source.update` (`404` when scoped out, `500` on error). `DELETE`: reply-count branch to soft-delete a placeholder vs. hard-delete a leaf, with a `RESTRICT_VIOLATION` fallback to the placeholder if a reply arrives mid-delete; no comments-open check by design (AC-47).
+
+> Source: [item-routes.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/item-routes.ts#L112-L249)
+
+### `createCommentThreadRoutes<TComment>(source: CommentSource<TComment>): { GET, POST }`
+
+Builds the thread listing/creation handlers. `GET` (public, own client): parallel roots + live count, per-root reply caps (`REPLY_FOLD_THRESHOLD` / `REPLY_EXPANDED_LIMIT`), `redactDeletedComments`, and `{ comments, total, commentCount, replyTotals }`. `POST` (`withAuthUser`): `commentBodySchema` (`400`), open check (AC-48 404/403 split), reply-target existence (`404`), pre-insert moderation (unlinked), `201` with the inserted comment.
+
+> Source: [thread-routes.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/thread-routes.ts#L28-L179)
+
 ## Operations, Performance and Extension Points
 
 - **Client lifetime.** Always construct the client inside the request. The `createClient()` doc comment warns against module-level caching; the same applies to `createActionClient()` and `getAuthUser()` results.
@@ -613,6 +687,9 @@ The injected client type used by the notification query helpers so they can run 
 - [Server actions module](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/actions.ts)
 - [Profile queries and connection actions](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/profile.ts)
 - [Notification queries (shared client)](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/notifications.ts)
+- [Block-check helpers](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/blocks.ts) — `isBlocked`, `getBlockedUserIds`, `getBlockedByUserIds`
+- [Comment route factories](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/index.ts) — [item routes](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/item-routes.ts) and [thread routes](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/thread-routes.ts)
+- Comment sources these factories consume: see [Supabase Client Patterns](../architecture/supabase-client-patterns/)
 - [Reaction queries](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/reactions.ts)
 - [Cache components model — SSR/caching rules](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/ssr/cache-components-model.md)
 - [Workflows and environment variables](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/workflows.md)

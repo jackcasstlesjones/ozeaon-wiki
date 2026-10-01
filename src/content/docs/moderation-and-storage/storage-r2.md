@@ -8,7 +8,7 @@ Object storage for the platform is centralized behind a single `StorageAdapter` 
 
 ## Purpose and Scope
 
-This page documents how the application performs binary object storage: the `StorageAdapter` abstraction (`@/lib/storage/adapter`), the Cloudflare R2 bucket binding defined in `wrangler.jsonc`, the per-environment bucket configuration, the public URL scheme (`storage-r2.ozeaon.com` / `storage-r2.ozeaon.dev`), and the file-serving cache path under `/api/storage`.
+This page documents how the application performs binary object storage: the `StorageAdapter` abstraction (`@/lib/storage/adapter`), the Cloudflare R2 bucket binding defined in `wrangler.jsonc`, the per-environment bucket configuration, the public URL scheme (`storage-r2.ozeaon.com` / `storage-r2.ozeaon.dev`), and the file-serving cache path under `/api/storage`. It also carries the per-file reference for the rest of `src/lib/storage` — the `R2BindingStorage` class behind the adapter, the module barrel, and the storage audit / orphan-cleanup pair — plus the server-side upload and delete pipelines built on top of the adapter (`src/lib/documents/upload.ts`, `src/lib/images/upload.ts`, `src/lib/images/delete.ts`). The browser-side, moderation-aware upload helper (`src/lib/images/client.ts`) is documented on [Media, Images & Attachments](../features/media-and-images/).
 
 It is intentionally bounded to the **storage layer**. Related topics that live on sibling pages:
 
@@ -83,6 +83,52 @@ The diagram reflects the real call graph: feature code generates keys and valida
 - **Adapter as the only writer.** If the raw binding or an S3 client were used directly, different features would drift on cache headers and content types. Routing everything through one class means a change to cache policy is a one-line change in one file.
 - **Key generation separated from the adapter.** `generateUniqueKey` lives in `@/utils` and composes the key from a logical prefix plus the original filename. This lets each feature own its own namespace (`profiles/<userId>/covers`) while the adapter stays generic.
 - **URL helpers separated from the adapter.** `getImageUrl` / `getImageUrlFromKey` derive display URLs from keys, so rendering code never needs to know the bucket binding exists.
+
+## `R2BindingStorage` — the binding class behind the adapter
+
+`src/lib/storage/r2-binding.ts` is the one class in the codebase that talks to the raw `R2_BUCKET` binding. `StorageAdapter` is the application-facing facade over it; `R2BindingStorage` is the typed wrapper that turns options objects into Workers R2 API calls. It is constructed with the binding itself, which callers read from the Cloudflare context:
+
+```typescript
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { R2BindingStorage } from "@/lib/storage";
+
+const { env } = await getCloudflareContext();
+const storage = new R2BindingStorage(env.R2_BUCKET);
+await storage.upload("key", data);
+```
+
+> Source: [index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/index.ts#L1-L14)
+
+### Method surface
+
+| Method | Signature | Behaviour |
+| --- | --- | --- |
+| `upload` | `(key, data, options?) => Promise<UploadResult>` | `bucket.put` with `httpMetadata` assembled from `contentType` / `cacheControl` / `contentDisposition` (or a passthrough `options.httpMetadata`) and `customMetadata` from `options.metadata`. Accepts `string`, `ArrayBuffer`, `ArrayBufferView`, `ReadableStream`, `Blob`, or `null`. |
+| `uploadFile` | `(key, file: File, options?) => Promise<UploadResult>` | Converts the `File` to an `ArrayBuffer` first (R2 needs a known length for streams) and defaults `contentType` to `file.type`. |
+| `get` | `(key) => Promise<GetObjectResult \| null>` | Full read into an `ArrayBuffer`; `contentType` defaults to `application/octet-stream` when unset. |
+| `getAsResponse` | `(key) => Promise<Response \| null>` | Streams `object.body` straight into a `Response` with `Content-Type`, `Cache-Control`, `Content-Disposition`, `ETag`, `Last-Modified`, and `Content-Length` headers — the read path used when serving objects. |
+| `getAsText` / `getAsJson<T>` | `(key) => Promise<string \| T \| null>` | Convenience reads; `getAsJson` parses the text as JSON. |
+| `exists` | `(key) => Promise<boolean>` | `bucket.head` non-null check. |
+| `head` | `(key) => Promise<Omit<GetObjectResult, "data"> \| null>` | Metadata without the body. |
+| `delete` / `deleteMany` | `(key)` / `(keys: string[])` | Single and batched `bucket.delete`. |
+| `list` | `(options?) => Promise<ListResult>` | Paginated listing; `includeCustomMetadata: true` maps to `include: ["customMetadata"]`. Returns `objects`, `delimitedPrefixes`, `truncated`, and a `cursor` when truncated. |
+| `copy` | `(sourceKey, destinationKey)` | No native R2 copy — downloads and re-uploads, preserving http and custom metadata. Throws if the source is missing. |
+| `move` | `(sourceKey, destinationKey)` | `copy` then `delete`. |
+| `createMultipartUpload` | `(key, options?) => Promise<R2MultipartUpload>` | Returns the raw Workers multipart handle for chunked uploads of large files. |
+
+> Sources: [r2-binding.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/r2-binding.ts#L48-L49), [r2-binding.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/r2-binding.ts#L304-L408)
+
+The file also owns the adapter's data shapes — `UploadOptions` (including an `onMark` timing hook used by the upload pipelines below), `UploadResult` (`key`, `size`, `etag`, `version?`), `GetObjectResult`, `ListOptions`, and `ListResult` — all re-exported from the module barrel. A closing note in the source records that the old free-function utilities (`generateUniqueKey`, `getContentType`, `validateFileSize`, `validateFileType`) were moved out to `@/utils/generators`, `@/utils/url`, and `@/utils/validators`; nothing of that kind lives here any more.
+
+> Source: [r2-binding.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/r2-binding.ts#L411-L413)
+
+### Module barrel (`src/lib/storage/index.ts` and `src/lib/index.ts`)
+
+`src/lib/storage/index.ts` is the subsystem's public barrel: it re-exports `R2BindingStorage`, the five data types above, `StorageAdapter` (from `./adapter`), and the audit pair `auditStorage` / `cleanupOrphans` with their result types. `src/lib/storage/adapter.ts` itself imports the binding class, so the dependency chain is `adapter → r2-binding → R2_BUCKET`.
+
+`src/lib/index.ts` is a top-level barrel that re-exports `cn`, `hasEnvVars`, and `getErrorMessage` from `@/utils/shadcn/utils` and then `export * from "./storage"`. Application code does not import through it — callers use `@/lib/storage` and `@/utils` directly — so it exists as a convenience root rather than a used surface.
+
+> Sources: [storage/index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/index.ts#L16-L35), [src/lib/index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/index.ts#L1-L3)
 
 ## Upload Workflow
 
@@ -179,6 +225,92 @@ Combined with the year-long `immutable` cache-control set at upload time, this p
 > **File caching** (`/api/storage`): Cloudflare Cache API → ETag 304 → R2 read
 
 > Source: [r2-storage.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/r2-storage.md#L26)
+
+## Server-Side Upload Pipelines
+
+Three server helpers wrap the validate → key → upload → DB-record sequence for the route handlers in `src/app/api/*`. All of them write bytes through `StorageAdapter` first and insert the relational record second, and all of them delete the uploaded object when the record insert fails, so a failed write never strands an orphan.
+
+### `uploadImage` — `src/lib/images/upload.ts`
+
+```typescript
+export async function uploadImage({
+  supabase, userId, file, storageKeyPrefix, uploadType, maxSize,
+  account, surface, width, height, onMark,
+}: UploadImageParams): Promise<UploadImageResult>
+```
+
+> Source: [upload.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/upload.ts#L12-L24)
+
+The full image pipeline, in order:
+
+1. **Validation** — `validateFileType(file.name, IMAGE_CONFIG.allowedTypes)` and `validateFileSize(file.size, maxSize)` return `400` with the shared `IMAGE_ERROR_MESSAGES` wording before anything is written.
+2. **Key + write** — `generateUniqueKey(storageKeyPrefix, file.name)` then `StorageAdapter.uploadFile` with `cacheControl: "public, max-age=31536000, immutable"` and custom metadata (`userId`, `uploadType`, `originalName`, `uploadedAt`). An `onMark` callback is forwarded so routes can time the write.
+3. **Moderation gate** — `resolveModerationImage` + `checkUploadedImage` run the asset through the content-moderation pipeline (see [Content Moderation Pipeline](./moderation/)). A `rejected` decision deletes the just-uploaded object (best-effort, logged on failure) and returns `422` with `moderation: [{ field: uploadType, categories }]`; any other non-`allowed` decision returns `503` with the shared "We couldn't complete the content check" message.
+4. **DB record** — inserts into `images` (`path`, `uploader_id`, `alt`, `title` derived by stripping the extension, `mime_type`, `file_size_bytes`, caller-measured `width`/`height`). On insert failure the object is deleted and `500` returned.
+5. **Result** — `{ imageId, imageUrl: StorageAdapter.getPublicUrl(path), path }`.
+
+Consumed by the image routes for posts and projects (`/api/posts/image`, `/api/projects/[id]/image`, `/api/projects/[id]/section-image`).
+
+> Source: [upload.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/upload.ts#L43-L90)
+
+### `uploadDocument` — `src/lib/documents/upload.ts`
+
+The document variant validates against the **database**, not a config list: it looks the file's MIME type up in `document_types` and returns `{ error: "Unsupported file type", status: 400 }` when no row matches. It then extracts `page_count` via `extractPdfPageCount`, writes to `${storageKeyPrefix}/${Date.now()}-${file.name}` with `cacheControl: "private, max-age=0"` — note the contrast with images: documents are **private and never cached** — and inserts into `documents` (`uploader_id`, `document_type_id`, `path`, `filename`, `file_size_bytes`, `page_count`, `title` defaulting to the filename). A failed insert deletes the uploaded object and returns `500` (`"Failed to save document record"`).
+
+> Source: [upload.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/documents/upload.ts#L12-L67)
+
+Consumed by `/api/projects/[id]/documents`.
+
+### `deleteImageById` — `src/lib/images/delete.ts`
+
+Deletion distinguishes **why** a row survived, because only one of the reasons actually removed anything:
+
+```typescript
+export type DeleteImageOutcome =
+  "deleted" | "referenced" | "blocked" | "failed";
+```
+
+> Source: [delete.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/delete.ts#L8-L10)
+
+It deletes the `images` row first (`delete().eq("id", imageId).select("path").maybeSingle()`), then removes the object:
+
+| Outcome | Trigger | Meaning |
+| --- | --- | --- |
+| `"referenced"` | Postgres `P0001` — `trg_prevent_image_deletion` raised because another entity still points at the image | Expected for a shared asset; not logged as a failure |
+| `"blocked"` | The delete matched no row — already gone, or RLS hid it from this client | Nothing was deleted |
+| `"failed"` | Any other DB error | Logged via `logError` with the `imageId` |
+| `"deleted"` | Row removed; `StorageAdapter.deleteFile(image.path)` follows, best-effort | The bucket object may outlive a failed R2 delete (logged, not retried) |
+
+> Source: [delete.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/delete.ts#L12-L41)
+
+Consumed by the post, project, section-image, and organization image routes.
+
+## Storage Audit & Orphan Cleanup
+
+`src/lib/storage/audit.ts` reconciles the bucket against the relational metadata and repairs the difference. It exists because the delete paths above are best-effort: any failed R2 delete or missing DB write leaves the two stores disagreeing.
+
+### `auditStorage(): Promise<StorageAuditResult>`
+
+Walks the **entire** bucket and both metadata tables and diffs them:
+
+- **R2 side** — pages through `R2BindingStorage.list({ limit: 1000, cursor, includeCustomMetadata: true })` until `truncated` is false, keeping each object's `size`, `lastModified`, `uploadType`, and any `articleId`/`projectId`/`postId` metadata entry.
+- **DB side** — pages through `images` and `documents` (`id, path, uploader_id, created_at`) in 1000-row ranges using `createAdminClient()`, the RLS-bypassing client — the audit must see every row regardless of caller. Requires `env.R2_BUCKET` from the Cloudflare context and throws when it is absent.
+
+An R2 object whose key is not in the DB path set is an **R2 orphan**; a DB row whose path has no object is a **DB orphan**. The result carries both lists plus `stats` (`r2Total`, `dbTotal`, `matched`, `r2Orphans`, `dbOrphans`) and a `scannedAt` timestamp.
+
+> Source: [audit.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/audit.ts#L51-L161)
+
+### `cleanupOrphans(result): Promise<CleanupResult>`
+
+Takes an audit result and deletes both orphan sets: R2 orphans through `storage.deleteMany(keys)`, DB orphans through one `delete().in("id", ids)` on `images` via the admin client. Each side is independently try/caught — a failed R2 sweep does not stop the DB sweep — and every failure is collected into `errors` as a string rather than thrown, so one call reports everything that went wrong.
+
+> Source: [audit.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/audit.ts#L163-L203)
+
+### Caller
+
+The pair is exposed by the secret-gated `/api/storage/audit` route: `GET` runs `auditStorage()` and returns the report; `DELETE` runs the audit and then `cleanupOrphans`, returning what was deleted. Both require an `x-audit-secret` header matching the `STORAGE_AUDIT_SECRET` environment variable and return `403` otherwise — appropriate, given the admin client and bulk-delete behaviour. The route is one of the plain-export handlers that pass `route`/`method` to `logError` explicitly (see [Logging & Observability](../operations/logging-observability/)).
+
+> Source: [route.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/storage/audit/route.ts#L4-L39)
 
 ## Configuration
 
@@ -314,6 +446,12 @@ Because source exploration was bounded, the following are the failure characteri
 | **Cross-environment bucket confusion** | Same binding name (`R2_BUCKET`) resolves to different buckets per environment. | This is intentional; ensure deployment config injects the correct bucket. Never assume the binding points at production. |
 | **Client holds stale version but edge missed** | Cache API miss but client has a valid ETag. | The 304 tier short-circuits before an R2 read, avoiding redundant body transfer. |
 | **Empty remote-pattern entry** | `storageHost` env var unset. | `next.config.ts` `.filter(Boolean)` prevents an empty host from entering the allow-list. |
+| **DB insert fails after a successful upload** | The record insert in `uploadImage` / `uploadDocument` errors. | The just-written object is deleted best-effort and `500` returned; a failed delete is logged, producing an R2 orphan the audit can sweep. |
+| **Image rejected by moderation** | `checkUploadedImage` returns a non-`allowed` decision after the object was written. | The object is deleted and `422` (with moderation categories) or `503` returned — rejected bytes are never persisted. |
+| **Shared image delete refused** | `trg_prevent_image_deletion` raises `P0001` while another entity references the row. | `deleteImageById` maps it to `"referenced"` — expected behaviour, not an error. |
+| **Image delete matches no row** | The image was already deleted, or RLS hid it from this client. | Outcome `"blocked"`; callers must not treat it as success. |
+| **Audit without `R2_BUCKET` in context** | `auditStorage` cannot construct the binding storage. | Throws `"R2_BUCKET not available in Cloudflare context"` before any work. |
+| **Partial cleanup failure** | R2 bulk delete or the `images` bulk delete fails. | `cleanupOrphans` collects per-side error strings in `errors` instead of throwing, and still completes the other side. |
 
 ### Concurrency and consistency notes
 
@@ -353,6 +491,12 @@ Because source exploration was bounded, the following are the failure characteri
 ## Related Links
 
 - [R2 Storage Patterns (docs/r2-storage.md)](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/r2-storage.md) — the canonical upload/URL/delete pattern and cache chain.
+- [R2 binding class](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/r2-binding.ts) — `R2BindingStorage` and its data types.
+- [Storage module barrel](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/index.ts) — public exports for the subsystem.
+- [Storage audit](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/storage/audit.ts) — `auditStorage` / `cleanupOrphans`; exposed by the [audit route](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/storage/audit/route.ts).
+- [Image upload pipeline](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/upload.ts) and [image delete](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/delete.ts) — server-side helpers.
+- [Document upload pipeline](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/documents/upload.ts) — `uploadDocument`.
+- Client-side moderated uploads live on [Media, Images & Attachments](../features/media-and-images/); the moderation gate itself on [Content Moderation Pipeline](./moderation/).
 - [wrangler.jsonc](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/wrangler.jsonc#L29-L72) — R2 bucket bindings per environment.
 - [next.config.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/next.config.ts#L32-L34) — `storage-r2` remote host allow-listing.
 - [open-next.config.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/open-next.config.ts#L1-L7) — commented-out R2 incremental cache overrides.

@@ -256,6 +256,61 @@ configureSync(clientLoggingConfig);
 
 Note that the client uses a distinct export, `clientLoggingConfig` from `@/lib/logger/client-config`, rather than the server `loggingConfig`. This mirrors the module's separation of concerns and is consistent with the documented fact that client logs carry no `requestId` and no ALS-backed context.
 
+### Client configuration: `src/lib/logger/client-config.ts`
+
+`clientLoggingConfig` is the browser counterpart of `loggingConfig`, and its differences from the server file are each deliberate:
+
+```ts
+export const clientLoggingConfig: Config<"console", never> = {
+  reset: true,
+  sinks: {
+    console: getConsoleSink({
+      // Cloudflare Workers Logs only auto-extracts filterable fields from a
+      // real object passed to console.log — a JSON *string* argument (e.g.
+      // from getJsonLinesFormatter()) is stored as one opaque text field.
+      formatter: (record) => {
+        const result: unknown[] = [
+          env.isDevelopment
+            ? getPrettyFormatter(formatterOptions)(record)
+            : jsonFormatter(record),
+        ];
+        // prints objects into console, not texts
+        if (Object.keys(record.properties).length > 0) {
+          result.push(record.properties);
+        }
+        return result;
+      },
+    }),
+  },
+  loggers: [
+    {
+      category: [LOGGER_ROOT_CATEGORY],
+      lowestLevel: env.isDevelopment ? "debug" : "warning",
+      sinks: ["console"],
+    },
+    {
+      category: ["logtape", "meta"],
+      lowestLevel: "warning",
+      sinks: ["console"],
+    },
+  ],
+};
+```
+
+> Source: [client-config.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/client-config.ts#L21-L54)
+
+Differences from `config.ts` and why they exist:
+
+| Aspect | Server (`config.ts`) | Client (`client-config.ts`) |
+|--------|----------------------|------------------------------|
+| Production level floor | `"info"` | `"warning"` — only warnings and errors are emitted from a client session |
+| Production formatter | One plain object with `...record.properties` spread **into** it | `jsonFormatter(record)` object (`level`, `category`, `message`, `timestamp`) with the properties object pushed as a **second** console argument |
+| Redaction wrap | `redactByField(consoleSink, DEFAULT_REDACT_FIELDS)` | Not applied — the console sink is used bare |
+| Dev pretty formatter | `{ icons: false, align: false, colors: false }` | `{ icons: false, align: false, colors: true }` — ANSI colors stay on, since browser output is always a live console |
+| Categories / `reset` | `LOGGER_ROOT_CATEGORY`, `logtape.meta` at `"warning"`, `reset: true` | Identical — client records keep the `"ozeaon"` prefix, so the category taxonomy is one namespace across both runtimes |
+
+`client-config.ts` has exactly one consumer: `src/instrumentation-client.ts`, whose entire body is the `configureSync(clientLoggingConfig)` call shown above.
+
 ## Request-Scoped Context
 
 Ambient context is what makes a log record correlate without every caller threading a request id by hand. The project uses two independent `withContext` entry points, because middleware and API route handlers occupy disjoint execution paths.
@@ -494,6 +549,18 @@ flowchart TD
 | `loggers[1].lowestLevel` | `LogLevel` | `"warning"` | Suppresses meta chatter. |
 | `reset` | `boolean` | `true` | Replace global config on each `configure()`. |
 
+### `clientLoggingConfig` (`src/lib/logger/client-config.ts`)
+
+| Option | Type | Value | Description |
+|--------|------|-------|-------------|
+| `reset` | `boolean` | `true` | Same replace-on-configure semantics as the server config. |
+| `sinks.console` | `Sink` | `getConsoleSink({ formatter })` | Dev: pretty formatter + properties object. Prod: `jsonFormatter` object (`level`, `category`, `message`, `timestamp`) plus a separate properties object. No redaction wrap. |
+| `loggers[0].category` | `string[]` | `["ozeaon"]` | Root-category logger, shared with the server. |
+| `loggers[0].lowestLevel` | `LogLevel` | `"debug"` (dev) / `"warning"` (non-dev) | Stricter than the server's `"info"` production floor. |
+| `loggers[1]` | entry | `["logtape", "meta"]` at `"warning"` | Suppresses LogTape meta chatter, as on the server. |
+
+> Source: [client-config.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/client-config.ts#L21-L54)
+
 ### Dev formatter options
 
 | Option | Type | Value | Description |
@@ -561,6 +628,12 @@ Logs a caught error through LogTape, with coercion and production stack strippin
 **Side effects:** In `env.isProduction`, `error.stack` is deleted before emission.
 
 > Source: [index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/index.ts#L21-L36)
+
+### `clientLoggingConfig: Config<"console", never>`
+
+The browser logging configuration applied by `configureSync()` in `instrumentation-client.ts`. Single `console` sink (dev pretty formatter, prod `jsonFormatter` object plus a separate properties object), root-category logger at `"debug"` in development and `"warning"` otherwise, `logtape.meta` capped at `"warning"`, `reset: true`. No redaction wrap and no ambient context — client logs carry no `requestId`/`userId`.
+
+> Source: [client-config.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/client-config.ts#L21-L54)
 
 ## Failure Modes, Edge Cases & Concurrency
 
@@ -663,6 +736,7 @@ The strongest defense is documentation-driven: the conventions doc pre-emptively
 ### Source files
 - [src/lib/logger/index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/index.ts) — `getLogger`, `toError`, `logError`
 - [src/lib/logger/config.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/config.ts) — root category, sinks, formatters, redaction, `loggingConfig`
+- [src/lib/logger/client-config.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/logger/client-config.ts) — `clientLoggingConfig` for the browser runtime
 - [src/instrumentation.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/instrumentation.ts) — server startup `configure()`
 - [src/instrumentation-client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/instrumentation-client.ts) — browser `configureSync()`
 - [src/middleware.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/middleware.ts) — page-route `withContext` and `/api/*` matcher exclusion

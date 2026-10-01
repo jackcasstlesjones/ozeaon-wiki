@@ -4,7 +4,7 @@ sidebar:
   order: 1
 ---
 
-Centralized, type-safe access to environment variables and shared layout constants for the ozeaon-v2 Next.js application. This page documents `src/config/env.ts` — the single module every other layer reads runtime configuration from — and the closely related constant modules that encode build-time and layout invariants.
+Centralized, type-safe access to environment variables and shared constants for the ozeaon-v2 Next.js application. This page documents `src/config/env.ts` — the single module every other layer reads runtime configuration from — the `src/config` and `src/config/constants` barrels, and the constant modules that encode upload limits, feed sizes, navigation, metadata, and domain-specific invariants.
 
 ## Purpose and Scope
 
@@ -13,6 +13,9 @@ This page covers:
 - `src/config/env.ts` — the environment-variable aggregation module, its static-reference pattern, its fail-fast validation, and the exact shape of the exported `env` object.
 - The rationale for the `NEXT_PUBLIC_` naming split between browser-visible and server-only secrets.
 - `src/components/ui/layout/constants.ts` — shared layout/measurement constants that act as compile-time configuration for the reader and feed grids.
+- `src/config/index.ts` and `src/config/constants/index.ts` — the two barrels that make `@/config` the single import path.
+- The application constant modules under `src/config/constants/` (`feeds`, `posts`, `password`, `privacy`, `image`, `documents`, `attachments`, `categories`, `metadata`, `navigation`, `articles`) — every exported constant, its value, and its consumers.
+- The two root helpers beside `env.ts`: `src/config/connectionConfig.ts` (connection-request timing) and `src/config/reaction-types.ts` (cached reaction-type lookup).
 - How the `env` module is consumed downstream (Supabase clients, middleware, cookie security flags).
 
 Intentionally **left to sibling pages**:
@@ -242,6 +245,230 @@ These constants document real geometry constraints that are otherwise invisible:
 
 Using `svh` (small viewport height) instead of `vh` keeps the rail correctly sized on mobile browsers where the dynamic toolbar changes the viewport height.
 
+### The `src/config` Barrel
+
+`src/config/index.ts` is the entry point for the whole layer — two re-exports that make `@/config` the single import path for configuration:
+
+```typescript
+export { env } from "./env";
+export * from "./constants";
+```
+
+> Source: [index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/index.ts)
+
+Most consumers import through this barrel (`components/nav/DashboardSidebar.tsx` takes `DASHBOARD_NAV_ITEMS`, `components/ui/forms/AvatarUpload.tsx` takes `IMAGE_CONFIG`/`IMAGE_ERROR_MESSAGES`, `types/shared.ts` takes the `ContentVisibility` type). Three constant modules sit outside it and are imported by direct path instead: `src/config/constants/articles.ts`, `src/config/constants/organizations.ts`, and `src/config/constants/profile.ts`, plus the two root modules documented below.
+
+### `src/config/constants/index.ts` — The Constants Barrel
+
+The constants barrel re-exports every shared constant module except the three direct-path ones named above:
+
+| Re-exported module | Exported names |
+| --- | --- |
+| `feeds.ts` | `FEED_PAGE_LIMIT`, `SEARCH_PAGE_LIMIT`, `SEARCH_MIN_QUERY_LENGTH`, `SEARCH_AUTHOR_MATCH_CAP` |
+| `comments.ts` | `COMMENT_MAX_LENGTH`, `COMMENT_BATCH_SIZE`, `REPLY_FOLD_THRESHOLD`, `REPLY_EXPANDED_LIMIT`, `MAX_COMMENT_LIMIT` |
+| `categories.ts` | `CATEGORY_DOT_COLORS`, `CATEGORY_CHIP_BORDER`, `CATEGORY_CHIP_BORDER_DARK` |
+| `documents.ts` | `DOCUMENT_CONFIG`, `DOCUMENT_ERROR_MESSAGES` |
+| `image.ts` | `IMAGE_CONFIG`, `IMAGE_ERROR_MESSAGES`, `MAX_IMAGES_PER_POST` |
+| `password.ts` | `PASSWORD_REQUIREMENTS`, `validatePassword`, `checkPasswordStrength` |
+| `privacy.ts` | `VISIBILITY_OPTIONS`, type `ContentVisibility` |
+| `postgres.ts` | `PG_ERROR_CODES` |
+| `metadata.ts` | `NO_INDEX_ROBOTS`, `AUTHOR_OZEAON` |
+| `projects.ts` | `PROJECT_STATUS_FILTERS`, `PROJECT_STATUS_FILTER_TABS`, `isProjectStatusFilter`, type `ProjectStatusFilter` |
+| `attachments.ts` | `EDIT_GRACE_DAYS`, `ATTACHMENT_MIME`, `ATTACHMENT_EXTENSIONS`, `ATTACHMENT_LIMITS`, `ATTACHMENT_STORAGE_PREFIX` |
+| `moderation.ts` | `MODERATION_REPORT_URL`, `MODERATION_MODEL`, `MODERATION_TIMEOUT_MS`, `MODERATION_RETRY_DELAY_MS` |
+| `posts.ts` | `MAX_MESSAGE_LENGTH` |
+| `notifications.ts` | `NOTIFICATION_BATCH_SIZE`, `NOTIFICATION_REREAD_DEBOUNCE_MS` |
+| `navigation.ts` | `DASHBOARD_NAV_ITEMS`, type `DashboardNavItem` |
+
+> Source: [index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/index.ts)
+
+The barrel covers functions as well as constants (`validatePassword`, `checkPasswordStrength`, `isProjectStatusFilter`), so `@/config` is a mixed surface. The sibling modules it omits (`articles.ts`, `organizations.ts`, `profile.ts`) are all consumed only through their validation-adjacent call sites, which import `@/config/constants/<name>` directly.
+
+### `src/config/connectionConfig.ts` — Connection Request Timing
+
+Encodes the two timing windows for the user-to-user connection request flow, in minutes, plus the two helpers that turn them into timestamp strings.
+
+| Constant | Value | Purpose |
+| --- | --- | --- |
+| `CONNECTION_CONFIG` | `{ request: { expirationMinutes: 30, cancelCooldownMinutes: 30 } }` (`as const`) | Pending connection requests expire after 30 minutes; a cancelled requester must wait 30 minutes before re-requesting. |
+| `getConnectionRequestExpiration` | `() => string` (ISO timestamp) | `Date.now() + expirationMinutes`; written to `expires_at` when a request is created. |
+| `getConnectionRequestCooldownEnd` | `() => string` (ISO timestamp) | `Date.now() + cancelCooldownMinutes`; written to `cooldown_until` when a request is cancelled. |
+
+Both helpers are evaluated at call time (not module load), so each request gets its own deadline. The single consumer is `lib/supabase/queries/profile.ts`, which writes `expires_at` on request creation and `cooldown_until` on cancellation.
+
+> Source: [connectionConfig.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/connectionConfig.ts)
+
+### `src/config/reaction-types.ts` — Cached Reaction-Type Lookup
+
+Despite living in `src/config`, this module exports a function, not a constant: `getReactionTypeId(slug, supabase): Promise<string | undefined>`. It resolves a reaction slug (e.g. a post like) to its `reaction_types.id` using a module-level cache:
+
+```typescript
+let cache: Record<string, string> | null = null;
+
+export async function getReactionTypeId(
+  slug: string,
+  supabase: SupabaseClient,
+): Promise<string | undefined> {
+  if (!cache) {
+    const { data } = await supabase.from("reaction_types").select("id, slug");
+    cache = Object.fromEntries((data ?? []).map((r) => [r.slug, r.id]));
+  }
+  return cache![slug];
+}
+```
+
+> Source: [reaction-types.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/reaction-types.ts)
+
+The first call in a process fetches the whole `reaction_types` table (`id`, `slug`) and builds a `slug → id` record; every later call is a synchronous dictionary hit. Two consequences: the cache is **never invalidated**, so reaction types added after process start are invisible until restart, and an unknown slug returns `undefined` rather than erroring. Consumers are `app/api/posts/[id]/like/route.ts` and `lib/supabase/queries/reactions.ts`.
+
+### `src/config/constants/feeds.ts` — Feed and Search Page Limits
+
+| Constant | Value | Purpose |
+| --- | --- | --- |
+| `FEED_PAGE_LIMIT` | `5` | Page size for the profile and organisation tab feeds (posts/articles/projects tabs). |
+| `SEARCH_PAGE_LIMIT` | `10` | Page size for merged search results. |
+| `SEARCH_MIN_QUERY_LENGTH` | `2` | Shorter queries are treated as too broad to be worth a round trip. |
+| `SEARCH_AUTHOR_MATCH_CAP` | `50` | Cap on author name matches feeding the search author filter; keeps the author set identical on every page and bounds the `in.(…)` filter list that rides in the request URL. |
+
+Consumers: the profile/organisation tab pages and the posts/projects/articles feed components for `FEED_PAGE_LIMIT`; `app/api/search/route.ts`, `lib/supabase/queries/search.ts`, and `app/(main)/(feed)/(public)/search/page.tsx` for the search constants.
+
+> Source: [feeds.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/feeds.ts)
+
+### `src/config/constants/posts.ts` — Post Composer Limits
+
+A one-line module: `export const MAX_MESSAGE_LENGTH = 3000;` — the character cap for the post composer, enforced by `components/posts/create-form/parts/ComposerTextarea.tsx` and `MobileComposer.tsx`.
+
+> Source: [posts.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/posts.ts)
+
+### `src/config/constants/password.ts` — Password Policy
+
+| Export | Shape | Purpose |
+| --- | --- | --- |
+| `PASSWORD_REQUIREMENTS` | `{ minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 }` (`as const`) | Options object passed straight to `validator.isStrongPassword`. |
+| `validatePassword` | `(password: string) => string \| null` | Returns a user-facing error message when the password fails policy, `null` when it passes. |
+| `checkPasswordStrength` | `(password: string) => number` | Scores 0–4 (length, lowercase, uppercase, digit, symbol — one point each) for strength meters, without validating. |
+
+The only consumer is `utils/validators/password.ts`, which re-exports both functions through `utils/validators/index.ts` for the sign-up and password forms.
+
+> Source: [password.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/password.ts)
+
+### `src/config/constants/privacy.ts` — Content Visibility
+
+```typescript
+export const VISIBILITY_OPTIONS = [
+  { value: "public", label: "Public", description: "Anyone can see" },
+  { value: "connections", label: "Connections", description: "Only your connections can see" },
+  { value: "private", label: "Private", description: "Only you can see" },
+] as const;
+
+export type ContentVisibility = (typeof VISIBILITY_OPTIONS)[number]["value"];
+```
+
+> Source: [privacy.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/privacy.ts)
+
+`ContentVisibility` is the union `"public" | "connections" | "private"`, derived from the options array so the value list cannot drift from the labels. It is the visibility vocabulary used by `types/shared.ts` (`UserSettings.privacy`) and `components/profiles/users/PrivateContentMessage.tsx`. The `VISIBILITY_OPTIONS` array itself currently has no consumers outside the config layer — it is exported and re-exported but no longer rendered anywhere.
+
+### `src/config/constants/image.ts` — Image Upload Configuration
+
+| Constant | Value | Purpose |
+| --- | --- | --- |
+| `IMAGE_CONFIG.allowedTypes` | `["png", "jpg", "jpeg", "webp"]` | Accepted extensions (lowercase, no dot). |
+| `IMAGE_CONFIG.allowedMimeTypes` | `["image/png", "image/jpg", "image/jpeg", "image/webp"]` | Accepted MIME types for server-side checks. |
+| `IMAGE_CONFIG.maxSizes` | `{ avatar: 2, coverImage: 10, default: 5 }` (MB) | Per-slot size caps. |
+| `IMAGE_ERROR_MESSAGES.invalidType` | `(types) => "File must be …"` | Message builder for extension failures. |
+| `IMAGE_ERROR_MESSAGES.tooLarge` | `(maxMB) => "File must be under …MB"` | Message builder for size failures. |
+| `MAX_IMAGES_PER_POST` | `5` | Per-post image cap, shared between the composer's client-side check (`hooks/use-post-images.ts`, attachment UI) and the create route's server-side one (`app/api/posts/route.ts`). |
+
+`IMAGE_CONFIG` is the most widely imported constant in the codebase (avatar uploads, cover images, Tiptap image nodes, form upload components), consumed both directly from `@/config/constants/image.ts` and via the barrel.
+
+> Source: [image.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/image.ts)
+
+### `src/config/constants/documents.ts` — Document Upload Configuration
+
+| Constant | Value | Purpose |
+| --- | --- | --- |
+| `DOCUMENT_CONFIG.allowedExtensions` | `[".pdf", ".docx", ".xlsx", ".pptx", ".txt", ".md"]` | Accepted document extensions (dotted). |
+| `DOCUMENT_CONFIG.maxSizeMB` | `25` | Single-file size cap. |
+| `DOCUMENT_ERROR_MESSAGES.tooLarge` | `(maxMB) => "File must be under …MB"` | Message builder mirroring the image one. |
+
+Consumed by `components/projects/form/steps/DocumentsSection.tsx` and `app/api/projects/[id]/documents/route.ts` — the project document upload path.
+
+> Source: [documents.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/documents.ts)
+
+### `src/config/constants/attachments.ts` — Article Attachment Rules
+
+The article attachment model has three kinds — `pdf` (the paper itself), `annex` (supplementary files), and `image` (the gallery). One local table per kind (`PDF_MIME`, `ANNEX_MIME`, `IMAGE_MIME`) is the source of truth; the exported constants derive from it.
+
+| Constant | Value | Purpose |
+| --- | --- | --- |
+| `ATTACHMENT_LIMITS` | `pdf: 1 file / 25 MB`, `annex: 10 files / 15 MB`, `image: 10 files / 5 MB`, `combined: 20 files / 100 MB` | Per-kind and overall upload caps. |
+| `EDIT_GRACE_DAYS` | `7` | Days after publication during which an article can still be edited. |
+| `ATTACHMENT_MIME` | `{ pdf, annex, image }` → `Object.values(...)` of the MIME tables | Accepted MIME lists per kind (annex accepts pdf, doc(x), xls(x), csv, ppt(x), txt). |
+| `ATTACHMENT_EXTENSIONS` | `{ pdf, annex, image }` → `Object.keys(...)` of the same tables | Accepted extensions per kind; the extension spelling is canonical and the MIME list is derived. |
+| `ATTACHMENT_STORAGE_PREFIX` | `{ pdf: "pdf", annex: "attachment", image: "attachment" }` | Storage key prefix per kind. |
+
+`EDIT_GRACE_DAYS` is consumed by the article form, the edit button, `MyArticleCard`, `utils/validators/attachments.ts`, and `app/api/articles/route.ts`; the attachment constants by the three upload sections (`ArticlePaperUpload`, `ArticleAnnexesUpload`, `ArticleGalleryUpload`), the validators, and `app/api/articles/[id]/attachment/route.ts`.
+
+> Source: [attachments.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/attachments.ts)
+
+### `src/config/constants/categories.ts` — Category Chip Styling
+
+| Constant | Value | Purpose |
+| --- | --- | --- |
+| `CATEGORY_DOT_COLORS` | `Record<string, string>` mapping eight category slugs (`ecosystem-services`, `health-biotechnology`, `food`, `economy-industry`, `design-biomaterials`, `social-empowerment`, `regulations`, `warnings`) to `bg-category-*-main` Tailwind classes | Per-category dot colours; the colours themselves are CSS variables defined in `globals.css`. |
+| `CATEGORY_CHIP_BORDER` | `"border-green-400/50"` | Shared accent border for category chips on covers. |
+| `CATEGORY_CHIP_BORDER_DARK` | `"border-green-800/40"` | Darker accent for chips on light surfaces. |
+
+The chip borders are consumed by `components/ui/cards/CardCategoryBadges.tsx` via `@/config`. `CATEGORY_DOT_COLORS` currently has no consumers outside the config layer — it is exported and re-exported but no component reads it.
+
+> Source: [categories.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/categories.ts)
+
+### `src/config/constants/metadata.ts` — Next.js Metadata Fragments
+
+Two fragments typed against Next.js's own `Metadata` type with `satisfies`, so they stay valid if Next changes the shape:
+
+| Constant | Value | Purpose |
+| --- | --- | --- |
+| `NO_INDEX_ROBOTS` | `{ index: false, follow: false, googleBot: { index: false, follow: false } }` (`satisfies Metadata["robots"]`) | Robots directive that keeps a page out of search indexes. |
+| `AUTHOR_OZEAON` | `{ name: "Ozeaon", url: "https://ozeaon.com" }` (`satisfies Metadata["authors"]`) | Site-level author attribution. |
+
+`NO_INDEX_ROBOTS` is applied in `app/layout.tsx`, `app/not-found.tsx`, and the public search page; `AUTHOR_OZEAON` in `app/layout.tsx`.
+
+> Source: [metadata.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/metadata.ts)
+
+### `src/config/constants/navigation.ts` — Dashboard Navigation
+
+```typescript
+export type DashboardNavItem = {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+};
+
+export const DASHBOARD_NAV_ITEMS: Record<
+  ActiveAccount["type"],
+  readonly DashboardNavItem[]
+> = { org: [...], user: [...] } as const;
+```
+
+> Source: [navigation.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/navigation.ts)
+
+`DASHBOARD_NAV_ITEMS` is keyed by active-account type and is the single source of truth for three surfaces: the dashboard sidebar, the desktop account dropdown, and the mobile profile menu. The `org` variant links to `/settings/projects`, `/settings/articles`, `/settings/members`, and `/settings` (Org Settings); the `user` variant links to `/settings/my-projects`, `/settings/my-articles`, `/settings/organizations`, and `/settings` (Profile Settings). Icons mix `lucide-react` icons with the custom `EditLightIcon`/`ProjectSymlinkIcon`. Consumers: `components/nav/DashboardSidebar.tsx`, `components/nav/components/UserDropdown.tsx`, `components/nav/components/DashboardMobileMenu.tsx`.
+
+### `src/config/constants/articles.ts` — Article Form Constants
+
+Not re-exported through the barrel: the article validation schemas and form components import `@/config/constants/articles` directly (`zod/articles/*`, `hooks/use-article-validation.ts`, `components/articles/form/*`).
+
+| Constant | Value | Purpose |
+| --- | --- | --- |
+| `VALIDATION_MESSAGES` | Field → message map covering the four form steps (basic info, access & licensing, authorship & provenance, content) | Required-field error copy, referenced by key from the Zod article schemas. |
+| `ARTICLE_TYPE_REQUIRED_FIELDS` | Article type code → required field list (e.g. `research: ["abstract", "tags", "pdf_or_text"]`, `project_log: ["linked_project"]`) | Per-type required-field matrix. Currently dead — no consumer reads it. |
+| `ISO_LANGUAGE_CODES` | `{ en: "English", fr: "French", de: "German", it: "Italian", pt: "Portuguese", es: "Spanish", uk: "Ukrainian" }` | Publication language picker options. The only export in the file declared **without** `as const`. |
+| `ARTICLE_FIELD_LIMITS` | `title 3–120`, `subtitle 50–120`, `summary 300–1500`, `abstract 800–3000`, `content 2000–30000` characters; `tags: { maxTags: 10, maxTagLength: 20 }` | Min/max lengths shared by the Zod schemas (`zod/articles/combined.ts`), the form sections, and the client validation hook. |
+| `DELETE_ARTICLE_DIALOG` | `{ title, body, question, confirmLabel, cancelLabel }` | Confirmation dialog copy for article deletion (`components/articles/ArticleDeleteDialog.tsx`). |
+
+> Source: [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/articles.ts)
+
 ## Core Flow
 
 The following sequence shows what happens the first time any module imports `src/config/env.ts` — in practice, this occurs very early because the Supabase clients and middleware depend on it.
@@ -469,6 +696,11 @@ A read-only, statically shaped configuration object exported from `src/config/en
 ## Related Links
 
 - [src/config/env.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/env.ts) — the environment aggregation module
+- [src/config/index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/index.ts) — the `@/config` barrel
+- [src/config/constants/index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/index.ts) — the constants barrel
+- [src/config/connectionConfig.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/connectionConfig.ts) — connection-request timing constants and helpers
+- [src/config/reaction-types.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/reaction-types.ts) — cached reaction-type lookup
+- [src/config/constants/feeds.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/feeds.ts) · [posts.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/posts.ts) · [password.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/password.ts) · [privacy.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/privacy.ts) · [image.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/image.ts) · [documents.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/documents.ts) · [attachments.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/attachments.ts) · [categories.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/categories.ts) · [metadata.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/metadata.ts) · [navigation.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/navigation.ts) · [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/articles.ts) — the documented constant modules
 - [src/components/ui/layout/constants.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/layout/constants.ts) — shared layout constants
 - [src/lib/supabase/admin.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/admin.ts) — service-role client (reads `SUPABASE_SERVICE_ROLE_KEY`)
 - [src/lib/supabase/middleware.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/middleware.ts) — Supabase session middleware

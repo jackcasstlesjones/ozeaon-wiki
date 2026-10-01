@@ -15,7 +15,7 @@ In scope:
 - The `Database`, `Tables`, `TablesInsert`, and `TablesUpdate` generated type surface from `src/types/supabase.ts`.
 - The generation pipeline (`pnpm typegen`, `pnpm db:gen`) and its constituent commands.
 - The derivation patterns (`Tables<"x">`, `Pick`, `Omit`, `&` intersections) mandated by the project conventions.
-- Where domain types live and how they are organized.
+- Where domain types live and how they are organized, with a per-file reference for the domain modules (`shared`, `articles`, `projects`, `posts`, `documents`, `images`, `memberships`).
 
 Out of scope (see sibling pages):
 
@@ -341,6 +341,102 @@ import type { Tables, TablesInsert, TablesUpdate } from "@/types/supabase";
 
 The `import type` form is used deliberately: it is erased at compile time, so importing entity shapes never pulls `supabase.ts` (a 6000+ line generated file) into the runtime module graph.
 
+### Domain File Reference
+
+The domain files listed above are not all alike: some are pure `Pick`/`Omit` compositions over generated tables, some describe query results with embedded relations, and a few are hand-rolled form or result models. This section documents each file's exports and how each relates to the generated layer.
+
+#### `src/types/shared.ts`
+
+Cross-domain primitives imported by nearly every other domain file. Almost everything is a `Pick` projection over a generated table, with embedded images joined on via intersection (the join pattern above).
+
+| Type | Derivation | Purpose |
+| --- | --- | --- |
+| `Image` | `Pick<Tables<"images">, "id" \| "path" \| "alt"> & { mime_type?; title? }` | The minimal image shape used everywhere an embedded image appears; the optional extras support partial selects. The most-referenced type in the domain layer. |
+| `UserProfileForJoin` | `Pick<Tables<"user_profiles">, 5 fields> & { avatar_image: Image \| null }` | Author/avatar join shape. |
+| `OrganizationForJoin` / `ProjectForJoin` | `Pick` of the respective table `& { logo_image?: Image \| null }` | Embedded org/project summaries. |
+| `OrgBylineData` / `AuthorBylineData` | `Pick` of name/slug/verified and username/display_name | Minimum shapes for rendering bylines; the `*ForJoin` types are supersets assignable to them. |
+| `UserProfileSummary`, `UserCardData`, `UserGridCardData` | `Pick`-based profile variants | `UserCardData` deliberately widens `username` and `role_descriptor` to nullable so unlinked team members render next to real profiles; `UserGridCardData` restores `username` via `Omit` + `Pick` and adds `location`/`created_at`. |
+| `Currency`, `Subcategory`, `CategoryWithSubcategories`, `SDG` | `Pick` projections (+ one nested array) | Reference data for form pickers and badges. |
+| `AuthUser` | `User & { platform_meta?: UserProfile \| null }` | The only type built on `@supabase/auth-js`'s `User` rather than a table. |
+| `SearchResult<TMeta>` / `AttachSearchResult` | hand-rolled generic + specialization | Normalised rows returned by the entity search routes (`/api/{users,projects,organizations,articles}/search`); `AttachSearchResult` adds `avatar_url`, `description`, `type` for the composer attach modal. |
+| `DocumentRecord` | `Pick<Tables<"documents">, 7 fields> & Pick<Tables<"project_documents">, "attachment_type">` | A document plus its attachment kind, across both tables. |
+| `DocumentType` | `Pick<Tables<"document_types">, "label" \| "extension" \| "mime_type">` | Distinct from TipTap's `DocumentType`; `types/articles.ts` aliases the latter as `TipTapDocumentType` to keep them apart. |
+| `UserSettings` | fully hand-rolled object type | Settings-panel shape including `privacy: ContentVisibility` — imported from `@/config`, not from a generated table. Currently unused elsewhere. |
+| `AuthorData` | alias of `UserProfileForJoin` | Exported but unconsumed. |
+
+> Source: [shared.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/shared.ts)
+
+#### `src/types/documents.ts`
+
+The result-type trio for the shared document upload pipeline (`lib/documents/upload.ts`, consumed by `app/api/projects/[id]/documents/route.ts`):
+
+- `UploadDocumentParams` — `{ supabase, uploaderId, file, storageKeyPrefix, title? }`, with `uploaderId` and `title` typed through `Tables<"documents">` index access so the params track the table.
+- `UploadDocumentSuccess` — `{ data: Tables<"documents">; error: null }`.
+- `UploadDocumentFailure` — `{ data: null; error: string; status: number }`.
+- `UploadDocumentResult` — the union of the two. It is a discriminated union with no named discriminant field: narrowing works because `data` is the full row on success and literally `null` on failure.
+
+> Source: [documents.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/documents.ts)
+
+#### `src/types/images.ts`
+
+The same trio pattern for the image upload pipeline, extended with moderation inputs:
+
+- `UploadImageParams` — adds `uploadType`, `maxSize`, `account` (`ModerationAttemptAccount`), `surface` (`ModerationSurface`), optional `width`/`height`, and an `onMark` performance callback to the document param set. `userId` is `NonNullable<Tables<"images">["uploader_id"]>` — the column is nullable so images outlive deleted uploaders, but an upload always has an owner.
+- `UploadImageSuccess` — `{ data: { imageId, imageUrl, path }; error: null }`.
+- `UploadImageFailure` — `{ data: null; error: string; status: number; moderation?: ApiModerationIssue[] }` — the failure variant optionally carries moderation issues, which is how rejected uploads surface review state to the UI.
+- `UploadImageResult` — the success/failure union.
+
+Consumed by `lib/images/upload.ts` and every upload UI path: `hooks/use-post-images.ts`, `hooks/use-profile-image-upload.ts`, the Tiptap `ImageUploadNodeView`, `CoverImageEditor`, and `ProfileSettings`.
+
+> Source: [images.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/images.ts)
+
+#### `src/types/memberships.ts`
+
+One type: `MembershipResult`, a discriminated union on the literal `type` field — `"organization"`, `"pod"`, or `"project"` — where `id` and `title` are indexed off the corresponding generated table (`Tables<"organizations">["id"]`, `Tables<"pods">["name"]`, `Tables<"projects">["title"]`, …). Because each variant indexes a different table, a renamed or re-typed column in any of the three tables breaks this file at compile time. Returned by `app/api/users/memberships/route.ts` to render a user's affiliation list.
+
+> Source: [memberships.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/memberships.ts)
+
+#### `src/types/posts.ts`
+
+The feed-row model for posts and the attach previews shared with other domains:
+
+| Type | Shape | Purpose |
+| --- | --- | --- |
+| `AttachedProjectItem` / `AttachedArticleItem` / `AttachedOrganizationItem` | `Pick` of the entity table + embedded `cover_image`/`author`/`stats` | The three entity kinds a post can attach, as rendered in attach pickers and post cards. |
+| `PostStats` | hand-rolled `{ reaction_count?; comment_count?; repost_count? }` | Counters aggregate; used only by `PublicPost` within this file. |
+| `AuthoringOrg` | `Pick<Tables<"organizations">, "id" \| "name" \| "slug" \| "verified"> & { logo_image: Pick<Tables<"images">, "path"> \| null }` | The org byline shape; consumed across domains (articles.ts, projects.ts and their cards). |
+| `PublicPost` | `Tables<"posts"> & { images: { image; sort_order }[]; author; authoring_org; project; article; organization; reposted_post: PublicPost \| null; stats }` | The canonical feed-row shape: every embed of the posts feed query. |
+
+`PublicPost` is **recursive** — `reposted_post: PublicPost | null` mirrors the PostgREST self-join that renders repost chains, and each of the three attach slots is nullable because a post attaches at most one entity. It is the most-consumed export of the domain layer after `Image` and `Project`.
+
+> Source: [posts.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/posts.ts)
+
+#### `src/types/projects.ts`
+
+The largest read-side domain file after articles. Its types fall into four groups:
+
+- **Statuses and full rows.** `Project = Tables<"projects">` and `ProjectStats = Tables<"project_stats">` are plain aliases. `ProjectStatus = (typeof PROJECT_STATUSES)[number]` is the one derivation in the domain layer taken from a **runtime constant** rather than a generated type: the union `"live" | "scheduled" | "unscheduled" | "archived" | "draft"` comes from `PROJECT_STATUSES` in `src/config/constants/projects.ts`. That import is a value import (not `import type`) used only in a `typeof` position — the exception to the type-only import convention above.
+- **Table projections.** `ProjectType`, `ProjectSubcategory`, `ProjectTag`, `ProjectDocument`, `ProjectTeamMember`, `ProjectFAQ`, `SystemSectionType`, `ProjectSection` — `Pick`s over their tables with embedded `category`/`document`/`section_type`/`avatar` objects where the query joins one.
+- **Card and list surfaces.** `ProjectListItem` (unused elsewhere), `DashboardProjectCardEntry`, `CondensedProjectCardData`, `FeaturedProject`, `ProjectWithAuthor` — progressively wider `Pick`-plus-joins shapes, each carrying `project_status?: { status: ProjectStatus } | null`.
+- **Query-result composites.** `ProjectWithRelations` (the full public project page shape matching `getProjectBySlug`), `ProjectWithJoins` (the raw pre-transformation form query shape), and `FormSection` (the form editor's section shape, adding `is_custom`/`image_url` over two table `Pick`s).
+
+`project_status` deserves note: it is typed `{ status: ProjectStatus } | null` because it comes from the `v_project_status` **view**, not a table column — the object nesting is the embedded-view shape, following the same FK-override logic as column embeds.
+
+> Source: [projects.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/projects.ts)
+
+#### `src/types/articles.ts`
+
+The largest domain file (~460 lines), mixing derived query shapes, hand-rolled form models, and string enums:
+
+- **Enums.** `GeographicScope` (`global`/`regional`/`local`), `ArticleTypeCode` (the eight article type codes that mirror `ARTICLE_TYPE_REQUIRED_FIELDS` keys in `src/config/constants/articles.ts`), and `AccessLevelCode` (six access codes, marked `TODO useful post P0` and currently unconsumed). These are the only runtime `enum` values in the domain layer.
+- **Derived query shapes.** Internal aliases such as `ArticleCardEntry` (feed card), `ArticleWithRelations` (FK-override of `article_type` to `{ id; name; slug; description; code }` plus embedded `access_level`, `license_type`, `subcategories`, `sdgs`, images and project), `ArticleWithAuthors`, and `ArticleComplete` compose the full article page. Exported projections include `ArticleType`, `ArticleAccessLevel`, `ArticleLicenseType`, `ArticleFundingSource`, `ArticleSubcategory`, `ArticleTag`, `ArticleImage`, `ArticleDocument`, `ArticleAttachment` (+ `AttachmentType` = `"annex" | "image" | "pdf"`, the same three kinds as `ATTACHMENT_STORAGE_PREFIX`), `CondensedArticleCardData`, `DashboardArticleCardEntry`, `ArticleAttributionData` (the fields `generateAttributionText` needs for citations), `ArticlePublishedStatus` (`"all" | "published" | "draft"`), and `ArticleViewer` (server-resolved identity/role context used to gate viewer actions).
+- **Form models.** `ArticleFormSelect extends Tables<"articles">` with embedded relation shapes (the raw form query result); `ArticleFormTransformed` reshapes it via `Omit` for form consumption; `ArticleFormData` is a fully hand-rolled form model — the one large type that does not derive from a table — and `ArticleFormMeta`/`ArticleContentData` (TipTap JSON + HTML) support the editor. `ValidationError`/`PublishValidationResult` exist for a planned publish validator and are currently unused.
+- **Hand-rolled interfaces duplicating generated shapes.** `IndigenousMacroRegion` re-declares the `indigenous_macro_regions` row field-by-field even though the table exists in the generated types — a candidate for `Tables<"indigenous_macro_regions">`. `ArticleAuthor extends Tables<"article_authors">` also re-lists every column, which is redundant but pins the expected fields explicitly.
+
+> Source: [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/articles.ts)
+
+All of these files are re-exported through the `src/types/index.ts` barrel, so most consumers import from `@/types` rather than from individual files.
+
 ## Usage Examples
 
 ### Full Row and Mutation Types
@@ -518,5 +614,6 @@ A design consequence worth internalizing: because generated files are pure artif
 - Deployment and CI ordering — see [ops-deployment.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/ops-deployment.md).
 - Command reference and project-wide conventions — see [CLAUDE.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/CLAUDE.md#L61-L79) and [README.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/README.md#L205-L251).
 - Generated database types — [src/types/supabase.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/supabase.ts).
+- Domain type modules — [src/types/shared.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/shared.ts) · [articles.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/articles.ts) · [projects.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/projects.ts) · [posts.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/posts.ts) · [documents.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/documents.ts) · [images.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/images.ts) · [memberships.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/memberships.ts), re-exported through the [src/types/index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/index.ts) barrel.
 - Generated Cloudflare environment interface — [cloudflare-env.d.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/cloudflare-env.d.ts).
 - Supabase type generation script — [package.json](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/package.json#L18-L25).

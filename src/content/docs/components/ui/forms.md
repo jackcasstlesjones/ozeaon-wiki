@@ -417,7 +417,7 @@ A context listing the required field names. `FieldWrapper` labels add a red `*` 
 
 - **Source:** [src/components/ui/forms/hook-form/RequiredFieldsContext.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/RequiredFieldsContext.tsx)
 - **Kind:** Client component (`"use client"`)
-- **Used in:** `src/components/projects/form/ProjectForm.tsx`, `src/components/articles/form/ArticleForm.tsx`, `src/components/organizations/form/OrganizationForm.tsx`
+- **Used in:** `src/components/projects/form/ProjectForm.tsx`, `src/components/articles/form/ArticleForm.tsx`, `src/components/organizations/form/OrganizationForm.tsx`, `src/components/organizations/form/OrganizationSettingsForm.tsx`, `src/components/account/ProfileSettings.tsx`, `src/components/projects/form/parts/ContentSectionCard.tsx` (the provider; `useRequiredFields` is read by `FieldWrapper`)
 
 | Prop | Type | Default | Description |
 |---|---|---|---|

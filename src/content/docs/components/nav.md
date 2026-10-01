@@ -220,10 +220,14 @@ Main desktop sidebar: a "Create" dropdown, collapsible "Platform" and "My Librar
 
 Notable behaviour:
 
-- Returns `null` when `useSidebar().open` is false. Hidden below `md`.
-- Create items, Platform items and footer items come from `@/config/sitemap` (`addItems`, `leftNav`, `footerNav`).
+- Returns `null` when `useSidebar().open` is false. Hidden below `md`. Open/closed state is cookie-persisted per page type (`oz_sidebar_state`), hence the `suppressHydrationWarning`.
+- The column is sticky under the top bar via `STICKY_NAV_CLASS` (`sticky top-14`, height `calc(100svh - 7rem)`) and `w-58` wide.
+- "Create" is a controlled `DropdownMenu` (closed by default) listing `sitemap.addItems` — Article, Project, Organisation.
+- "Platform" (Community, Articles, Projects) and "My Library" are independently collapsible, both open by default; the collapsed/expanded state is local `useState` only, not persisted.
+- Create items, Platform items and footer items come from `@/config/sitemap` (`addItems`, `leftNav`, `footerNav`); the footer (Network, Organisations) is pinned to the bottom with `mt-auto`.
 - Platform items are active on exact pathname match; footer items also match nested paths.
 - "My Library" (Resources, Notes, Bookmarks) items are hard-coded as disabled with a "Soon" badge.
+- No auth coupling: nothing in the file reads the user, so it renders the same signed in or out.
 
 ```tsx
 <TwoColumnShell topbar={<AppTopbar />} sidebar={<AppSidebar />}>
@@ -390,11 +394,23 @@ navUserAvatar={noUser ? null : <NavUserAvatar />}
 
 ### NavLoginButtons
 
-"Log In" (`/login`) and "Create Account" (`/signup`) buttons. Exported from `NavLogin.tsx`.
+"Log In" (`/login`) and "Create Account" (`/signup`) buttons shown in place of `UserDropdown` when the desktop header has no signed-in user. Exported from `NavLogin.tsx`.
 
 - **Source:** [src/components/nav/components/NavLogin.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/components/NavLogin.tsx)
 - **Kind:** No directive (shared)
 - **Used in:** `src/components/nav/components/NavUser.tsx`
+
+Takes no props. It renders two `Button asChild` links, both with `prefetch={false}`:
+
+| Button | Variant | Icon | Links to |
+|---|---|---|---|
+| "Log In" | `sunken` | `LogIn` | `/login` |
+| "Create Account" | `ozeaon` | `UserPlus` | `/signup` |
+
+Notable behaviour:
+
+- Holds no auth state of its own; it is the signed-out branch of the server `NavUser`, which swaps it in when `getAuthUser()` returns no user.
+- Desktop only — `TopNavClient` renders `NavUser` from `md` up. On mobile, signed-out viewers get `NavMobileActions` and `NavMobileGetStarted` instead.
 
 ```tsx
 if (!user) return <NavLoginButtons />;

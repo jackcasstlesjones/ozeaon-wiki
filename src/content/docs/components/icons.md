@@ -82,7 +82,7 @@ The Ozeaon logo mark. It defaults to 20 × 28 with `viewBox="8 3 32 43"`.
 
 - **Source:** [src/components/icons/Logo.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/icons/Logo.tsx)
 - **Kind:** No directive
-- **Used in:** `src/components/nav/TopNav.tsx`, `src/components/nav/MegaMenu.tsx`, `src/components/auth/AuthHeader.tsx`
+- **Used in:** `src/components/nav/TopNav.tsx`, `src/components/nav/MegaMenu.tsx`, `src/components/nav/slots/DashboardNavSlot.tsx`, `src/components/auth/AuthHeader.tsx`
 
 Accepts `SVGProps<SVGSVGElement>`, which are spread after the defaults. A `className` you pass **replaces** the default `fill-primary`, it doesn't merge with it, so include a fill class if you need one (`AuthHeader` passes `fill-primary` explicitly).
 

@@ -380,7 +380,7 @@ The composer. `CreatePost` renders a layout and the layout renders `parts/`. Sta
 
 ### CreatePost
 
-The entry point for the post composer. It returns `null` until hydration finishes and while there is no signed-in user. After that it renders `MobileComposer` or `DesktopComposer` according to `composer.isMobile`.
+The entry point for the post composer. It returns `null` until hydration finishes and while there is no signed-in user. After that it renders `MobileComposer` or `DesktopComposer` according to `composer.isMobile`. It builds the shared `HiddenImageInput` and passes it to both layouts as their `hiddenFileInput` prop.
 
 - **Source:** [src/components/posts/create-form/CreatePostForm.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/create-form/CreatePostForm.tsx)
 - **Kind:** Client component (`"use client"`), default export

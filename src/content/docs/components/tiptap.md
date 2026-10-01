@@ -140,11 +140,15 @@ const editor = useDocumentEditor({
 
 ### countNonInlineBlocksDetailed
 
-A debug helper. It counts non-inline nodes in Tiptap JSON and returns `{ total, breakdown }`. Paragraphs directly inside `listItem` are not counted.
+A debug helper for seeing how many blocks a document is made of, independently of its character count. It walks Tiptap JSON and counts every non-inline node, returning `{ total, breakdown }`, where `breakdown` tallies each node type (for example `{ paragraph: 3, blockquote: 1 }`). A paragraph that is a direct child of `listItem` is traversed but not counted, because it is only the list item's wrapper. Inline nodes (`text`, `hardBreak`, `mention`, `emoji`) are skipped everywhere.
 
 - **Source:** [src/components/tiptap/hooks/block-counter.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/tiptap/hooks/block-counter.ts)
 - **Kind:** Plain module
-- **Used in:** `src/components/tiptap/hooks/use-document-editor.ts` (debug logging on update only)
+- **Used in:** `src/components/tiptap/hooks/use-document-editor.ts`, which logs the result with `logger.debug("Editor onUpdate {detailed}", ...)` on every update that changes the document. No other call sites.
+
+| Arg | Type | Description |
+|---|---|---|
+| `nodes` | `TiptapNode[]` | The document's `content` array. |
 
 ## extensions/
 

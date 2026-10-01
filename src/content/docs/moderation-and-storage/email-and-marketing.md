@@ -11,6 +11,7 @@ Transactional email delivery via Resend and marketing audience management via th
 This page documents the outbound **email** and **marketing** integrations of the platform:
 
 - The **Mailchimp Marketing API client** in `src/lib/marketing/` — how the platform adds subscribers to an audience using Mailchimp's double opt-in flow.
+- The **Resend email client** in `src/lib/email/` — the fetch-based sender (`sendEmail`, `sendTemplateEmail`, `sendBatchEmails`), the template-ID registry, and the user-email resolution service behind system-generated messages (post shares, account-email changes, account deletion).
 - The **Resend transactional email configuration** exposed through `src/config/env.ts`, which supplies the API key and sender address used for system-generated messages (sign-up confirmation, invitations, etc.).
 - The **environment variables and operational configuration** that govern both integrations, including the preview-environment behavior described in `docs/deployment-previews.md` and `docs/ops-deployment.md`.
 
@@ -280,7 +281,7 @@ sequenceDiagram
 
 ## Resend Transactional Email Configuration
 
-Unlike the Mailchimp client, the Resend integration is represented in the codebase primarily through its **configuration surface** rather than a dedicated client module. `src/config/env.ts` reads the two Resend variables and exposes them under a structured `env.resend` object:
+Unlike the Mailchimp deep dive above, the Resend integration is configured through `src/config/env.ts`, which reads the two Resend variables and exposes them under a structured `env.resend` object:
 
 ```typescript
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -323,6 +324,134 @@ RESEND_SENDER_EMAIL=
 `RESEND_API_KEY` and `RESEND_SENDER_EMAIL` are also named in the list of secrets that must be provided to the Worker (alongside `CLOUDFLARE_ACCOUNT_ID`):
 
 > Source: [ops-deployment.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/ops-deployment.md#L129-L131)
+
+## Resend Email Client (`src/lib/email/`)
+
+The dedicated email client lives in `src/lib/email/` and mirrors the marketing module's constraints — native `fetch`, no Node.js dependencies, no Resend SDK — so it runs in Cloudflare Workers. The module header states the layout:
+
+```typescript
+/**
+ * Email module - centralized email handling via Resend API
+ *
+ * Architecture:
+ * - client.ts     → Low-level Resend API calls (data access)
+ * - services/     → Orchestration (email resolution, composition)
+ * - templates.ts  → Template ID registry
+ * - types.ts      → Type definitions
+ */
+```
+
+> Source: [index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/index.ts#L1-L12)
+
+### Files at a glance
+
+| File | Responsibility | Public surface |
+|------|----------------|----------------|
+| `client.ts` | Low-level Resend HTTP calls | `sendEmail`, `sendTemplateEmail`, `sendBatchEmails` |
+| `types.ts` | Request/response shapes and the typed error | `EmailConfig`, `TemplateEmailConfig`, `EmailResponse`, `ResendErrorResponse`, `EmailError` |
+| `templates.ts` | Resend template-ID registry | `EMAIL_TEMPLATES`, `EmailTemplateId` |
+| `services/index.ts` | Barrel for the orchestration layer | re-exports `resolveUserEmails`, `hasResolvableEmails` and their types |
+| `services/user-emails.ts` | Resolves user objects to email addresses | `resolveUserEmails`, `hasResolvableEmails`, `UserEmailInput`, `ResolvedEmails` |
+| `index.ts` | Public barrel for the whole module | re-exports everything above |
+
+> Sources: [client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts#L1-L13), [index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/index.ts#L14-L26)
+
+### Sender and auth headers
+
+`client.ts` builds every request the same way. Two private helpers fail fast on missing configuration, converting the empty-string defaults from `env.resend` into typed errors:
+
+```typescript
+function getHeaders(): HeadersInit {
+  if (!env.resend.apiKey) {
+    throw new EmailError("RESEND_API_KEY is not configured", 500);
+  }
+
+  return {
+    Authorization: `Bearer ${env.resend.apiKey}`,
+    "Content-Type": "application/json",
+  };
+}
+
+function getSender(): string {
+  if (!env.resend.email) {
+    throw new EmailError("RESEND_SENDER_EMAIL is not configured", 500);
+  }
+  return `Ozeaon <${env.resend.email}>`;
+}
+```
+
+> Source: [client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts#L15-L31)
+
+The `From` header is hardcoded to the display name `Ozeaon` — only the address comes from configuration. Both `to` and the batch path normalise a single string into a one-element array before posting.
+
+### The three send functions
+
+`sendEmail` posts to `https://api.resend.com/emails` with `from`, `to`, `subject`, `html`, `text`, `reply_to`, `cc`, and `bcc` — the optional fields only when the caller supplied them. `sendTemplateEmail` posts to the same endpoint but swaps the body content for a `template` object (`{ id, variables }`), letting Resend render a stored template; `subject` is optional there because the template can carry it.
+
+```typescript
+export async function sendBatchEmails(
+  emails: EmailConfig[],
+): Promise<{ data: EmailResponse[] }> {
+  if (emails.length > 100) {
+    throw new EmailError("Batch limit exceeded: max 100 emails per request");
+  }
+
+  const response = await fetch(RESEND_BATCH_URL, { /* ... */ });
+```
+
+> Source: [client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts#L93-L98)
+
+The batch path hits `https://api.resend.com/emails/batch` and enforces Resend's 100-message ceiling client-side before spending a request. Unlike `sendTemplateEmail`, batched messages carry only `from`/`to`/`subject`/`html`/`text` — no `reply_to`, `cc`, or `bcc`.
+
+All three share the same error mapping: a non-OK response is parsed defensively (`response.json().catch(() => ({}))`) and rethrown as `EmailError` carrying the HTTP status and the provider's body.
+
+### `EMAIL_TEMPLATES` — the template registry
+
+```typescript
+export const EMAIL_TEMPLATES = {
+  /** Share post notification template */
+  SHARE_POST: "f4d4ddf8-fde1-4b9b-9d39-2007b806f1c5",
+} as const;
+
+export type EmailTemplateId =
+  (typeof EMAIL_TEMPLATES)[keyof typeof EMAIL_TEMPLATES];
+```
+
+> Source: [templates.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/templates.ts#L7-L13)
+
+Template IDs are Resend-side UUIDs, so the registry is the single place a template change lands. `EmailTemplateId` is derived from the map's values, so `sendTemplateEmail`'s `templateId` can only be a registered ID. The registry currently holds one entry, `SHARE_POST`, consumed by `handleSendPost` in `src/lib/supabase/queries/reactions.ts`.
+
+### Resolving recipients — `services/user-emails.ts`
+
+Comment and reaction surfaces address users by ID/username, not email. `resolveUserEmails` bridges that gap with a two-strategy partition:
+
+1. **Usernames that are already emails** are used directly (validated with `validator`'s `isEmail`).
+2. **Everything else** is batched into a single invocation of the `get-user-emails` Supabase Edge Function (`supabase/functions/get-user-emails`), which looks up addresses by user ID — the addresses live in auth schema the publishable-key client cannot read directly.
+
+```typescript
+export async function resolveUserEmails(
+  users: UserEmailInput[],
+): Promise<ResolvedEmails> {
+  // ...
+  if (error) {
+    logError(logger, "resolveUserEmails edge function error", error, {
+      userIds,
+    });
+    return { emails, failedUserIds: userIds };
+  }
+```
+
+> Source: [user-emails.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/services/user-emails.ts#L51-L64)
+
+Failure is partial, not fatal: if the Edge Function errors, the directly-known emails are still returned and every fetched ID lands in `failedUserIds` so the caller can log which recipients were dropped. `hasResolvableEmails(users)` is the cheap pre-check — it returns true when any user has an email-shaped username or any ID at all, so callers can bail before doing work. The service logs under the `["lib", "email"]` category through `@/lib/logger` (see [Logging & Observability](../operations/logging-observability/)).
+
+### Key consumers
+
+| Consumer | What it sends | Path |
+|----------|---------------|------|
+| `handleSendPost` — `src/lib/supabase/queries/reactions.ts` | `sendTemplateEmail` with `EMAIL_TEMPLATES.SHARE_POST`; throws when zero emails resolve, warns on `failedUserIds` | [reactions.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/reactions.ts#L191-L210) |
+| Email-change action — `src/app/(main)/(dashboard)/settings/actions.ts` | Plain `sendEmail` security notice to the *previous* address after a confirmed change; failures logged, never surfaced to the user | [actions.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/settings/actions.ts#L65-L73) |
+| `deleteAccount` — `src/lib/supabase/actions.ts` | Plain `sendEmail` deletion confirmation; failures logged so the account deletion itself is not rolled back | [actions.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/actions.ts#L386-L397) |
 
 ## Environment & Preview Behavior
 
@@ -396,6 +525,70 @@ The barrel `index.ts` re-exports `subscribeToAudience` (value) and `SubscribeCon
 
 > Source: [index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/marketing/index.ts#L11-L13)
 
+### Email module API (`src/lib/email/`)
+
+#### `sendEmail(config: EmailConfig): Promise<EmailResponse>`
+
+Sends one plain email through `POST https://api.resend.com/emails`. `config.to` accepts a string or array; `html`, `text`, `replyTo`, `cc`, and `bcc` are forwarded when present.
+
+**Throws:**
+
+- `EmailError("RESEND_API_KEY is not configured", 500)` / `EmailError("RESEND_SENDER_EMAIL is not configured", 500)` — empty `env.resend` values.
+- `EmailError("Email failed: <statusText>", status, body)` — any non-OK Resend response (body parsed defensively).
+
+> Source: [client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts#L48-L65)
+
+#### `sendTemplateEmail(config: TemplateEmailConfig): Promise<EmailResponse>`
+
+Sends one email rendered by a stored Resend template: posts `{ from, to, subject?, template: { id, variables } }`. `config.templateId` is typed as `EmailTemplateId` (a registered `EMAIL_TEMPLATES` value); `subject` is optional. Same error mapping as `sendEmail`.
+
+> Source: [client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts#L70-L88)
+
+#### `sendBatchEmails(emails: EmailConfig[]): Promise<{ data: EmailResponse[] }>`
+
+Sends up to 100 plain emails in one `POST https://api.resend.com/emails/batch` call.
+
+**Throws:** `EmailError("Batch limit exceeded: max 100 emails per request")` when `emails.length > 100` (status code omitted, so `undefined`); `EmailError("Batch email failed: ...", status, body)` on a non-OK response. Batched messages carry only `from`/`to`/`subject`/`html`/`text`.
+
+> Source: [client.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts#L93-L124)
+
+#### `resolveUserEmails(users: UserEmailInput[]): Promise<ResolvedEmails>`
+
+Partitions users into direct-email usernames and IDs, then resolves the IDs in one `supabase.functions.invoke("get-user-emails", { body: { ids } })` call.
+
+**Returns:** `{ emails, failedUserIds }` — on an Edge Function error, the directly-known emails are still returned and *all* fetchable IDs land in `failedUserIds` (logged via `logError`).
+
+**Types:** `UserEmailInput = { id: string; username: string; display_name?: string }`; `ResolvedEmails = { emails: string[]; failedUserIds: string[] }`.
+
+> Source: [user-emails.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/services/user-emails.ts#L35-L72)
+
+#### `hasResolvableEmails(users: UserEmailInput[]): boolean`
+
+Cheap pre-check: true when any user has an email-shaped username or any non-empty `id`. Does not touch the network.
+
+> Source: [user-emails.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/services/user-emails.ts#L77-L79)
+
+#### `EmailError`
+
+`class EmailError extends Error` with `readonly statusCode?: number` and `readonly details?: unknown` — the typed failure for every path in `client.ts`; `details` carries the provider's parsed response body when one exists.
+
+> Source: [types.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/types.ts#L32-L41)
+
+#### Email module exported symbols
+
+| Symbol | Kind | Source |
+|--------|------|--------|
+| `sendEmail`, `sendTemplateEmail`, `sendBatchEmails` | functions | `src/lib/email/client.ts` |
+| `resolveUserEmails`, `hasResolvableEmails` | functions | `src/lib/email/services/user-emails.ts` (via `services/index.ts`) |
+| `EMAIL_TEMPLATES` | const | `src/lib/email/templates.ts` |
+| `EmailTemplateId` | type | `src/lib/email/templates.ts` |
+| `EmailConfig`, `TemplateEmailConfig`, `EmailResponse` | types | `src/lib/email/types.ts` |
+| `EmailError` | class | `src/lib/email/types.ts` |
+| `UserEmailInput`, `ResolvedEmails` | types | `src/lib/email/services/user-emails.ts` |
+| `ResendErrorResponse` | type | `src/lib/email/types.ts` (internal, not re-exported) |
+
+> Source: [index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/index.ts#L14-L26)
+
 ## Failure Modes, Edge Cases & Concurrency
 
 | Scenario | Behavior | Evidence |
@@ -407,6 +600,12 @@ The barrel `index.ts` re-exports `subscribeToAudience` (value) and `SubscribeCon
 | Address previously unsubscribed | Resolved as no-op (`Forgotten Email Not Subscribed`) | [mailchimp.ts#L76](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/marketing/mailchimp.ts#L76) |
 | Non-JSON error body | Parsed defensively to `{}`; falls back to `response.statusText` | [mailchimp.ts#L70-L72](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/marketing/mailchimp.ts#L70-L72) |
 | Slow Mailchimp response | Aborted after 5s via `AbortSignal.timeout(5000)` | [mailchimp.ts#L59](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/marketing/mailchimp.ts#L59) |
+| `RESEND_API_KEY` or `RESEND_SENDER_EMAIL` unset | Throws `EmailError(500)` before any network call | [client.ts#L15-L31](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts#L15-L31) |
+| Batch over 100 emails | Throws `EmailError` before the request; callers split batches themselves | [client.ts#L96-L98](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts#L96-L98) |
+| Non-OK Resend response | Rethrown as `EmailError` with status + provider body; no retry | [client.ts#L33-L43](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts#L33-L43) |
+| `get-user-emails` Edge Function error | Not fatal — known emails returned, unresolved IDs collected in `failedUserIds` | [user-emails.ts#L59-L64](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/services/user-emails.ts#L59-L64) |
+| Zero resolvable emails on share-post | `handleSendPost` throws so the caller reports the failure to the user | [reactions.ts#L195-L197](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/reactions.ts#L195-L197) |
+| Notification send fails after a completed mutation | Logged via `logError` and swallowed — email is best-effort, never rolls back the write | [actions.ts#L386-L397](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/actions.ts#L386-L397) |
 
 **Concurrency / consistency.** The client issues no shared mutable state, so concurrent calls are independent. The idempotency handling for `Member Exists` is what makes concurrent duplicate subscriptions safe: even if two requests race to add the same address, the loser receives `Member Exists` and resolves normally. Because unsubscribe state lives entirely in Mailchimp, there is no local cache to invalidate and no risk of the platform's view diverging from the provider's.
 
@@ -423,12 +622,17 @@ The barrel `index.ts` re-exports `subscribeToAudience` (value) and `SubscribeCon
 
 - **Additional merge fields.** The client forwards `config.fields` untouched as `merge_fields`, so callers can pass arbitrary audience merge data without changing the client — provided the fields exist in the Mailchimp audience.
 - **New marketing operations.** The module is a barrel (`src/lib/marketing/index.ts`) that re-exports from focused files; adding e.g. an audience-update or tag operation would follow the same edge-compatible `fetch` pattern and be re-exported from `index.ts`.
-- **Transactional email senders.** `env.resend` is a structured config object; any module needing to send mail can consume `env.resend.apiKey` and `env.resend.email` without depending on a specific client implementation.
+- **Transactional email senders.** `sendEmail` / `sendTemplateEmail` from `src/lib/email` are the supported entry points; they read `env.resend.apiKey` and `env.resend.email` themselves, so new senders need no direct dependency on the config module. A new templated message is a new `EMAIL_TEMPLATES` entry plus a `sendTemplateEmail` call.
 
 ## Related Links
 
 - [Marketing module barrel export](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/marketing/index.ts)
 - [Mailchimp Marketing API client](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/marketing/mailchimp.ts)
+- [Email module barrel export](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/index.ts)
+- [Resend API client](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/client.ts)
+- [Email types](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/types.ts) and [template registry](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/templates.ts)
+- [User email resolution service](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/services/user-emails.ts) (barrel: [services/index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/email/services/index.ts))
+- [Share-post consumer](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/reactions.ts) — `handleSendPost` in the reaction queries
 - [Environment configuration](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/env.ts)
 - [Deployment previews (preview credentials behavior)](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/deployment-previews.md#L69-L71)
 - [Operational deployment (required secrets)](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/ops-deployment.md#L11-L12)

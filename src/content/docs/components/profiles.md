@@ -650,7 +650,7 @@ Picks a brand icon for a link from its label: LinkedIn, GitHub, or a generic glo
 
 ### sections
 
-Overview-tab sections for an Organization profile. Barrel: `src/components/profiles/organizations/sections/index.ts` exports `DescriptionSection`, `ActiveProjectsSection`, `RecentArticlesSection` and `MembersSection`. `sections/OrgPostsFeed.tsx` is an empty file.
+Overview-tab sections for an Organization profile. Barrel: `src/components/profiles/organizations/sections/index.ts` exports `DescriptionSection`, `ActiveProjectsSection`, `RecentArticlesSection` and `MembersSection`; the fifth file in the directory, `OrgPostsFeed.tsx`, is an empty placeholder (below).
 
 #### DescriptionSection
 
@@ -723,3 +723,11 @@ A "Members" heading and a one- or two-column grid of `UserCard`s. Returns `null`
 ```tsx
 <MembersSection members={org.members} />
 ```
+
+#### OrgPostsFeed
+
+An empty placeholder for an Organization-scoped posts feed section. The file has no content and exports nothing, and the sections barrel does not list it. The Organization posts tab renders the shared `PostsInfiniteFeed` with an `organizationId` directly instead (see [Posts Feed & Post Creation](../features/posts/)).
+
+- **Source:** [src/components/profiles/organizations/sections/OrgPostsFeed.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/sections/OrgPostsFeed.tsx)
+- **Kind:** Empty file (no exports)
+- **Used in:** No call sites.
