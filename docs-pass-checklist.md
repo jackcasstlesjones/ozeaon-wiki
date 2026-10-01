@@ -442,8 +442,8 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### design-system/forms-and-validation.md (817 → ~120)
 
-- [ ] FORMAT: house-style sweep; remove the emoji columns; stop treating the stale repo docs as authoritative
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; remove the emoji columns; stop treating the stale repo docs as authoritative
+- [x] ROADMAP/accuracy:
   - there's no `useArticleForm` and no article wizard; `ArticleForm` is a single page validated by the draft/publish schemas, and `useProjectForm` is the only domain form hook
   - `InputRichText` (BlockNote) doesn't exist; the field is Tiptap `InputContent`, imported by path
   - `OtpInput` is in `hook-form/` but not RHF-bound
@@ -451,12 +451,12 @@ These apply to every one of the 46 non-component pages. Each page section below 
   - drop the stale `ArticleForm.tsx:NNN` line refs
   - mark the access-level/embargo example as hidden UI (`token_gated` is planned)
   - add `RequiredFieldsProvider`
-- [ ] STALE-DETAIL: version numbers and package.json fragments, the wrapper-file mermaid, prop types and props tables (→ a gotcha per wrapper), the `useAsyncAction` duplicate → cut
+- [x] STALE-DETAIL: version numbers and package.json fragments, the wrapper-file mermaid, prop types and props tables (→ a gotcha per wrapper), the `useAsyncAction` duplicate → cut
 
 ### design-system/navigation-system.md (522 → ~90)
 
-- [ ] FORMAT: house-style sweep; one inline link to DESIGN-CONSISTENCY-PLAN.md instead of ~30 blockquotes; Related Links to wiki pages
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; one inline link to DESIGN-CONSISTENCY-PLAN.md instead of ~30 blockquotes; Related Links to wiki pages
+- [x] ROADMAP/accuracy:
   - the page documents the plan spec as the implementation → reframe it around the code
   - the tablet icon sidebar and the `SidebarShell` size prop aren't built (it takes children only)
   - persistence is the `oz_sidebar_state` cookie resolved on the server (feed and single-entity only)
@@ -465,7 +465,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
   - the routes are wrong (`/network`, `/organizations/[slug]`, `/profiles/[username]`)
   - Platform is Community/Articles/Projects; My Library Resources/Notes/Bookmarks are "Soon" (roadmap)
   - the mono font is Spline Sans Mono
-- [ ] STALE-DETAIL: gutter tables, colour and type dumps, Configuration and API Reference tables → cut
+- [x] STALE-DETAIL: gutter tables, colour and type dumps, Configuration and API Reference tables → cut
 
 ### components/account.md (175 → ~60)
 
