@@ -1,4 +1,4 @@
-# OZEAON V2 Wiki
+# OZEAON Developer Wiki
 
 Docs for [ozeaon-v2](https://github.com/ozeaon/ozeaon-v2), built with Astro Starlight and deployed to GitHub Pages on push to `main`.
 
