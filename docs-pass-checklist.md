@@ -217,14 +217,14 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### features/comments-and-reactions.md (560 → ~170)
 
-- [ ] FORMAT: house-style sweep; add `## Failure Modes & Edge Cases` (redaction in the API only, 404 vs 403, identity switch clears likes) and `## Related Links`
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; add `## Failure Modes & Edge Cases` (redaction in the API only, 404 vs 403, identity switch clears likes) and `## Related Links`
+- [x] ROADMAP/accuracy:
   - "notification delivery not implemented" is wrong; comment and reaction triggers exist (link notifications)
   - the only reaction is a like, on comments (all three entities) and on posts; `article_reactions`/`project_reactions` are unused and article reactions are planned
   - comment likes are server actions in `queries/reactions.ts`; only post likes have an API route
   - document realtime: `CommentThread` subscribes to `postgres_changes` and refetches
   - `CommentThread`, not `CommentList`, owns `use-thread-comments`
-- [ ] STALE-DETAIL: four copied types (keep the `CommentEntity` template-literal snippet), helper bodies (keep the "same hat" rule and the 404/403 rationale), the constants table, parser copies, ER columns, hook micro-snippets → cut
+- [x] STALE-DETAIL: four copied types (keep the `CommentEntity` template-literal snippet), helper bodies (keep the "same hat" rule and the 404/403 rationale), the constants table, parser copies, ER columns, hook micro-snippets → cut
 
 ### features/posts.md (689 → ~160)
 
@@ -432,12 +432,12 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### design-system/design-tokens.md (1104 → ~150)
 
-- [ ] FORMAT: house-style sweep; plain headings instead of "Color System — Layer 1: Primitives"; fold the Concurrency section into Architecture; collapse F1–F9; real Related Links
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; plain headings instead of "Color System — Layer 1: Primitives"; fold the Concurrency section into Architecture; collapse F1–F9; real Related Links
+- [x] ROADMAP/accuracy:
   - the mono font is Spline Sans Mono (`next/font` in `app/layout.tsx`); the `typography.css` comment and `docs/design-system.md` are stale
   - ESLint `better-tailwindcss/no-unknown-classes` does flag unknown classes
   - say plainly that there is no dark theme
-- [ ] STALE-DETAIL: verbatim `globals.css` blocks (→ a 3-layer summary), hex tables (keep the double-prefix rule and the link colours), `@utility`/base CSS copies, type-scale px values, the version number, the BEM examples (→ one JSX example), Configuration Options and API Reference, the provenance table → cut
+- [x] STALE-DETAIL: verbatim `globals.css` blocks (→ a 3-layer summary), hex tables (keep the double-prefix rule and the link colours), `@utility`/base CSS copies, type-scale px values, the version number, the BEM examples (→ one JSX example), Configuration Options and API Reference, the provenance table → cut
 
 ### design-system/forms-and-validation.md (817 → ~120)
 
@@ -602,8 +602,8 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [ ] STALE-DETAIL L378–386, 433–486: PDFViewer zoom steps, 600px/900px numbers, pdf.js unpkg asset list, toolbar props. → Keep the gotchas: the viewer is client-only via `next/dynamic` with `ssr: false`; the pdf.js worker loads from unpkg; state lives above `FullScreenWrapper` because toggling fullscreen remounts its children; `DocumentSelector` sorts its `documents` prop in place. About 486 → 120 lines.
 
 ### components/ui/errors.md
-- [ ] FORMAT L62–64: The "## index.ts" section. → Remove it.
-- [ ] STALE-DETAIL L10–60: Kind and Used in lines plus props tables with copied default strings. → 1–3 sentences plus Source each. Keep the "doesn't self-clear" note. About 64 → 30 lines.
+- [x] FORMAT L62–64: The "## index.ts" section. → Remove it.
+- [x] STALE-DETAIL L10–60: Kind and Used in lines plus props tables with copied default strings. → 1–3 sentences plus Source each. Keep the "doesn't self-clear" note. About 64 → 30 lines.
 
 ### components/ui/forms.md
 - [ ] FORMAT L12, 166, 388: Entries are `###` under `##` group headings ("Layout and navigation", "File and image upload", "Hook-form wrappers"). Grouping is reasonable for 35 entries, but it differs from the flat sibling UI pages. → Either keep it here and adopt the same pattern on display.md and layout.md, or flatten. Decide once for the whole UI group.
@@ -613,11 +613,11 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [ ] STALE-DETAIL L392–412, 1108–1120: Type alias definitions and the `useSearchSelect` return shape. → Keep these gotchas: `updates` is ignored by some wrappers; `StringArrayFieldPath` accepts any string; `OtpInput` isn't RHF-bound despite living in `hook-form/`; `InputContent` isn't exported from the barrel. Drop the rest. About 1125 → 250 lines.
 
 ### components/ui/images.md
-- [ ] STALE-DETAIL L16–63: Kind and Used in lines plus props tables. → 1–3 sentences plus Source each. Keep: both render nothing for an empty `src`; `aspectRatio="auto"` needs an explicit height; the zoomed image ignores the thumbnail props. About 63 → 25 lines.
+- [x] STALE-DETAIL L16–63: Kind and Used in lines plus props tables. → 1–3 sentences plus Source each. Keep: both render nothing for an empty `src`; `aspectRatio="auto"` needs an explicit height; the zoomed image ignores the thumbnail props. About 63 → 25 lines.
 
 ### components/ui/inputs.md
-- [ ] FORMAT L12: The note that `src/components/ui/inputs/README.md` still describes Conform-based components. → Keep it, worded as a codebase oddity.
-- [ ] STALE-DETAIL L14–93: Kind and Used in lines plus props tables. → 1–3 sentences plus Source. Keep: `SearchInput`'s forwarded ref targets the wrapper (use `inputRef` for the input); `MultiSelect` text is a filter, not the value, and it doesn't render chips. About 93 → 35 lines.
+- [x] FORMAT L12: The note that `src/components/ui/inputs/README.md` still describes Conform-based components. → Keep it, worded as a codebase oddity.
+- [x] STALE-DETAIL L14–93: Kind and Used in lines plus props tables. → 1–3 sentences plus Source. Keep: `SearchInput`'s forwarded ref targets the wrapper (use `inputRef` for the input); `MultiSelect` text is a filter, not the value, and it doesn't render chips. About 93 → 35 lines.
 
 ### components/ui/layout.md
 - [ ] FORMAT L10–22: The "Layout constants" values table copies class strings. → Name the four constants and their purpose, then link.
@@ -639,7 +639,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
   About 133 → 45 lines.
 
 ### components/ui/skeletons.md
-- [ ] STALE-DETAIL L14–70: Kind and Used in lines, props tables, and the `skeletonItemClass` value. → One line plus Source each. Note that `SkeletonCard` and `NavSkeleton` are unused. About 70 → 30 lines.
+- [x] STALE-DETAIL L14–70: Kind and Used in lines, props tables, and the `skeletonItemClass` value. → One line plus Source each. Note that `SkeletonCard` and `NavSkeleton` are unused. About 70 → 30 lines.
 
 ### Cross-cutting (all pages in this set)
 - [ ] FORMAT: None of the topic-style intros link to the matching feature page (e.g. components/projects → features/projects, components/search → features/search, components/notifications → features/notifications). → Add a one-line "See also" in each intro, or a "## Related Links" section at the end.
