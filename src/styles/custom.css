@@ -1,0 +1,12 @@
+/* OZEAON brand green, from ozeaon-v2 src/styles/globals.css */
+:root {
+	--sl-color-accent-low: #002b27;
+	--sl-color-accent: #009880;
+	--sl-color-accent-high: #36d47e;
+}
+
+:root[data-theme='light'] {
+	--sl-color-accent-low: #c4fbcc;
+	--sl-color-accent: #00786f;
+	--sl-color-accent-high: #004540;
+}

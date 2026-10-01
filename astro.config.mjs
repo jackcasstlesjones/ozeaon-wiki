@@ -14,6 +14,7 @@ export default defineConfig({
 			title: 'OZEAON V2 Wiki',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/ozeaon/ozeaon-v2' }],
 			sidebar,
+			customCss: ['./src/styles/custom.css'],
 		}),
 	],
 });
