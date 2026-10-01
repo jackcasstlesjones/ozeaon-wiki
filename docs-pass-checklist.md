@@ -35,3 +35,8 @@ Codebase pin: ozeaon-v2 `0a4f1a95`.
 - [x] STALE-DETAIL: version table, full pnpm script table and script bodies, config file table, import snippets, client matrix, failure-mode table and conventions copied from CLAUDE.md (~560 lines) → cut to ~100 lines that link to the owning pages
 - [x] FORMAT: removed Purpose and Scope boilerplate and `> Source:` blockquotes, and added `description:`
 - [x] FORMAT: stale link `docs/supabase_local.md` (the file is `supabase-local.md`) → removed with the docs index table
+
+### overview/technology-stack.md
+
+- [x] STALE-DETAIL: version numbers, copied `next.config.ts`/`tsconfig.json`/`package.json` blocks, per-flag and per-option tables, full dependency inventory, script bodies and step-by-step script walkthroughs (793 lines) → ~90 lines: a stack table, the build decisions that matter, a scripts-by-purpose table, gotchas, and links to the config files
+- [x] FORMAT: removed Purpose and Scope and the `> Source:` blockquotes; renamed "Failure Modes and Edge Cases" to the standard name, dropped "Performance and Operational Notes", and added `description:`
