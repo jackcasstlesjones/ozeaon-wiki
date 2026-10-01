@@ -378,22 +378,22 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### config-and-utils/config-constants.md (713 → ~200)
 
-- [ ] FORMAT: house-style sweep; remove the "## Main Content" heading and the "update this page's tables" step
-- [ ] ROADMAP: `connectionConfig.ts` is reachable only from the unwired `profile.ts` queries (Connections & blocking is roadmap). The `VISIBILITY_OPTIONS` "connections" tier belongs to privacy settings (planned)
-- [ ] ROADMAP/accuracy: `OPENAI_API_KEY` is for content moderation (not "AI features"); `ACCESS_TOKEN` is the signup gate token
-- [ ] STALE-DETAIL: env.ts restated four times (→ one table plus the static-reference rationale), layout constants and their API Reference, the barrel name table, per-module value tables (→ a module/purpose table; keep the dead `CATEGORY_DOT_COLORS`/`ARTICLE_TYPE_REQUIRED_FIELDS`, the unrendered `VISIBILITY_OPTIONS` and the `getReactionTypeId` cache gotchas), direct `process.env` snippets → cut
+- [x] FORMAT: house-style sweep; remove the "## Main Content" heading and the "update this page's tables" step
+- [x] ROADMAP: `connectionConfig.ts` is reachable only from the unwired `profile.ts` queries (Connections & blocking is roadmap). The `VISIBILITY_OPTIONS` "connections" tier belongs to privacy settings (planned)
+- [x] ROADMAP/accuracy: `OPENAI_API_KEY` is for content moderation (not "AI features"); `ACCESS_TOKEN` is the signup gate token
+- [x] STALE-DETAIL: env.ts restated four times (→ one table plus the static-reference rationale), layout constants and their API Reference, the barrel name table, per-module value tables (→ a module/purpose table; keep the dead `CATEGORY_DOT_COLORS`/`ARTICLE_TYPE_REQUIRED_FIELDS`, the unrendered `VISIBILITY_OPTIONS` and the `getReactionTypeId` cache gotchas), direct `process.env` snippets → cut
 
 ### config-and-utils/hooks.md (512 → ~150)
 
-- [ ] FORMAT: house-style sweep; add `## Related Links`; replace the "not read" and "likely to coordinate view transitions" lines with what the two hooks actually do; delete the vague browser-store paragraph
-- [ ] STALE-DETAIL: the barrel copy, `use-auth` snippets (→ the three-hook projection idea and the display-only invariant), the `useAsyncAction` interface, body and flowchart (keep the envelope rule, `actionName` and the errorMessage-fallback gotcha), the `useArticleValidation` rules table, the `useDeleteArticle` body (keep the isDeleting gotcha) → cut
+- [x] FORMAT: house-style sweep; add `## Related Links`; replace the "not read" and "likely to coordinate view transitions" lines with what the two hooks actually do; delete the vague browser-store paragraph
+- [x] STALE-DETAIL: the barrel copy, `use-auth` snippets (→ the three-hook projection idea and the display-only invariant), the `useAsyncAction` interface, body and flowchart (keep the envelope rule, `actionName` and the errorMessage-fallback gotcha), the `useArticleValidation` rules table, the `useDeleteArticle` body (keep the isDeleting gotcha) → cut
 
 ### config-and-utils/utilities.md (1409 → ~250)
 
-- [ ] FORMAT: house-style sweep; delete every "source budget"/"confirmed by grep" line and the Tests section; link plain-text page references
-- [ ] ROADMAP: `getDisplayCurrency`/`getDisplayCurrencySymbol`/`formatFundingAmount` are dead because project funding isn't built
-- [ ] ROADMAP/accuracy: fetch-with-retry is used by `GenericInfiniteFeed` and `PostsInfiniteFeed` (3 attempts, 500 ms linear backoff, retries on network errors and 5xx). `CATALUE` → `CATALOGUE`
-- [ ] STALE-DETAIL:
+- [x] FORMAT: house-style sweep; delete every "source budget"/"confirmed by grep" line and the Tests section; link plain-text page references
+- [x] ROADMAP: `getDisplayCurrency`/`getDisplayCurrencySymbol`/`formatFundingAmount` are dead because project funding isn't built
+- [x] ROADMAP/accuracy: fetch-with-retry is used by `GenericInfiniteFeed` and `PostsInfiniteFeed` (3 attempts, 500 ms linear backoff, retries on network errors and 5xx). `CATALUE` → `CATALOGUE`
+- [x] STALE-DETAIL:
   - cut the slug-generator walkthrough to ~12 lines
   - delete the Usage Examples re-copies, the ~330-line API Reference, the constants table and the slug state diagram
   - per-module signature tables → one line per module, keeping the gotchas: dead `validators/password.ts`, the staticParams placeholder, the nav-history pushState patch, sanitise on write and render, `showUndoToast` deferral, orphan replies dropped, sidebar cookie, `decompressJSON`

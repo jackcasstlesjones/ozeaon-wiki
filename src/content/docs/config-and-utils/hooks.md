@@ -1,45 +1,22 @@
 ---
-title: "Shared Hooks Library"
+title: "Shared Hooks"
+description: "Repository-wide collection of reusable React hooks covering session state, async orchestration, notifications, comments, and form workflows."
 sidebar:
   order: 3
 ---
 
-The `src/hooks` directory is the repository-wide collection of reusable React hooks that encapsulate cross-cutting client behavior — session/auth access, async action orchestration, SSR hydration detection, notifications, comments, moderation, and form workflows.
-
-## Purpose and Scope
-
-This page documents the **Shared Hooks Library**: the public hook surface exported from [`src/hooks/index.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/index.ts), the conventions those hooks follow, and the composition patterns they rely on (context-backed session state, async action orchestration, and browser-store synchronization).
-
-In scope:
-
-- The barrel export contract of `src/hooks/index.ts`
-- The session context hooks (`SessionProvider`, `useSessionInfo`, `useAuth`, `useActiveAccount`) and the invariant that `user` is display-only
-- The generic async orchestration hook `useAsyncAction` and its success/error envelope handling
-- Client-only utilities such as `useHydration` and `useIsMobile`
-- Feature hooks that build on the above (notifications, comments, moderation, posting, forms, navigation guards)
-- The article-administration hooks: section-scoped form validation (`useArticleValidation`), the shared delete flow (`useDeleteArticle`), and the repost composer context (`useRepost` / `RepostProvider`)
-
-Out of scope (covered by sibling pages):
-
-- Editor-specific hooks under `src/components/tiptap/hooks` (document editor, upload registry, block counter)
-- Top-level configuration and utility modules (`src/config`, `src/lib`) that these hooks import from — for example the logger used by `useAsyncAction`
-- Route/page components that consume these hooks; this page treats them only as call sites
+`src/hooks` is the repository-wide collection of reusable React hooks that encapsulate cross-cutting client behaviour: session and auth access, async action orchestration, SSR hydration detection, notifications, comments, moderation, and form workflows. Everything is imported from `@/hooks` ([`src/hooks/index.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/index.ts)), except `useArticleValidation`, whose sole consumer imports it directly from `@/hooks/use-article-validation`.
 
 ## Overview
 
-The hooks library exists to keep client-side stateful behavior out of page components. Instead of every component re-implementing "run an async call, show a toast, toggle a spinner", the repeated behaviors are centralized into named hooks with stable signatures. The directory is deliberately flat and file-per-hook: one hook concept per file, named `use-<concept>.ts(x)`, with a single barrel file re-exporting the public surface.
+The library exists to keep client-side stateful behaviour out of page components. The directory is deliberately flat and file-per-hook (`use-<concept>.ts(x)`), with a single barrel re-exporting the public surface. Hooks that touch context, `useState`, or browser APIs carry `"use client"`. Two provider components (`SessionProvider`, `RepostProvider`) are exported alongside their consumer hooks so the two cannot drift apart.
 
-Two structural conventions are visible directly in the source:
+The library mixes two categories:
 
-1. **Barrel re-export only.** Consumers import from `@/hooks`, not from deep paths. [`src/hooks/index.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/index.ts#L1-L26) is the single public contract, and it also re-exports associated TypeScript types (`ComposerForm`, `UseCreatePostReturn`, `PostImage`, `PostImageError`).
-2. **`"use client"` directives and React primitives for anything stateful.** Hooks that touch context, `useState`, or browser APIs carry `"use client"` and are written as plain `.ts`/`.tsx` modules — no barrel-level logic, no abstraction layer imposed on the hooks themselves.
-
-The library mixes two categories of hook:
-
-| Category | Examples | Characteristic |
-|---|---|---|
-| Generic infrastructure hooks | `useAsyncAction`, `useHydration`, `useIsMobile`, `useTransitionRouter` | Domain-agnostic; usable in any feature |
-| Feature/domain hooks | `useNotifications`, `useThreadComments`, `useCreatePost`, `useRepost`, `useOrganizationForm`, `useProjectForm`, `useProfileImageUpload`, `useDeleteArticle`, `useArticleValidation`, `useImageModeration`, `useModerationRejection`, `useAccountSwitch`, `useCommentIdentity` | Bind to a specific domain concept and usually compose the infrastructure hooks |
+| Category | Examples |
+|---|---|
+| Generic infrastructure | `useAsyncAction`, `useHydration`, `useIsMobile`, `useTransitionRouter`, `useUnsavedChangesGuard` |
+| Feature / domain | `useNotifications`, `useThreadComments`, `useCreatePost`, `useRepost`, `useOrganizationForm`, `useProjectForm`, `useProfileImageUpload`, `useDeleteArticle`, `useArticleValidation`, `useImageModeration`, `useModerationRejection`, `useAccountSwitch`, `useCommentIdentity` |
 
 ## Architecture
 
@@ -47,30 +24,22 @@ The library is layered: a context layer provides session state, a generic utilit
 
 ```mermaid
 flowchart TD
-    subgraph sg_Consumers["Consumers"]
-        Pages["Pages / Client Components"]
+    Pages["Pages / Client Components"] --> Index["src/hooks/index.ts"]
+
+    subgraph sg_Session["Session Context"]
+        SessionProvider --> UseAuth["useAuth"]
+        SessionProvider --> UseActiveAccount["useActiveAccount"]
+        SessionProvider --> UseSessionInfo["useSessionInfo"]
     end
 
-    subgraph sg_Barrel["Public Contract"]
-        Index["src/hooks/index.ts"]
-    end
-
-    subgraph sg_Session["Session Context Layer"]
-        SessionProvider["SessionProvider"]
-        UseAuth["useAuth"]
-        UseActiveAccount["useActiveAccount"]
-        UseSessionInfo["useSessionInfo"]
-    end
-
-    subgraph sg_Generic["Generic Utility Layer"]
-        UseAsyncAction["useAsyncAction"]
+    subgraph sg_Generic["Generic Utilities"]
+        UseAsyncAction["useAsyncAction"] --> Logger["@/lib/logger"]
+        UseAsyncAction --> Toast["sonner toast"]
         UseHydration["useHydration"]
         UseIsMobile["useIsMobile"]
-        UseTransitionRouter["useTransitionRouter"]
-        UseUnsavedGuard["useUnsavedChangesGuard"]
     end
 
-    subgraph sg_Feature["Feature Layer"]
+    subgraph sg_Feature["Feature Hooks"]
         Notifications["useNotifications / useNotificationCount"]
         Comments["useThreadComments / useCommentIdentity"]
         Posting["useCreatePost / usePostImages / useRepost"]
@@ -79,434 +48,80 @@ flowchart TD
         ArticleAdmin["useArticleValidation / useDeleteArticle"]
     end
 
-    subgraph sg_Support["Support Modules"]
-        Logger["@/lib/logger"]
-        Toaster["sonner toast"]
-    end
-
-    Pages --> Index
-    Index --> SessionProvider
-    Index --> UseAuth
-    Index --> UseActiveAccount
-    Index --> UseSessionInfo
-    Index --> UseAsyncAction
-    Index --> UseHydration
-    Index --> UseIsMobile
-    Index --> UseTransitionRouter
-    Index --> UseUnsavedGuard
-    Index --> Notifications
-    Index --> Comments
-    Index --> Posting
-    Index --> Moderation
-    Index --> Forms
-    Index --> ArticleAdmin
-
-    UseAuth --> SessionProvider
-    UseActiveAccount --> SessionProvider
-    UseSessionInfo --> SessionProvider
-    Comments --> UseSessionInfo
-    Posting --> UseAuth
-    Notifications --> UseActiveAccount
-    Moderation --> UseAsyncAction
-    UseAsyncAction --> Logger
-    UseAsyncAction --> Toaster
+    Index --> sg_Session
+    Index --> sg_Generic
+    Index --> sg_Feature
 ```
-
-The diagram reflects verified imports and exports: `index.ts` re-exports all four session symbols from `./use-auth`, and `useAsyncAction` imports `getLogger`/`logError` from `@/lib/logger` and `toast` from `sonner`. Feature hooks such as `useCreatePost` and `useCommentIdentity` consume the session hooks (`useAuth` / `useSessionInfo` / `useActiveAccount`) as captured in their source.
-
-## Public Export Contract
-
-The barrel file defines a small, explicit API. Anything not listed here is an implementation detail of its own module.
-
-```typescript
-export {
-  SessionProvider,
-  useSessionInfo,
-  useAuth,
-  useActiveAccount,
-} from "./use-auth";
-export { useAccountSwitch } from "./use-account-switch";
-export { useHydration } from "./use-hydration";
-export { useIsMobile } from "./use-is-mobile";
-export { useCommentIdentity } from "./use-comment-identity";
-export { useThreadComments } from "./use-thread-comments";
-export { useNotificationCount } from "./use-notification-count";
-export { useNotifications } from "./use-notifications";
-export { useProjectForm } from "./use-project-form";
-export { useModerationRejection } from "./use-moderation-rejection";
-export { useRepost, RepostProvider } from "./use-repost";
-export { useAsyncAction } from "./use-async-action";
-export { useDeleteArticle } from "./use-delete-article";
-export { useImageModeration } from "./use-image-moderation";
-export { useProfileImageUpload } from "./use-profile-image-upload";
-export { useTransitionRouter } from "./use-transition-router";
-export { useUnsavedChangesGuard } from "./use-unsaved-changes-guard";
-export { useCreatePost } from "./use-create-post";
-export type { ComposerForm, UseCreatePostReturn } from "./use-create-post";
-export { usePostImages } from "./use-post-images";
-export type { PostImage, PostImageError } from "./use-post-images";
-```
-
-> Source: [index.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/index.ts#L1-L26)
-
-Design notes visible in this file:
-
-- **Value exports and type exports are separated.** Types are exported with `export type { ... }` so they are erased at build time and never become runtime imports.
-- **Two provider components are exported alongside hooks**: `SessionProvider` and `RepostProvider`. This is the pattern used for hooks that require a context — the provider lives in the same module as the consumer hook, guaranteeing they cannot drift apart.
-- **Notably absent from the barrel**: `useArticleValidation` is *not* re-exported — its sole consumer imports it from `@/hooks/use-article-validation` directly (see [Feature Hooks](#feature-hooks)). Meanwhile `useIsMobile` is exported but `useAsyncAction` types (`UseAsyncActionOptions`, `UseAsyncActionReturn`) are *not* re-exported, unlike the `use-create-post` types. Type re-exporting is per-hook, not uniform.
 
 ## Session Context Layer
 
-`use-auth.tsx` is the foundation of the identity-related half of the library. It defines a single `SessionContext`, a provider that memoizes the context value, a private `useSession()` accessor, and then three narrowly-scoped public hooks.
+[`use-auth.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-auth.tsx) defines a single `SessionContext`, a memoized provider, and three narrowly-scoped public hooks. The key design decision is **subset projection**: each public hook returns only the fields it needs from the context, so a component subscribing to only the active account cannot accidentally depend on `client` or `hydrate`. The context value is memoized on all its own members so that a provider re-render does not cascade to all consumers.
 
-### Context value and memoization
-
-```tsx
-const value = useMemo<SessionContextValue>(
-  () => ({
-    user,
-    activeAccount,
-    client,
-    hydrate,
-    setActiveAccount,
-    logout,
-    refreshProfile,
-  }),
-  [user, activeAccount, client, hydrate, logout, refreshProfile],
-);
-
-return (
-  <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
-);
-```
-
-> Source: [use-auth.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-auth.tsx#L181-L197)
-
-The value is memoized on every one of its own members so that consumers do not re-render merely because the provider re-rendered. `setActiveAccount`, `logout`, and `refreshProfile` are treated as stable identities for this purpose.
-
-### Guarded accessor
-
-```tsx
-function useSession() {
-  const ctx = useContext(SessionContext);
-  if (!ctx) throw new Error("useSession must be used within SessionProvider");
-  return ctx;
-}
-```
-
-> Source: [use-auth.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-auth.tsx#L199-L203)
-
-`useSession` is intentionally **not exported**. It fails fast with a descriptive error rather than returning `null` and letting downstream code produce a `Cannot read property of null` deep inside a component. All three public hooks funnel through it, so the provider requirement is enforced once.
-
-### The three public session hooks
-
-```tsx
-/** Identity + browser client + session actions. `user` is display-only (invariant #2). */
-export function useAuth() {
-  const { user, client, hydrate, logout, refreshProfile } = useSession();
-  return { user, client, hydrate, logout, refreshProfile };
-}
-
-/** Active account (personal vs org) + switch/logout actions. */
-export function useActiveAccount() {
-  const { activeAccount, setActiveAccount, logout } = useSession();
-  return { activeAccount, setActiveAccount, logout };
-}
-
-export function useSessionInfo() {
-  const { user, activeAccount } = useSession();
-  return { user, activeAccount };
-}
-```
-
-> Source: [use-auth.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-auth.tsx#L205-L220)
-
-This is the key design decision of the module: rather than letting every component subscribe to the entire session context, the hooks **project a subset** of the context. A component that only needs the active account cannot accidentally depend on `client` or `hydrate`. The doc comments encode an explicit project invariant — *"`user` is display-only (invariant #2)"* — signalling that `user` must not be used for authorization decisions client-side.
-
-```mermaid
-flowchart LR
-    SessionContext["SessionContext"]
-    SessionProvider["SessionProvider"] -->|"provides"| SessionContext
-    SessionContext --> UseAuth["useAuth"]
-    SessionContext --> UseActiveAccount["useActiveAccount"]
-    SessionContext --> UseSessionInfo["useSessionInfo"]
-    UseAuth -->|"user, client, hydrate, logout, refreshProfile"| Consumers["Consumers"]
-    UseActiveAccount -->|"activeAccount, setActiveAccount, logout"| Consumers
-    UseSessionInfo -->|"user, activeAccount"| Consumers
-```
-
-Consumers observed in source: [`use-create-post.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-create-post.ts#L52) calls `useAuth()`, [`use-comment-identity.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-comment-identity.ts#L13) destructures `{ user, activeAccount }` from `useSessionInfo()`, and [`use-notification-count.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-notification-count.ts#L27) and [`use-notifications.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-notifications.ts#L36) both call `useActiveAccount()`. This confirms the subset-projection pattern is actually used as intended — each feature hook takes only the slice it needs.
+`user` is display-only by explicit invariant — it must not be used for authorization decisions client-side. The private `useSession()` accessor throws `"useSession must be used within SessionProvider"` rather than returning `null`, so the provider requirement is enforced once for all three public hooks rather than at each call site.
 
 ## Generic Infrastructure Hooks
 
-### `useAsyncAction` — async orchestration with an envelope protocol
+### `useAsyncAction`
 
-`useAsyncAction` is the most reusable hook in the library. It wraps an arbitrary async function with loading state, toast feedback, logging, and an **error-envelope convention**.
+[`use-async-action.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-async-action.ts) wraps an arbitrary async function with loading state, toast feedback, and logging. Its key design point is the **envelope convention**: if the wrapped function resolves with `{ success: false }`, the hook re-interprets it as a failure and throws, so server actions can return structured error results without each call site writing its own check.
 
-```typescript
-interface UseAsyncActionOptions<T = void> {
-  onSuccess?: (result: T) => void;
-  successMessage?: string;
-  errorMessage?: string;
-  /**
-   * Identifies this action in logs. `action.name` is empty for the inline
-   * arrow functions every call site passes, so without this every failure
-   * logs as the same unattributable "Async action error".
-   */
-  actionName?: string;
-}
+Details worth knowing when extending it:
 
-interface UseAsyncActionReturn<T = void> {
-  execute: (...args: unknown[]) => Promise<T | undefined>;
-  isLoading: boolean;
-}
-```
+- **Error-message precedence is asymmetric.** Inside `catch`, a real `Error`'s `.message` wins and the `errorMessage` option is ignored; only non-`Error` throws fall back to `errorMessage`.
+- **`actionName` is required for useful logs.** Call sites pass inline arrow functions whose `.name` is empty — without an explicit label, every failure logs as `"Async action error"`.
+- **`isLoading` clears in `finally`**, so it resets on both success and error paths.
+- **Return type is `Promise<T | undefined>`** — the error path returns nothing; callers must guard against `undefined`.
 
-> Source: [use-async-action.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-async-action.ts#L9-L24)
+### `useHydration`
 
-The `actionName` option exists for a concrete, documented reason captured in its own comment: call sites pass **inline arrow functions**, whose `.name` is empty. Without an explicit label, every failure would log identically as `"Async action error"`, making production logs unattributable. This is a deliberate observability affordance, not incidental configuration.
+[`use-hydration.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-hydration.tsx) uses `useSyncExternalStore` to return `false` during server rendering and `true` after client hydration. The noop `subscribe` signals "this store never changes", avoiding extra render passes and hydration mismatch warnings that come with ad-hoc `mounted` flags. `useIsMobile` follows the same pattern.
 
-### The envelope convention
+### Other Generic Hooks
 
-```typescript
-const execute = useCallback(
-  async (...args: unknown[]): Promise<T | undefined> => {
-    setIsLoading(true);
-    try {
-      const result = (await action(...args)) as T;
-
-      if (
-        result &&
-        typeof result === "object" &&
-        "success" in result &&
-        result.success === false
-      ) {
-        const errorResult = result as { success: false; error?: string };
-        throw new Error(errorResult.error || "Action failed");
-      }
-
-      if (successMessage) {
-        toast.success(successMessage);
-      }
-
-      onSuccess?.(result);
-      return result;
-    } catch (error) {
-      logError(logger, "Async action error", error, {
-        action: actionName || action.name || "unknown",
-      });
-      const message =
-        error instanceof Error
-          ? error.message
-          : errorMessage || "Action failed";
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  },
-  [action, onSuccess, successMessage, errorMessage, actionName],
-);
-```
-
-> Source: [use-async-action.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-async-action.ts#L33-L69)
-
-Behavior worth noting for anyone extending this hook:
-
-- **Result envelopes are normalized into throws.** If the wrapped action *resolves* with `{ success: false }`, the hook reinterprets it as a failure and throws. This lets server actions return structured error results without each call site writing its own check — the hook is the single place that decides "resolve-with-success-false means failed".
-- **Error message precedence is inverted between branches.** Inside `catch`, if the thrown value is an `Error`, its `.message` wins *and `errorMessage` is ignored*; only a non-`Error` throw falls back to `errorMessage`. So `errorMessage` functions as a fallback for non-`Error` rejections, not an override for real error messages.
-- **`isLoading` is always cleared**, including on the error path, because the reset lives in `finally`.
-- **The return type is `Promise<T | undefined>`** — the error path returns nothing (the `catch` block has no `return`), so callers must handle `undefined`.
-
-The logger is created once at module scope with a namespaced tag:
-
-```typescript
-const logger = getLogger(["hooks", "use-async-action"]);
-```
-
-> Source: [use-async-action.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-async-action.ts#L7)
-
-This nested-array namespace convention lets log output be filtered by subsystem path (`hooks` → `use-async-action`). For the logger implementation, see the configuration and utilities pages; this page treats `@/lib/logger` as an external support module.
-
-```mermaid
-flowchart TD
-    Start(["execute(args)"]) --> SetLoading["setIsLoading(true)"]
-    SetLoading --> Await["await action(...args)"]
-    Await --> Resolved{"resolved value is an object<br/>with success === false?"}
-    Resolved -->|"Yes"| Throw["throw new Error(envelope.error)"]
-    Resolved -->|"No"| ToastOk{"successMessage set?"}
-    ToastOk -->|"Yes"| ShowOk["toast.success(successMessage)"]
-    ToastOk -->|"No"| Callback
-    ShowOk --> Callback["onSuccess?.(result)"]
-    Callback --> ReturnResult(["return result"])
-    Throw --> Catch["catch: logError with action label"]
-    Await -->|"rejects"| Catch
-    Catch --> PickMsg{"error instanceof Error?"}
-    PickMsg -->|"Yes"| UseErrMsg["message = error.message"]
-    PickMsg -->|"No"| UseFallback["message = errorMessage || 'Action failed'"]
-    UseErrMsg --> ShowErr["toast.error(message)"]
-    UseFallback --> ShowErr
-    ShowErr --> ReturnUndef(["return undefined"])
-    ReturnResult --> Finally["finally: setIsLoading(false)"]
-    ReturnUndef --> Finally
-```
-
-### `useHydration` — SSR-safe client detection
-
-```typescript
-"use client";
-
-import { useSyncExternalStore } from "react";
-
-export function useHydration() {
-  return useSyncExternalStore(
-    () => () => {}, // noop subscribe
-    () => true, // getSnapshot (client)
-    () => false, // getServerSnapshot (server)
-  );
-}
-```
-
-> Source: [use-hydration.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-hydration.tsx#L1-L11)
-
-This is the idiomatic hydration guard: it returns `false` during server rendering and the first client render, then `true` afterwards. Using `useSyncExternalStore` rather than the older `useState` + `useEffect` pattern means React itself arbitrates the server/client snapshot difference, avoiding an extra render pass and the hydration mismatch warnings that come with ad-hoc `mounted` flags. The noop `subscribe` correctly communicates "this store never changes" — the value is stable per environment.
-
-The same state-synchronization primitive is used for the media-query hook and, by naming convention, the browser-store hooks:
-
-```
-src/hooks/use-hydration.tsx
-src/hooks/use-is-mobile.tsx
-```
-
-Both are `.tsx` files despite `useHydration` returning a boolean with no JSX — a minor inconsistency in the file-naming convention that does not affect behavior.
-
-### Other generic hooks
-
-| Hook | File | Exported symbols |
-|---|---|---|
-| `useAsyncAction` | [`use-async-action.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-async-action.ts) | `useAsyncAction` |
-| `useHydration` | [`use-hydration.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-hydration.tsx) | `useHydration` |
-| `useIsMobile` | [`use-is-mobile.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-is-mobile.tsx) | `useIsMobile` |
-| `useTransitionRouter` | [`use-transition-router.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-transition-router.ts) | `useTransitionRouter` |
-| `useUnsavedChangesGuard` | [`use-unsaved-changes-guard.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-unsaved-changes-guard.ts) | `useUnsavedChangesGuard` |
-
-The presence of `useTransitionRouter` and `useUnsavedChangesGuard` alongside the navigation-independent hooks shows the library absorbs **navigation concerns** too: routing must go through a wrapper hook (likely to coordinate view transitions), and unsaved-work protection is provided as a reusable guard rather than reimplemented per form. Implementation details of those two modules were not read for this page.
+`useTransitionRouter` wraps navigation to coordinate view transitions; `useUnsavedChangesGuard` provides a reusable guard for forms with unsaved changes. Both are in [`src/hooks/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks) and exported from the barrel.
 
 ## Feature Hooks
 
-Three feature hooks are documented here in full: the article-administration pair (`useArticleValidation`, `useDeleteArticle`) and the repost context (`useRepost` / `RepostProvider`). The rest of the feature layer — notifications, comments, posting, moderation, forms, account switching — is documented with its feature and component pages (Notifications, Comments and Reactions, Posts), which own those behaviours.
+Notifications, comments, posting, moderation, and form hooks are documented on their feature pages: [Notifications](../../features/notifications/), [Comments & Reactions](../../features/comments-and-reactions/), [Posts](../../features/posts/). Three hooks are described here because they sit at the intersection of multiple features or have unusual conventions.
 
-### `useArticleValidation` — section-scoped form validation
+### `useArticleValidation`
 
-`useArticleValidation` backs the article editor's per-section completeness checks. Despite the hook naming, it registers **no React state, effects, or refs** — it returns a single `validateSection` function that closes over nothing, so the hook wrapper is call-site ergonomics rather than reactivity.
+[`use-article-validation.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-article-validation.ts) backs the article editor's per-section completeness checks. Despite the hook name, it registers no React state, effects, or refs — it returns a single `validateSection(section, data)` function that returns every violated rule as a `{ field, message, code }` error. The hook wrapper is call-site ergonomics only.
 
-```typescript
-export function useArticleValidation() {
-  const validateSection = (
-    section: string,
-    data: Partial<ArticleFormData>,
-  ): ValidationError[] => { /* switch (section) { ... } */ };
-  return { validateSection };
-}
-```
+Gotchas before extending it:
 
-> Source: [use-article-validation.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-article-validation.ts#L8-L162)
+- **Alignment failures share one code.** Missing tags, SDGs, and subcategories all emit `MISSING_CATEGORIES` — only the `field` property distinguishes them.
+- **Corresponding-author errors are per-index.** When no corresponding author is set the error appears on every author row, not a single summary.
+- **Content rules are article-type-dependent.** `isResearchOrIP(article_type?.code)` decides whether a PDF is mandatory. All limits and messages come from `@/config/constants/articles`.
+- **Not in the barrel.** Its sole consumer, `ArticleFormSidebar.tsx`, imports directly from `@/hooks/use-article-validation`.
 
-`validateSection` switches over the five editor sections and returns every violated rule as a `{ field, message, code }` error (the shared `ValidationError` type):
+### `useDeleteArticle`
 
-| Section | Rules enforced | Codes emitted |
-|---|---|---|
-| `core_identity` | `article_type` required; a `project_log` article additionally requires `linked_project_id`; title present and at least `ARTICLE_FIELD_LIMITS.title.min` | `MISSING_ARTICLE_TYPE`, `PROJECT_LOG_MISSING_PROJECT`, `MISSING_TITLE` |
-| `access_license` | `license_type_id` required | `MISSING_LICENSE` |
-| `authorship` | At least one author; every author has a `display_name`; at least one author flagged `is_corresponding` | `MISSING_AUTHORS`, `MISSING_AUTHOR_NAME`, `MISSING_CORRESPONDING_AUTHOR` |
-| `alignment` | At least one subcategory, at least one tag (a comma-separated string, filtered on trim), at least one SDG | `MISSING_CATEGORIES` for all three |
-| `content` | PDF required for research/IP types (via `isResearchOrIP` from `@/zod/articles/combined`) unless `text_only_publication`; text-only mode requires `content_text` of at least `ARTICLE_FIELD_LIMITS.content.min`; non-text-only mode requires a PDF **or** content of that minimum length | `MISSING_CONTENT` |
+[`use-delete-article.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-delete-article.ts) is shared by `ArticleForm.tsx` and `MyArticleCard.tsx` so both surfaces use the same copy and server-error detail. A non-OK response is converted with `ApiError.fromResponse`; the toast prefers `error.details` over `error.message` so the API's structured detail reaches the user. `isDeleting` resets only on the error path — on success, both consumers navigate away or unmount inside `onDeleted()` before a reset would matter. A future consumer that stays mounted after deletion would be left with a stuck loading state.
 
-Details worth knowing before extending it:
+### `useRepost` / `RepostProvider`
 
-- **Alignment failures share one code.** Missing tags and missing SDGs both emit `MISSING_CATEGORIES`, so the code alone does not identify which alignment input is missing — only the `field` does.
-- **Corresponding-author errors are emitted per author index** (`authors.${index}.is_corresponding`), so when no corresponding author is designated the error array highlights every author row rather than one.
-- **The content rules are type-dependent.** `isResearchOrIP(article_type?.code)` decides whether a PDF is mandatory; `VALIDATION_MESSAGES.pdf_file_url` (from `@/config/constants/articles`) supplies that message. Text-only and PDF modes have separate minimum-length messages.
-- All limits and messages come from `@/config/constants/articles` (`ARTICLE_FIELD_LIMITS`, `VALIDATION_MESSAGES`) — the same constants the server side validates against.
+[`use-repost.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-repost.tsx) models reposting as **composer pre-fill**: `RepostProvider` carries "which post is being reposted" from `RepostButton` to the post composer, which appends `post_tag` to the submitted FormData. `requestRepost(post)` stores the post, opens the form, and increments `repostRequestId`. The counter exists because the open flag alone cannot signal a second repost click on an already-open composer — `DesktopComposer.tsx` keys its scroll-to-top effect on the request id for this reason.
 
-Sole consumer: [`ArticleFormSidebar.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/form/ArticleFormSidebar.tsx#L70), which calls `validateSection(s.code, getValues())` per section to decide each step's saved/complete state.
+The hook also returns `handleRepost(postId)`, which only logs the call and returns `{ status: true }`. It performs no request and has no call sites anywhere in the repository — it is dead scaffolding and should not be confused with the live repost path, which goes through `useCreatePost`'s submit.
 
-### `useDeleteArticle` — shared delete flow
+## Failure Modes & Edge Cases
 
-```typescript
-export function useDeleteArticle(
-  articleId: string | null,
-  { onDeleted }: { onDeleted?: () => void } = {},
-) {
-  const [isDeleting, setIsDeleting] = useState(false);
+- All three session hooks throw outside `SessionProvider`; `useRepost` throws outside `RepostProvider`. Both providers are mounted in `app/layout.tsx`.
+- `useDeleteArticle`: `isDeleting` stays `true` after a successful delete. A consumer that stays mounted after `onDeleted()` would be left with a stuck loading state.
+- `useAsyncAction` returns `Promise<T | undefined>` — the error path returns nothing. Callers must handle `undefined`.
+- `useRepost`'s `handleRepost(postId)` is dead code; do not call it.
 
-  const deleteArticle = async () => {
-    if (!articleId) return;
-    setIsDeleting(true);
+## Extension Points
 
-    try {
-      const res = await fetch(`/api/articles/${articleId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw await ApiError.fromResponse(res);
+- Add a generic hook by creating `use-<concept>.ts(x)` and exporting from `src/hooks/index.ts`.
+- Feature hooks that need a context follow the `SessionProvider` / `useAuth` pattern: provider and consumer in the same module, both exported from the barrel.
+- Hooks with a single, domain-specific consumer follow the `useArticleValidation` pattern: not exported from the barrel, imported by direct path.
 
-      toast.success("Article deleted", {
-        description: "Your article has been deleted successfully.",
-      });
-      onDeleted?.();
-    } catch (error) {
-      showErrorToast(
-        "Failed to delete article",
-        {},
-        error instanceof ApiError
-          ? error.details || error.message
-          : error instanceof Error
-            ? error.message
-            : "Unknown error occurred.",
-      );
-      setIsDeleting(false);
-    }
-  };
+## Related Links
 
-  return { deleteArticle, isDeleting };
-}
-```
-
-> Source: [use-delete-article.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-delete-article.ts#L14-L49)
-
-Its doc comment states the intent: it is shared by the dashboard cards and the article form *so both surface the same copy and the same server-side error detail*. Behaviour notes:
-
-- **Server error detail is preserved.** A non-OK response is converted with `ApiError.fromResponse` (from `@/utils/api-error`), and the toast prefers `error.details` over `error.message` — the API's structured detail reaches the user, not a generic string. The toast itself comes from `showErrorToast` in `src/utils/toast.ts`.
-- **`isDeleting` resets only on the error path.** After a successful delete the flag intentionally stays `true` — both consumers navigate away or unmount inside `onDeleted` (the form closes; the dashboard card removes itself), so a reset is moot. A future consumer that stays mounted after `onDeleted` would be left with a stuck spinner.
-- **No-op guard:** a `null` `articleId` makes `deleteArticle` a no-op rather than a request to `/api/articles/null`.
-
-Consumers: [`ArticleForm.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/form/ArticleForm.tsx) and [`MyArticleCard.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/cards/MyArticleCard.tsx).
-
-### `useRepost` / `RepostProvider` — repost composer context
-
-Reposting is modelled as **composer pre-fill**, not as a request issued from the button: a context carries "which post is being reposted" from the button to the composer. `RepostProvider` holds that state and is mounted once in [`app/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/layout.tsx); like `SessionProvider`, the provider and its consumer hook live in the same module and are exported together from the barrel.
-
-```typescript
-interface RepostContextType {
-  postFormOpen: boolean;
-  setPostFormOpen: (open: boolean) => void;
-  repostPost: PublicPost | null;
-  setRepostPost: (post: PublicPost | null) => void;
-  /** Bumped on every repost request so consumers can react to repeat clicks. */
-  repostRequestId: number;
-  requestRepost: (post: PublicPost) => void;
-}
-```
-
-> Source: [use-repost.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-repost.tsx#L15-L23)
-
-`requestRepost(post)` (a stable `useCallback`) does three things atomically: stores the post, opens the post form, and **increments `repostRequestId`**. The counter exists because the open flag alone cannot signal a *second* repost click — [`DesktopComposer.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/create-form/layouts/DesktopComposer.tsx#L71-L76) keys its scroll-to-top effect on the request id, with a comment spelling out that `isRepostMode` stays true between clicks and would not re-trigger.
-
-The consumer flow:
-
-1. [`RepostButton.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/RepostButton.tsx#L33) calls `requestRepost(post)`.
-2. [`useCreatePost`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-create-post.ts#L54-L60) reads `postFormOpen`, `repostPost`, and `repostRequestId` from the context; in repost mode it appends `post_tag = repostPost.id` to the submitted FormData and switches to repost-specific success copy — the repost record is created by that submit flow, not by this hook.
-3. The composer layouts pass `repostPost` down to the attachment previews so the quoted post renders inside the composer.
-
-The accessor follows the library's fail-fast convention: `useRepost` throws `"useRepost must be used within RepostProvider"` when the context is missing.
-
-**Placeholder flag:** the hook also returns `handleRepost(postId)`, which only logs `"Reposting post {postId}"` and returns `{ status: true }`. It performs no request and has **no call sites anywhere in the repository** — reposts go through `useCreatePost`'s submit. It is dead scaffolding, noted here so it is not mistaken for the live repost path.
+- [`src/hooks/index.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/index.ts) — barrel export contract
+- [Notifications](../../features/notifications/) — `useNotifications`, `useNotificationCount`
+- [Comments & Reactions](../../features/comments-and-reactions/) — `useThreadComments`, `useCommentIdentity`
+- [Posts](../../features/posts/) — `useCreatePost`, `usePostImages`, `useRepost`
+- [Logging & Observability](../../operations/logging-observability/) — logger consumed by `useAsyncAction`
