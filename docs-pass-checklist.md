@@ -61,16 +61,17 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 - Delete `## Purpose and Scope`, add `description:`, convert `> Source:` blockquotes to inline links, rename failure/ops sections to the standard names, replace plain-text "sibling page" references and stale generator slugs (`6-api-layer`, `2-architecture`, `8-design-system`…) with real relative links, and delete generator hedging ("not read within the source budget", "exploration budget", "not verified in source", "Careful readers should verify").
 - [ ] FORMAT src/sidebar.json: the explicit Components list ignores `sidebar.order` on the top-level component pages (organizations and posts were both 10), and new component pages must be added by hand → drop `sidebar.order` from the top-level component pages and add a README note that `src/sidebar.json` sets their order
+- [ ] FORMAT: spelling. Prose mixes "organisation" and "organization" → use "organization" in prose (matching the code identifiers) and keep "Organisation" only in quoted UI strings; sweep the whole site at the end
 - [ ] FORMAT: cross-links from component pages to their feature pages (components/projects → features/projects, etc.) → add a one-line "See also" in each component page intro
 
 ### architecture/app-structure.md (460 → ~200)
 
-- [ ] FORMAT: house-style sweep
-- [ ] ROADMAP/accuracy: "`(main)` — the authenticated application" is wrong. It hosts public feed, reader and profile pages too; auth gating is in the `(dashboard)` layout (`getAuthUserOrRedirect`) and in `(feed)/(private)`
-- [ ] ROADMAP/accuracy: `(main)/layout.tsx` mounts `NavSlotProvider`, `NavHistoryTracker` and `MobileFloatingCreate` (the real path is `src/components/nav/components/MobileFloatingCreate.tsx`) → list all three
-- [ ] ROADMAP/accuracy: `EntityTitleSlot` is mounted in the `(profile)` org and user layouts, not in `(reader)` or `(editor)`. Real routes are `/organizations/[slug]` and `/profiles/[username]` (not `/organisations/[handle]` or `/profile/[handle]`)
-- [ ] ROADMAP/accuracy: the layout file list leaves out `(editor)/layout.tsx` and the two `(profile)` entity layouts → add them, or say "see `src/app/**/layout.tsx`"
-- [ ] STALE-DETAIL: shell pixel values, the copied NavSlotContext and EntityTitleSlot source, the MobileFloatingCreate hide-route list, four near-identical layout snippets (keep `(feed)` only), and the logger category table → summarise and link. Cite code, not DESIGN-CONSISTENCY-PLAN.md
+- [x] FORMAT: house-style sweep
+- [x] ROADMAP/accuracy: "`(main)` — the authenticated application" is wrong. It hosts public feed, reader and profile pages too; auth gating is in the `(dashboard)` layout (`getAuthUserOrRedirect`) and in `(feed)/(private)`
+- [x] ROADMAP/accuracy: `(main)/layout.tsx` mounts `NavSlotProvider`, `NavHistoryTracker` and `MobileFloatingCreate` (the real path is `src/components/nav/components/MobileFloatingCreate.tsx`) → list all three
+- [x] ROADMAP/accuracy: `EntityTitleSlot` is mounted in the `(profile)` org and user layouts, not in `(reader)` or `(editor)`. Real routes are `/organizations/[slug]` and `/profiles/[username]` (not `/organisations/[handle]` or `/profile/[handle]`)
+- [x] ROADMAP/accuracy: the layout file list leaves out `(editor)/layout.tsx` and the two `(profile)` entity layouts → add them, or say "see `src/app/**/layout.tsx`"
+- [x] STALE-DETAIL: shell pixel values, the copied NavSlotContext and EntityTitleSlot source, the MobileFloatingCreate hide-route list, four near-identical layout snippets (keep `(feed)` only), and the logger category table → summarise and link. Cite code, not DESIGN-CONSISTENCY-PLAN.md
 
 ### architecture/data-model-and-schema.md (864 → ~250)
 
@@ -101,17 +102,17 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### architecture/ssr-rendering-and-caching.md (586 → ~150)
 
-- [ ] FORMAT: house-style sweep; delete the "Note on evidence" and "`2-architecture` section" leftovers; fix the garbled "`relativePath`-based `images.loaderFile`"
-- [ ] ROADMAP/accuracy: R2 incremental cache, D1 tag cache and DO queue are presented as how the app caches, but all three are commented out in `open-next.config.ts` → show the current state and keep them only as an Extension Point. "Caching controlled through OpenNext bindings" → "rendering is decided by which Supabase client a route uses"
-- [ ] ROADMAP: add `## Rendering Rules Today`:
+- [x] FORMAT: house-style sweep; delete the "Note on evidence" and "`2-architecture` section" leftovers; fix the garbled "`relativePath`-based `images.loaderFile`"
+- [x] ROADMAP/accuracy: R2 incremental cache, D1 tag cache and DO queue are presented as how the app caches, but all three are commented out in `open-next.config.ts` → show the current state and keep them only as an Extension Point. "Caching controlled through OpenNext bindings" → "rendering is decided by which Supabase client a route uses"
+- [x] ROADMAP: add `## Rendering Rules Today`:
   - `createClient()` makes a route dynamic; `createPublicClient()` lets it prerender
   - no `dynamic`/`revalidate`/`fetchCache`/`runtime` exports
   - ESLint bans `use cache`/`cacheTag`/`cacheLife`/`updateTag`
   - writes call `revalidatePath`; there are no `revalidateTag` calls despite CLAUDE.md
 
   Link `docs/ssr/*.md`
-- [ ] ROADMAP/accuracy: `FOUR_DAYS` is 345600 s, not 172800 → say "four days". Remove the speculative edge-HTML caching claims
-- [ ] STALE-DETAIL: copied `next.config.ts` blocks (keep the two Cache-Control rules and one CSP paragraph), the Configuration Options Reference, the headers table and the API Reference → cut
+- [x] ROADMAP/accuracy: `FOUR_DAYS` is 345600 s, not 172800 → say "four days". Remove the speculative edge-HTML caching claims
+- [x] STALE-DETAIL: copied `next.config.ts` blocks (keep the two Cache-Control rules and one CSP paragraph), the Configuration Options Reference, the headers table and the API Reference → cut
 
 ### architecture/supabase-client-patterns.md (580 → ~200)
 
@@ -166,10 +167,10 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### api-layer/edge-functions.md (551 → ~90)
 
-- [ ] FORMAT: house-style sweep; standard section names
-- [ ] ROADMAP/accuracy: `delete-users` is obsolete. `user_profiles.deleted_at` was dropped (`20260826170100`) and deletion is synchronous via `deleteAccount` → mark it dead and a candidate for removal, and link user-settings
-- [ ] ROADMAP/accuracy: the invented callers (scheduler, admin tooling, client SDK) → the only caller is `resolveUserEmails` → `get-user-emails`. `reconcile-stats` has no caller in the repo. Delete the diagram and fix the non-existent page references
-- [ ] STALE-DETAIL: near-full copies of the three `index.ts` files, contract and env tables, three trivial flow diagrams, and the failure/perf tables → one paragraph per function plus a 3-row function/caller/auth table and 4 gotcha bullets
+- [x] FORMAT: house-style sweep; standard section names
+- [x] ROADMAP/accuracy: `delete-users` is obsolete. `user_profiles.deleted_at` was dropped (`20260826170100`) and deletion is synchronous via `deleteAccount` → mark it dead and a candidate for removal, and link user-settings
+- [x] ROADMAP/accuracy: the invented callers (scheduler, admin tooling, client SDK) → the only caller is `resolveUserEmails` → `get-user-emails`. `reconcile-stats` has no caller in the repo. Delete the diagram and fix the non-existent page references
+- [x] STALE-DETAIL: near-full copies of the three `index.ts` files, contract and env tables, three trivial flow diagrams, and the failure/perf tables → one paragraph per function plus a 3-row function/caller/auth table and 4 gotcha bullets
 
 ### api-layer/server-actions-and-queries.md (695 → ~220)
 
@@ -196,10 +197,10 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### features/search.md (708 → ~170)
 
-- [ ] FORMAT: house-style sweep; Title Case the lowercase subheadings; use real sibling links
-- [ ] ROADMAP: shipped is keyword search at `/search` plus `GET /api/search` over org name, project/article title and profile name/username (plus author matches). Not covered: posts, comments, body text, tags, SDGs, events, resources. Global search is planned
-- [ ] ROADMAP/accuracy: the page SSRs page 1 via `searchContent`, and `SearchResultsFeed` fetches later pages from `/api/search` → fix the diagram. Delete the `@redis/search` aside
-- [ ] STALE-DETAIL: line-by-line copies of `search.ts` (keep the wildcard-hardening snippet), copied types and the ER diagram, usage examples, constants tables (keep the `SEARCH_AUTHOR_MATCH_CAP` gotcha), the API Reference, padding notes → cut
+- [x] FORMAT: house-style sweep; Title Case the lowercase subheadings; use real sibling links
+- [x] ROADMAP: shipped is keyword search at `/search` plus `GET /api/search` over org name, project/article title and profile name/username (plus author matches). Not covered: posts, comments, body text, tags, SDGs, events, resources. Global search is planned
+- [x] ROADMAP/accuracy: the page SSRs page 1 via `searchContent`, and `SearchResultsFeed` fetches later pages from `/api/search` → fix the diagram. Delete the `@redis/search` aside
+- [x] STALE-DETAIL: line-by-line copies of `search.ts` (keep the wildcard-hardening snippet), copied types and the ER diagram, usage examples, constants tables (keep the `SEARCH_AUTHOR_MATCH_CAP` gotcha), the API Reference, padding notes → cut
 
 ### features/notifications.md (620 → ~180)
 
@@ -209,9 +210,9 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### features/profiles-and-social-graph.md (769 → ~200)
 
-- [ ] FORMAT: house-style sweep; fix the `src/config/connectionConfig` link (add `.ts`)
-- [ ] ROADMAP: add a status callout. Follows, connections and blocking have server actions and tables, but no UI calls them: the profile layout passes `actions={null}` (`TODO(post-Phase-0)`). Rewiring them and re-enabling blocking is on the roadmap. Fix the diagram that draws `DataSlot --> Actions`, and the claim that "a block is enforced consistently"
-- [ ] STALE-DETAIL: the `UserProfile` type copy, ER columns, read-function bodies, connection action copies (keep the flowchart and 3–4 "why" sentences), the `followUser` copy, upload hook snippets, API Reference, config table → cut
+- [x] FORMAT: house-style sweep; fix the `src/config/connectionConfig` link (add `.ts`)
+- [x] ROADMAP: add a status callout. Follows, connections and blocking have server actions and tables, but no UI calls them: the profile layout passes `actions={null}` (`TODO(post-Phase-0)`). Rewiring them and re-enabling blocking is on the roadmap. Fix the diagram that draws `DataSlot --> Actions`, and the claim that "a block is enforced consistently"
+- [x] STALE-DETAIL: the `UserProfile` type copy, ER columns, read-function bodies, connection action copies (keep the flowchart and 3–4 "why" sentences), the `followUser` copy, upload hook snippets, API Reference, config table → cut
 
 ### features/comments-and-reactions.md (560 → ~170)
 
@@ -486,8 +487,8 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### components/events.md (30 → ~12)
 
-- [ ] ROADMAP: Events is planned. `NewEventDialog` has zero call sites, and `/api/events` is unwired scaffolding with no server-side validation → say so up front and in `description:`
-- [ ] STALE-DETAIL: the props table and line-level behaviour → one sentence plus Source
+- [x] ROADMAP: Events is planned. `NewEventDialog` has zero call sites, and `/api/events` is unwired scaffolding with no server-side validation → say so up front and in `description:`
+- [x] STALE-DETAIL: the props table and line-level behaviour → one sentence plus Source
 
 ### components/home.md (220 → ~70)
 
@@ -497,7 +498,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### components/icons.md (106 → ~45)
 
-- [ ] STALE-DETAIL: drop Kind and Used in lines, transform presets, and viewBox numbers. Keep the gotchas: Figma 16/20px scaled into 24px, filled paths ignore strokeWidth, fixed brand fills, `className` replaces `fill-primary`. Keep the CustomIcons snippet only
+- [x] STALE-DETAIL: drop Kind and Used in lines, transform presets, and viewBox numbers. Keep the gotchas: Figma 16/20px scaled into 24px, filled paths ignore strokeWidth, fixed brand fills, `className` replaces `fill-primary`. Keep the CustomIcons snippet only
 
 ### components/nav.md (738 → ~220)
 

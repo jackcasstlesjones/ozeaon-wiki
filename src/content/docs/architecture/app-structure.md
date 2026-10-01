@@ -1,460 +1,125 @@
 ---
 title: "Application Structure & Route Groups"
+description: "How `src/app` route groups map to layout shells, auth tiers and sidebar behaviour."
 sidebar:
   order: 1
 ---
 
-The Ozeaon v2 application is a Next.js App Router codebase whose route tree under `src/app` is organized into **parenthesized route groups** that partition the product into layout shells (feed, dashboard, reader, editor, profile, auth) rather than into URL segments. This page documents that structure: how route groups compose, which layout owns which shell, and the conventions that keep the tree navigable.
-
-## Purpose and Scope
-
-This page covers the physical layout of the `src/app` directory — the route-group taxonomy, the layout nesting chain (root → `(main)` → feature group → sub-group), the shell components each group instantiates, and the naming/convention rules that the codebase enforces on that tree.
-
-It intentionally does **not** cover:
-
-- The design specification for nav chrome (TopNav, MegaMenu, SideNav, floating create button) — that belongs to the navigation documentation.
-- Logging category derivation mechanics beyond the route-group stripping rule — see the logging conventions page.
-- Individual feature behaviour inside each group (feed, projects, articles, settings).
-
-For route-group–aware category derivation in the logging system, see the logging conventions document referenced under Related Links.
+The [`src/app`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/app) tree is organised into parenthesised route groups that choose a layout shell (feed, dashboard, reader, editor, profile, auth), not a URL prefix. This page explains how the groups nest, which layout owns which chrome, where auth gating happens, and the conventions that depend on the group structure. The nav chrome itself is covered in [Navigation System](../../design-system/navigation-system/), and logger categories in [Logging & Observability](../../operations/logging-observability/).
 
 ## Overview
 
-Next.js App Router supports **route groups**: a directory wrapped in parentheses (e.g. `(main)`) is *omitted from the URL path* but still participates in layout nesting. Ozeaon uses this feature for two distinct purposes:
+A directory wrapped in parentheses, such as `(main)`, is left out of the URL but still takes part in layout nesting. Ozeaon uses groups for two things:
 
-1. **Layout partitioning** — a group exists because its members share a chrome shell (topbar + sidebar + shell primitive), not because they share a URL prefix. `(feed)`, `(dashboard)`, `(reader)`, `(editor)`, `(profile)`, and `(auth)` each select a different `SidebarProvider` `pageType` and shell configuration.
-2. **Access-tier partitioning** — nested groups such as `(private)` and `(public)` inside `(feed)`, and `(personal)` / `(organizations)` inside `settings`, separate sub-trees that share the parent's layout but differ in auth requirement or data scope.
+1. **Layout partitioning.** Members of a group share a chrome shell. `(feed)`, `(dashboard)`, `(reader)`, `(profile)` and `(editor)` each render a different topbar, sidebar and shell combination, and most of them pass a different `pageType` to `SidebarProvider`.
+2. **Sub-partitioning without new URLs.** Nested groups such as `(private)`/`(public)` inside `(feed)`, and `(personal)`/`(organizations)` inside `settings`, split a subtree by access tier or data scope while keeping the parent's shell.
 
-The consequence for the URL space is significant: routes like `/projects/[slug]` may be reached through `(main)/(reader)/projects/[slug]`, while `/projects` list routes live under `(main)/(feed)/(public)/projects`. **The same URL shape can be produced by different route groups**, so the group is a layout/authorization concept, not a URL concept. This is precisely why the logging convention forbids deriving categories from the *last* path segment and requires stripping parenthesized segments instead — see below.
-
-### Terminology
-
-| Term | Meaning in this codebase |
-|------|--------------------------|
-| Route group | A `(name)` directory under `src/app`; excluded from the URL |
-| Layout | A `layout.tsx` file; wraps all descendants until the next `layout.tsx` |
-| Shell | A `src/components/ui/layout/shells/*` primitive (`TwoColumnShell`, `SidebarShell`) that a layout renders |
-| `pageType` | Prop passed to `SidebarProvider` that selects chrome behaviour per group |
-| Slot | A Next.js parallel route (`@sidebar`) rendered by a layout as a named prop |
+Because groups are invisible in the URL, similar URLs can sit under different layout chains. `/projects` lives in `(main)/(feed)/(public)/projects`, `/projects/[slug]` in `(main)/(reader)/projects/[slug]`, and `/projects/[slug]/edit` in `(main)/(editor)`. When a layout seems not to apply, check which directory the route file is in, not the URL.
 
 ## Architecture
 
-The route tree is a nested layout chain. Each level adds chrome and narrows the rendering contract for its descendants.
-
 ```mermaid
 flowchart TD
-    subgraph sg_Root["Root"]
-        RootLayout["src/app/layout.tsx"]
-    end
-
-    subgraph sg_Auth["(auth)"]
-        AuthLayout["src/app/(auth)/layout.tsx"]
-    end
-
-    subgraph sg_Main["(main)"]
-        MainLayout["src/app/(main)/layout.tsx<br/>mounts MobileFloatingCreate"]
-
-        subgraph sg_Feed["(feed)"]
-            FeedLayout["(feed)/layout.tsx<br/>pageType=feed"]
-            FeedPrivate["(feed)/(private)/layout.tsx"]
-            FeedPublic["(feed)/(public)/projects/layout.tsx"]
-        end
-
-        subgraph sg_Dashboard["(dashboard)"]
-            DashLayout["(dashboard)/layout.tsx<br/>pageType=settings"]
-            SettingsOrg["settings/(organizations)/layout.tsx"]
-            SettingsPersonal["settings/(personal)/layout.tsx"]
-        end
-
-        subgraph sg_Reader["(reader)"]
-            ReaderLayout["(reader)/layout.tsx<br/>pageType=single-entity"]
-        end
-
-        subgraph sg_Editor["(editor)"]
-            EditorLayout["(editor)/layout.tsx<br/>no SidebarProvider"]
-        end
-
-        subgraph sg_Profile["(profile)"]
-            ProfileLayout["(profile)/layout.tsx<br/>pageType=single-entity"]
-        end
-    end
-
-    RootLayout --> AuthLayout
-    RootLayout --> MainLayout
-    MainLayout --> FeedLayout
-    MainLayout --> DashLayout
-    MainLayout --> ReaderLayout
-    MainLayout --> EditorLayout
-    MainLayout --> ProfileLayout
-    FeedLayout --> FeedPrivate
-    FeedLayout --> FeedPublic
-    DashLayout --> SettingsOrg
-    DashLayout --> SettingsPersonal
+    Root["app/layout.tsx"] --> Auth["(auth)/layout.tsx"]
+    Root --> Main["(main)/layout.tsx<br/>NavSlotProvider, NavHistoryTracker,<br/>MobileFloatingCreate"]
+    Main --> Feed["(feed) pageType=feed"]
+    Main --> Dash["(dashboard) pageType=settings<br/>getAuthUserOrRedirect"]
+    Main --> Reader["(reader) pageType=single-entity<br/>@sidebar slot"]
+    Main --> Profile["(profile) pageType=single-entity"]
+    Main --> Editor["(editor) no SidebarProvider"]
+    Feed --> Private["(private) DynamicMarker"]
+    Feed --> Public["(public)"]
+    Dash --> Personal["settings/(personal)"]
+    Dash --> Orgs["settings/(organizations)"]
+    Profile --> OrgLayout["organizations/[slug]/layout.tsx<br/>EntityTitleSlot"]
+    Profile --> UserLayout["profiles/[username]/layout.tsx<br/>EntityTitleSlot"]
 ```
 
-The diagram reflects the verified layout file set under `src/app`:
+The full layout set is every `layout.tsx` under `src/app`. Besides the group layouts in the diagram, there are smaller nested layouts for `(feed)/(private)/account`, `(feed)/(public)/projects` (the section heading and metadata) and the two settings sub-groups.
 
-- `src/app/layout.tsx` — the single top-level layout.
-- `src/app/(auth)/layout.tsx` — authentication chrome, sibling to `(main)`.
-- `src/app/(main)/layout.tsx` — the authenticated application shell boundary; documented as the mount point for the mobile floating create control.
-- Five feature groups directly under `(main)`, each contributing its own layout and shell configuration.
+### Top Level: `(auth)` and `(main)`
 
-> Sources:
-> - [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(feed)/layout.tsx#L1-L18)
-> - [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/layout.tsx#L1-L31)
-> - [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(reader)/layout.tsx#L1-L37)
-> - [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(profile)/layout.tsx#L1-L23)
-> - [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L571-L597)
+[`(auth)/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(auth)/layout.tsx) holds login, signup, password reset and email verification. It renders the form next to `AuthMarketingPanel`, with no app chrome. It is a sibling of `(main)`, so the app shell never wraps an auth screen.
 
-## Route Group Taxonomy
+`(main)` holds every non-auth route, public and signed-in. Auth gating happens in the `(dashboard)` layout and in individual pages, not in `(main)`. [`(main)/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/layout.tsx) mounts three things once for the whole product:
 
-### Top-level split: `(auth)` vs `(main)`
+- `NavSlotProvider`, the context that lets pages push content into the nav (entity titles, left/right slots, mega menu and mobile search state). Because it wraps every group, `NavSlotContext` works in all of them.
+- `NavHistoryTracker`, which records in-app navigation so `safeRouterBack` knows whether one of our pages is behind the current one.
+- `MobileFloatingCreate`, the mobile create button (see below).
 
-Two groups hang off the root layout:
+### Feature Groups Under `(main)`
 
-- **`(auth)`** — holds login/registration routes. It has its own `layout.tsx` because auth screens do not want the application topbar/sidebar chrome. It is a sibling of `(main)`, not a child, so that the authenticated shell never wraps an unauthenticated screen.
-- **`(main)`** — the authenticated application. Every feature group lives inside it. Because `(main)/layout.tsx` is upstream of all five feature groups, anything mounted there (such as the floating create button) is guaranteed to appear exactly once across the whole authenticated product.
+| Group | `pageType` | Shell | Notes |
+|-------|-----------|-------|-------|
+| [`(feed)`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(feed)/layout.tsx) | `feed` | `TwoColumnShell` with `AppTopbar` and `AppSidebar` | Home, posts, articles and projects lists, network, search, legal pages, account |
+| [`(dashboard)`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/layout.tsx) | `settings` | `TwoColumnShell` with `DashboardSidebar`, `defaultOpen={false}` | Calls `getAuthUserOrRedirect`, then mounts `DashboardNavSlot` with the user's admin orgs |
+| [`(reader)`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(reader)/layout.tsx) | `single-entity` | Hand-built topbar, sidebar, `<main>`, sticky right `<aside>` and `Footer` | The only group with a parallel route (`@sidebar`) for the article/project right rail |
+| [`(profile)`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(profile)/layout.tsx) | `single-entity` | Topbar, sidebar, content and `Footer` | Org and user profiles; each entity layout renders `ProfilePageShell` and tabs |
+| [`(editor)`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(editor)/layout.tsx) | none | `AppTopbar noUser neutralVariant` and `Footer` | Article, project and organisation create/edit forms; deliberately no `SidebarProvider` |
 
-### The five feature groups under `(main)`
-
-Each feature group exists to select a distinct chrome configuration. The differentiator is the `pageType` prop handed to `SidebarProvider`, which drives sidebar behaviour downstream:
-
-| Route group | `pageType` | Shell composition | Verified source |
-|-------------|-----------|-------------------|-----------------|
-| `(feed)` | `"feed"` | `TwoColumnShell` with `AppTopbar` + `AppSidebar`, sidebar open state read from server | [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(feed)/layout.tsx#L13-L17) |
-| `(dashboard)` (settings) | `"settings"` | `TwoColumnShell` with `DashboardNavSlot`, `defaultOpen={false}` | [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/layout.tsx#L21-L30) |
-| `(reader)` | `"single-entity"` | `SidebarProvider` + `Footer` + `STICKY_ASIDE_CLASS`, parallel `@sidebar` slot | [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(reader)/layout.tsx#L18-L36) |
-| `(profile)` | `"single-entity"` | `SidebarProvider` + `Footer`, sidebar open state from server | [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(profile)/layout.tsx#L13-L22) |
-| `(editor)` | *none* | **Deliberately not wrapped in `SidebarProvider`** | [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L586-L588) |
-
-#### Why `(reader)` and `(profile)` share `pageType="single-entity"`
-
-Both groups render entity-scoped pages (`/projects/[slug]`, `/articles/[slug]`, `/organisations/[handle]`, `/profile/[handle]`) where the page itself is the subject and the sidebar is secondary. Giving them the same `pageType` means the TopNav's section indicator can render the entity name rather than the section name — the mechanism wired by `EntityTitleSlot`.
-
-#### Why `(editor)` has no `SidebarProvider`
-
-The editor chrome is intentionally chrome-free: no sidebar, no sidebar toggle, no wordmark. Rather than adding a conditional branch inside a shell, the codebase achieves this by simply *not providing* a `SidebarProvider` for that group, relying on the `useSidebarSafe` fallback in `TopNav` to degrade gracefully when the context is absent.
-
-> Source: [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L586-L588)
-
-### Nested groups: sub-partitioning without new URLs
-
-Groups nest when a sub-tree needs a different access tier or data scope than its siblings, while still inheriting the parent's shell:
-
-```mermaid
-flowchart LR
-    subgraph sg_FeedNest["(feed)"]
-        FeedBase["(feed)/layout.tsx"]
-        Private["(private)<br/>account/layout.tsx"]
-        Public["(public)<br/>projects/layout.tsx"]
-    end
-
-    subgraph sg_SettingsNest["(dashboard)/settings"]
-        SettingsBase["(dashboard)/layout.tsx"]
-        Personal["(personal)/layout.tsx<br/>personal/organizations/layout.tsx"]
-        Orgs["(organizations)/layout.tsx<br/>members/layout.tsx"]
-    end
-
-    FeedBase --> Private
-    FeedBase --> Public
-    SettingsBase --> Personal
-    SettingsBase --> Orgs
-```
-
-The verified nested layout set:
-
-- `(feed)/(private)/layout.tsx` and `(feed)/(private)/account/layout.tsx` — an auth-gated sub-tree (account surfaces) inside the feed.
-- `(feed)/(public)/projects/layout.tsx` — a publicly reachable sub-tree inside the feed.
-- `(dashboard)/settings/(personal)/layout.tsx` and `(dashboard)/settings/(personal)/organizations/layout.tsx` — personal-scope settings pages.
-- `(dashboard)/settings/(organizations)/layout.tsx` and `(dashboard)/settings/(organizations)/members/layout.tsx` — organisation-scope settings pages.
-
-Because `(private)`, `(public)`, `(personal)`, and `(organizations)` are all parenthesized, **none of them appear in the URL**. `/settings/members` and `/settings/organizations` are both reachable under `/settings`, distinguished only by which layout chain wraps them. This is the core reason the logging convention treats route-group stripping as mandatory rather than cosmetic.
-
-> Sources:
-> - [logging-conventions.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md#L7-L11)
-> - [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L571-L600)
-
-## Layout Chain and the Shell Contract
-
-Every layout in the tree is short and declarative: it reads server-side state, selects a `pageType`, and renders a shell primitive with named props. This keeps chrome policy in one place per group and keeps pages free of layout concerns.
-
-### The `(feed)` layout: server-read sidebar state
-
-The feed layout demonstrates the canonical pattern — read the persisted sidebar open state on the server, then pass it to the provider so the shell renders without a client-side flash:
+`(feed)`, `(reader)` and `(profile)` read the sidebar open state on the server with [`getSidebarOpen`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/data/sidebar-state.server.ts), which reads the persisted state from a cookie. `SidebarProvider` then starts in the right state and the sidebar never flashes open and collapses. The feed layout is the canonical shape:
 
 ```tsx
-import { AppSidebar, AppTopbar } from "@/components/nav";
-import { SidebarProvider, TwoColumnShell } from "@/components/ui";
-import { getSidebarOpen } from "@/utils/data/sidebar-state.server";
-// ...
+const sidebarOpen = await getSidebarOpen("feed");
 return (
   <SidebarProvider pageType="feed" defaultOpen={sidebarOpen}>
     <TwoColumnShell topbar={<AppTopbar />} sidebar={<AppSidebar />}>
+      {children}
+    </TwoColumnShell>
+  </SidebarProvider>
+);
 ```
 
-> Source: [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(feed)/layout.tsx#L1-L14)
+`(dashboard)` hardcodes `defaultOpen={false}`, because settings is visited on purpose and starts collapsed whatever the user's feed preference is. `(reader)` and `(profile)` share `pageType="single-entity"` because the entity itself is the subject of the page, and the sidebar is secondary.
 
-The design intent: `defaultOpen` must be resolved *before* the first paint. `getSidebarOpen` (a `.server` module) reads the user's persisted preference server-side, so `SidebarProvider` can initialise with the correct state and the shell never renders an open sidebar that immediately collapses. `TwoColumnShell` receives `topbar` and `sidebar` as React nodes rather than as configuration, which makes the shell agnostic about what the chrome actually is.
+The shells live in [`src/components/ui/layout/shells/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/layout/shells). `TwoColumnShell` takes `topbar` and `sidebar` as React nodes and centres the content column at the shared content width, so it doesn't care what the chrome is. `SidebarShell` is the sticky left column used inside `DashboardSidebar`. Widths come from the shared layout constants, not from the layouts.
 
-### The `(dashboard)` layout: auth gate plus settings nav slot
+### Auth Tiers
 
-The settings group adds an authorization gate in addition to its shell:
+Auth is enforced on the server in layouts and pages. The middleware does not redirect anonymous users (see [Middleware & Sessions](../middleware-sessions/)).
 
-```tsx
-import { DashboardNavSlot } from "@/components/nav/slots";
-import { SidebarProvider, TwoColumnShell } from "@/components/ui";
-import { getAuthUserOrRedirect } from "@/lib/supabase/queries/auth";
-// ...
-return (
-  <SidebarProvider pageType="settings" defaultOpen={false}>
-    <TwoColumnShell
-```
+- **`(dashboard)`** gates its whole subtree: `DashboardShell` calls `getAuthUserOrRedirect` inside a `Suspense`, so no settings page has to repeat the check.
+- **`(feed)/(private)`** does not gate in its layout. [Its layout](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(feed)/(private)/layout.tsx) only renders `DynamicMarker` (an `await connection()`), which forces the subtree to render dynamically. Each page under it (`/account/posts`, `/account/organizations`) calls `getAuthUserOrRedirect` itself. An ESLint rule blocks the public Supabase client in files under `(private)`.
+- **`(editor)`** pages each call `getAuthUserOrRedirect`.
+- Everything else under `(main)` is public. It renders for visitors and personalises when a session exists.
 
-> Source: [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/layout.tsx#L3-L22)
+### Entity Titles in the Nav
 
-Two things distinguish this layout. First, `getAuthUserOrRedirect` is invoked *in the layout*, meaning every descendant route is gated by the layout's execution — no individual settings page needs to repeat the check. Second, `defaultOpen={false}` is hardcoded rather than server-read: settings is a deliberate-visit surface, so the correct default is always collapsed regardless of the user's feed preference. The right-hand slot is supplied by `DashboardNavSlot` instead of a generic `AppSidebar`, which is how the settings-specific rail and its composite `rightSlot` (`BackControl` + `NavUser`) get injected.
+The topbar sometimes needs data owned by a page deep in the tree. Rather than pass props through layouts, a page or layout publishes its entity title into `NavSlotContext` with [`EntityTitleSlot`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/EntityTitleSlot.tsx), and [`SectionIndicator`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/components/SectionIndicator.tsx) reads it and shows the entity name with a `BackControl` to the parent section. On unmount, the slot clears the title only if it still owns it.
 
-### The `(reader)` layout: parallel route slot
+`EntityTitleSlot` is mounted in two places, both in `(profile)`: [`organizations/[slug]/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(profile)/organizations/[slug]/layout.tsx) (the org name) and [`profiles/[username]/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(profile)/profiles/[username]/layout.tsx) (the display name). Putting it in the entity layout means every tab under `/organizations/[slug]/*` and `/profiles/[username]/*` gets the title. Reader pages use their own nav slots instead (for example `ProjectNavSlot` sets the left slot).
 
-The reader layout is the only group that consumes a Next.js **parallel route**:
+### Mobile Floating Create
 
-```tsx
-return (
-  <SidebarProvider pageType="single-entity" defaultOpen={sidebarOpen}>
-    <div className="flex w-full flex-col">
-```
+[`MobileFloatingCreate`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/components/MobileFloatingCreate.tsx) is mounted once, from `(main)/layout.tsx`. It opens a Create menu on mobile, and sends visitors to login. It hides itself on form, settings and auth routes. The list lives in the component.
 
-> Source: [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(reader)/layout.tsx#L17-L19)
+The hide logic lives in the component, not the layout, because `(main)/layout.tsx` cannot tell a project form from a project reader page by its own position in the tree. Both are its descendants, and the difference is in URL segments (`new`, `edit`) resolved much further down. Keeping the URL-shaped rules next to the component keeps the layout a plain mount point.
 
-It imports `Footer`, `SidebarProvider`, and `STICKY_ASIDE_CLASS`, and keeps a parallel `@sidebar` slot — the reader's right rail. That slot is explicitly **out of scope** for the navigation-consistency work, i.e. it is a deliberate exception retained at this level rather than migrated into the shared shell:
+## Route Groups Are Stripped, Not Renamed
 
-> Keep the parallel `@sidebar` slot as-is — reader right rail is out of scope for these tickets.
-> — [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L571-L575)
+[`docs/logging-conventions.md`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md) derives logger categories from the real path with the parenthesised segments removed, taking the first real segment after `app`. A file at `app/(main)/(feed)/(public)/(home)/page.tsx` logs as `["app", "feed"]`, not `["app", "home"]`. Groups are layout names, not domain names, so wrappers such as `(public)`, `(private)` and `(home)` must not become categories. Server Actions always use `["actions", X]`, and root-level files use `["app", "root"]`. See [Logging & Observability](../../operations/logging-observability/) for the full taxonomy.
 
-### `(profile)` layout: same entity semantics, simpler shell
+## Failure Modes & Edge Cases
 
-```tsx
-return (
-  <SidebarProvider pageType="single-entity" defaultOpen={sidebarOpen}>
-    <div className="flex w-full flex-col">
-```
-
-> Source: [layout.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(profile)/layout.tsx#L12-L14)
-
-### Layout composition summary
-
-```mermaid
-sequenceDiagram
-    participant Req as Request
-    participant Root as app/layout.tsx
-    participant Main as (main)/layout.tsx
-    participant Group as (feed)/layout.tsx
-    participant Shell as TwoColumnShell
-    participant Page as page.tsx
-
-    Req->>Root: resolve route
-    Root->>Main: render nested layout
-    Main->>Main: mount MobileFloatingCreate
-    Main->>Group: render nested layout
-    Group->>Group: getSidebarOpen() (server)
-    Group->>Shell: SidebarProvider pageType=feed defaultOpen
-    Shell->>Shell: render AppTopbar + AppSidebar
-    Shell->>Page: render page into main column
-```
-
-Each layer only knows about the layer immediately below it. The root layout owns document/global concerns, `(main)` owns authenticated-product-wide overlays, the feature group owns chrome selection, the shell owns spatial composition, and the page owns content. This is why adding a new overlay that must appear everywhere in the authenticated app is a one-line change at `(main)/layout.tsx`.
-
-## Shell Primitives Selected by Route Group
-
-Route groups do not render raw HTML structure; they delegate to shell primitives in `src/components/ui/layout/shells/`. The two shells referenced by the layouts on this page are:
-
-| Shell | Used by | Documented responsibility |
-|-------|---------|--------------------------|
-| `TwoColumnShell` | `(feed)`, `(dashboard)` | Topbar + sidebar column + main content column, `max-w-[1048px]` centred main, `md:min-w-[1024px]` outer container, sidebar sticky to viewport left edge |
-| `SidebarShell` | Sidebar internals | `full` / `icon` / `hidden` size variants, 40px width in `icon` mode |
-
-The `TwoColumnShell` behaviour is specified in the design plan as: left sidebar sticks to the viewport's left edge on wide screens; main content is `max-w-[1048px]` centred in the space right of the sidebar; when the sidebar is closed the fixed left column is **removed from the layout tree** (rather than collapsed to zero width) and main centres across the full viewport; an outer `md:min-w-[1024px]` is applied.
-
-> Source: [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L560-L569)
-
-The `(reader)` layout additionally bumps its `<main>` to `max-w-[1048px]`, aligning it with the shared content width so reader pages and feed pages share the same measure.
-
-> Source: [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L574)
-
-## Convention: Route Groups Are Stripped, Not Renamed
-
-The most operationally important consequence of the route-group design is captured by a hard rule in the logging conventions:
-
-> **Route groups are stripped, not renamed.** For files under `src/app`, derive the category from the real path with parenthesized route-group segments removed — never invent a replacement word. A file at `app/(main)/(feed)/(public)/(home)/page.tsx` → `["app", "feed"]` (first real segment after `app`), not `["app", "home"]`.
-
-> Source: [logging-conventions.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md#L9)
-
-This rule exists because the route groups are *layout* names, not *domain* names. `(feed)` is a valid logging category because it is a real directory on disk and a meaningful product area. `(home)`, `(public)`, and `(private)` are access-tier wrappers with no domain meaning, so promoting them into a logger category would produce misleading, low-cardinality noise. The rule therefore resolves the category from the **first real (non-parenthesized) segment after `app`** and discards everything else in the group chain.
-
-Two adjacent rules reinforce the same principle:
-
-- **Server Actions always use `["actions", X]`**, regardless of which route group they live under — an action's identity is its function, not its file location.
-- **Root-level files use `["app", "root"]`** for files living directly under `src/` or `src/app` (`instrumentation.ts`, `middleware.ts`, `layout.tsx`, `error.tsx`), rather than inventing a second segment per file.
-
-> Source: [logging-conventions.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md#L10-L11)
-
-Applied to this page's topic, the derived categories are:
-
-| Real file path | Derived logger category |
-|----------------|------------------------|
-| `src/app/(main)/(feed)/(public)/projects/page.tsx` | `["app", "feed"]` |
-| `src/app/(main)/(dashboard)/settings/(personal)/layout.tsx` | `["app", "dashboard"]` |
-| `src/app/(main)/(reader)/projects/[slug]/page.tsx` | `["app", "reader"]` |
-| `src/app/layout.tsx` | `["app", "root"]` |
-| `src/app/api/storage/route.ts` | API route — uses pathname-based logging |
-
-> Sources:
-> - [logging-conventions.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md#L7-L19)
-> - [logging-conventions.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md#L89)
-
-## Cross-Group Coordination: `EntityTitleSlot` and `NavSlotContext`
-
-Route groups partition the tree, but the chrome rendered *by* a group sometimes needs information owned by a *page* deep inside it. Ozeaon solves this with a deliberately small client-side bridge rather than prop-drilling through layout boundaries.
-
-The mechanism is `NavSlotContext`, exposed by `src/components/nav/NavSlotContext.tsx` with the contract:
-
-```ts
-{ sectionEntityName: string | null; setSectionEntityName: (v: string | null) => void }
-```
-
-> Source: [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L492)
-
-A page mounts `EntityTitleSlot` to publish its title upward into that context, and clears it on unmount:
-
-```tsx
-"use client";
-import { useEffect } from "react";
-import { useNavSlot } from "@/components/nav/NavSlotContext";
-
-export function EntityTitleSlot({ title }: { title: string }) {
-  const { setSectionEntityName } = useNavSlot();
-  useEffect(() => {
-    setSectionEntityName(title);
-    return () => setSectionEntityName(null);
-  }, [title, setSectionEntityName]);
-  return null;
-}
-```
-
-> Source: [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L469-L482)
-
-The components that consume this state are `SectionIndicator` (a client component reading `usePathname()` + `NavSlotContext.sectionEntityName` and resolving to a `SectionState`) and `BackControl` (a pill button taking `label` and `href`).
-
-> Sources:
-> - [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L494-L504)
-
-### Which route groups mount it
-
-`EntityTitleSlot` is mounted from each single-entity page's Server Component — which by construction means pages inside the two `pageType="single-entity"` groups:
-
-| Route group | Mounting pages |
-|-------------|---------------|
-| `(reader)` | `(reader)/projects/[slug]/page.tsx`, `(reader)/articles/[slug]/page.tsx`, `(reader)/organisations/[handle]/page.tsx`, `(reader)/profile/[handle]/page.tsx` |
-| `(editor)` | its editor counterparts |
-
-> Sources:
-> - [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L484-L490)
-
-This is a direct architectural payoff of the route-group design: because `(reader)` and `(profile)` were assigned the same `pageType`, and because every single-entity page follows the same mounting convention, the TopNav can render "the entity's own name" instead of the section title uniformly, without the layout needing to know which entity type it is wrapping.
-
-```mermaid
-flowchart LR
-    subgraph sg_Page["Page (Server Component)"]
-        Page["(reader)/projects/[slug]/page.tsx"]
-        Slot["EntityTitleSlot<br/>title=project name"]
-    end
-
-    subgraph sg_Ctx["NavSlotContext"]
-        Ctx["sectionEntityName"]
-    end
-
-    subgraph sg_Chrome["Chrome (Client)"]
-        Indicator["SectionIndicator"]
-        Back["BackControl"]
-    end
-
-    Page --> Slot
-    Slot -->|"setSectionEntityName(title)"| Ctx
-    Slot -.->|"cleanup -> null"| Ctx
-    Ctx --> Indicator
-    Ctx --> Back
-```
-
-## Group-Owned Overlays: `MobileFloatingCreate`
-
-Not all cross-cutting chrome is a slot. The mobile floating create button is a **group-owned overlay**, mounted exactly once from `(main)/layout.tsx`:
-
-> New component (`src/components/nav/MobileFloatingCreate.tsx`), mounted once from `src/app/(main)/layout.tsx`.
-> — [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L439)
-
-It renders `fixed` to the bottom-right corner, does not move on scroll, uses a 36×36px minimum tap target with 16px screen-edge padding, and opens a Create menu with Article / Project / Organisation entries. Visitor taps redirect to `/login?redirect=<current-path>`.
-
-> Source: [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L439-L445)
-
-Crucially, it **handles its own route-based hide rules internally** rather than relying on the layout to decide. It is hidden on:
-
-- Profile Settings and Organisation Settings
-- Project form (`/projects/new`, `/projects/[slug]/edit`)
-- Article form (create / edit)
-- Organisation create form
-- Any composer-open state
-- Login / Registration
-
-> Sources:
-> - [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L447-L455)
-> - [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L506-L508)
-
-### Why the hide logic lives in the component, not the layout
-
-Because route groups are invisible in the URL, `(main)/layout.tsx` cannot tell "project form" apart from "project reader page" by inspecting its own position in the tree — both are descendants of the same layout, and the distinguishing information is in the `[slug]` / `new` / `edit` URL segments resolved much further down. Centralising the exclusion list inside the component keeps the layout a pure mount point and keeps the (URL-shaped) exclusion rules co-located with the component that needs them.
-
-## Failure Modes and Edge Cases
-
-### Absent `SidebarProvider` (the `(editor)` case)
-
-The `(editor)` group intentionally omits `SidebarProvider`. Any client chrome component that consumes sidebar context via a naive hook would crash. The codebase handles this with `useSidebarSafe`, a fallback used by `TopNav`:
-
-> Do not wrap in `SidebarProvider`. The editor chrome (no sidebar, no toggle, no wordmark) is produced by the `useSidebarSafe` fallback in `TopNav`.
-> — [DESIGN-CONSISTENCY-PLAN.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L588)
-
-The lesson for anyone adding a new route group: if the group is not wrapped in `SidebarProvider`, every context-consuming chrome component downstream must go through the `*Safe` variant.
-
-### Sidebar state mismatch
-
-`(feed)` and `(reader)`/`(profile)` read `defaultOpen` from `getSidebarOpen`, while `(dashboard)` hardcodes `defaultOpen={false}`. A page moved between groups therefore inherits a *different* default sidebar state — this is intentional (settings is always collapsed) but is a real behavioural difference to be aware of when relocating routes.
-
-### Route-group renaming breaks logging categories
-
-Because logging categories are derived by stripping parenthesized segments and taking the first real segment, renaming or re-parenting a feature group changes every logger category beneath it. Renaming `(feed)` to something else silently re-tags all feed logs. The convention explicitly warns against the inverse mistake — inventing a replacement word for a stripped group ("`app/(feed)/(public)/(home)/page.tsx` → `['app', 'home']`" is called out as *wrong*).
-
-> Source: [logging-conventions.md](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md#L9)
-
-### Same URL, different group chain
-
-Since `(private)`, `(public)`, `(personal)`, and `(organizations)` are stripped from the URL, two routes with similar URL shapes can be nested under different layouts with different auth requirements and different shells. Anyone debugging a layout that "isn't applying" should verify *which* group chain the route file physically lives in rather than trusting the URL.
+- **No `SidebarProvider` in `(editor)`.** Chrome that reads sidebar context must go through `useSidebarSafe` (as `TopNav` does). A plain `useSidebar` under `(editor)`, or under any new group without a provider, throws.
+- **Different sidebar defaults per group.** Moving a route from `(feed)` to `(dashboard)` changes its starting sidebar state from the user's saved preference to always collapsed.
+- **A new page under `(private)` is not gated automatically.** The `(private)` layout only makes the subtree dynamic, so the page must call `getAuthUserOrRedirect` (or `getAuthUser` and handle `null`) itself.
+- **Renaming or re-parenting a group changes logger categories.** Every logger beneath it is re-tagged.
+- **Stale hide patterns.** `MobileFloatingCreate` also hides on `/login` and `/register`, but those routes are outside `(main)` (and the signup route is `/signup`), so those entries never match a page that mounts it.
 
 ## Extension Points
 
-When adding to the application structure, the verified patterns suggest:
-
-1. **New feature area with existing chrome** — add a directory under the appropriate existing group; no new layout needed if the shell is unchanged.
-2. **New feature area needing distinct chrome** — create a new `(group)` directory under `(main)` with its own `layout.tsx`, choose a `pageType`, and pick the shell primitive (`TwoColumnShell` or `SidebarShell`).
-3. **New access tier within an existing group** — nest a parenthesized sub-group (like `(private)` / `(public)`) rather than a named directory, so the URL space is unaffected.
-4. **New global overlay** — mount from `(main)/layout.tsx`, and implement route-based visibility internally if the rules depend on URL segments.
-5. **New context-consuming chrome** — go through the `*Safe` hook variants so the `(editor)`-style unwrapped group does not break.
+1. **New area with existing chrome:** add a directory under the right group. No new layout is needed.
+2. **New area with different chrome:** add a `(group)` under `(main)` with its own `layout.tsx`, choose a `pageType`, and choose a shell.
+3. **New access tier in a group:** nest a parenthesised sub-group (as `(private)`/`(public)` do) so the URLs stay the same. Remember the gate goes in the layout or page, not the group name.
+4. **New global overlay or provider:** mount it in `(main)/layout.tsx`. If visibility depends on the URL, put the rules in the component.
+5. **New entity page that should show its name in the nav:** render `EntityTitleSlot` in the entity's layout.
 
 ## Related Links
 
-- [Feed route group layout](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(feed)/layout.tsx) — `pageType="feed"` with server-read sidebar state
-- [Dashboard (settings) route group layout](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/layout.tsx) — `pageType="settings"` with an auth gate
-- [Reader route group layout](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(reader)/layout.tsx) — `pageType="single-entity"` with parallel `@sidebar` slot
-- [Profile route group layout](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(profile)/layout.tsx) — `pageType="single-entity"` with footer
-- [Auth route group layout](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(auth)/layout.tsx) — chrome-free authentication shell
-- [Root layout](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/layout.tsx) — top-level document layout
-- [Logging Conventions](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/docs/logging-conventions.md#L7-L11) — route-group stripping rule for logger categories
-- [Design Consistency Plan](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/DESIGN-CONSISTENCY-PLAN.md#L571-L600) — per-layout change specification for the navigation rework
+- [Navigation System](../../design-system/navigation-system/)
+- [Middleware & Sessions](../middleware-sessions/)
+- [Supabase Client Patterns](../supabase-client-patterns/)
+- [SSR Rendering & Caching](../ssr-rendering-and-caching/)
+- [Logging & Observability](../../operations/logging-observability/)
+- [`src/app` on GitHub](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/app)
