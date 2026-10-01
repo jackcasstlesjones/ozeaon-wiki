@@ -9,7 +9,7 @@ Every user and organisation created before the alpha cutoff gets a **Founding Me
 
 ## The Window
 
-The cutoff is **2026-12-02 00:00 UTC**, defined once in `private.alpha_badge_window_open()`:
+The cutoff is **midnight UTC at the start of 2 December 2026**, defined once in `private.alpha_badge_window_open()`:
 
 ```sql
 SELECT now() < timestamptz '2026-12-02 00:00:00+00'
