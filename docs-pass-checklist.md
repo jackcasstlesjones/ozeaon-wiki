@@ -583,12 +583,12 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [x] STALE-DETAIL L12–219: All 10 entries have Kind and Used in lines plus props tables. → Cut to 1–3 sentences plus **Source:**. Keep: deterministic initials colour from a hash of the name; the AuthorByline fallback order; `last:sr-only` on the divider; the whole-card overlay link with a raised button in `UserGridCard`; `ListHeader`'s back link has no accessible label. About 219 → 70 lines.
 
 ### components/ui/actions.md
-- [ ] FORMAT L138–140: The "## index.ts" barrel entry is a catalog heading. → Fold it into the intro ("Import from `@/components/ui/actions`"; already said at L8) and delete the section. The same applies to cards, comments and errors.
-- [ ] STALE-DETAIL L10–136: All 4 entries have Kind and Used in lines plus props tables (spinner sizes, gap classes). → Cut to 1–3 sentences plus **Source:**. Keep: `LoadingButton` drops icons while loading; `LikeButton` is presentational, and its count lives in a fixed `<data>` slot so the layout doesn't shift. About 140 → 45 lines.
+- [x] FORMAT L138–140: The "## index.ts" barrel entry is a catalog heading. → Fold it into the intro ("Import from `@/components/ui/actions`"; already said at L8) and delete the section. The same applies to cards, comments and errors.
+- [x] STALE-DETAIL L10–136: All 4 entries have Kind and Used in lines plus props tables (spinner sizes, gap classes). → Cut to 1–3 sentences plus **Source:**. Keep: `LoadingButton` drops icons while loading; `LikeButton` is presentational, and its count lives in a fixed `<data>` slot so the layout doesn't shift. About 140 → 45 lines.
 
 ### components/ui/cards.md
-- [ ] FORMAT L268–270: The "## index.ts" section. → Remove it (L8 already says what the barrel exports).
-- [ ] STALE-DETAIL L10–266: All 5 entries have Kind and Used in lines plus props tables, and pixel and class detail (`w-75`, `sizes="28rem"`). → Cut to 1–3 sentences plus **Source:**. Keep one composed snippet showing `CondensedCard*` used together. About 130 → 45 lines.
+- [x] FORMAT L268–270: The "## index.ts" section. → Remove it (L8 already says what the barrel exports).
+- [x] STALE-DETAIL L10–266: All 5 entries have Kind and Used in lines plus props tables, and pixel and class detail (`w-75`, `sizes="28rem"`). → Cut to 1–3 sentences plus **Source:**. Keep one composed snippet showing `CondensedCard*` used together. About 130 → 45 lines.
 
 ### components/ui/comments.md
 - [ ] FORMAT L36–44: "Notable behaviour:" is followed directly by a table, not bullets. → Make the entity → API/realtime table a short "Architecture" paragraph under `EntityComments`.
@@ -632,7 +632,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [ ] STALE-DETAIL L189–191: The root barrel paragraph enumerates every re-export. → "`@/components/ui` re-exports a curated subset; notably not `Carousel`, `NavTabs`, `FlexBox`, `FilterTabs`, `ZoomableImage`, `GenericInfiniteFeed`, `DynamicMarker`" plus a link. About 191 → 60 lines.
 
 ### components/ui/overlays.md
-- [ ] STALE-DETAIL L10–133: All 4 entries have Kind and Used in lines plus props tables. → 1–3 sentences plus Source. Keep:
+- [x] STALE-DETAIL L10–133: All 4 entries have Kind and Used in lines plus props tables. → 1–3 sentences plus Source. Keep:
   - `ConfirmDialog`: confirming doesn't close the dialog; `isLoading` only disables the buttons (no spinner).
   - `ConfirmDeleteDialog`: requires a trimmed, case-sensitive `DELETE`.
   - `ModerationRejectedDialog`: has no close X; most callers spread `dialogProps` from the moderation hook.
