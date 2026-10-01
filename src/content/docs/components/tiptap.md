@@ -13,7 +13,7 @@ The barrel [`index.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87
 
 ## Consumer
 
-The only call site in the app is `InputContent` ([src/components/ui/forms/hook-form/InputContent.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/InputContent.tsx)), the React Hook Form field used in the [article authoring](../../features/articles-authoring/) form's `ContentSection`. `InputContent` builds an `imageUploadConfig` when `objectId` is set (5 MB per file, 50 MB total, 10 images, png/jpeg/webp, upload URL `/api/articles/{id}/content/image`) and exposes a `save(id)` method that calls `flush(id)` — forwarding the new article ID — to persist the body for a record created after the editor mounted.
+The only call site in the app is `InputContent` ([src/components/ui/forms/hook-form/InputContent.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/InputContent.tsx)), the React Hook Form field used in the [article authoring](../../articles/articles-authoring/) form's `ContentSection`. `InputContent` builds an `imageUploadConfig` when `objectId` is set (5 MB per file, 50 MB total, 10 images, png/jpeg/webp, upload URL `/api/articles/{id}/content/image`) and exposes a `save(id)` method that calls `flush(id)` — forwarding the new article ID — to persist the body for a record created after the editor mounted.
 
 ```mermaid
 flowchart LR
@@ -47,4 +47,4 @@ flowchart LR
 - [Tiptap Editor Core & Extensions](../../editor/tiptap-core/)
 - [Toolbar, Upload Registry & Editor API](../../editor/toolbar-and-api/)
 - [components/ui/forms](../ui/forms/) — `InputContent` lives in `hook-form/`
-- [features/articles-authoring](../../features/articles-authoring/) — the article form that uses `InputContent`
+- [features/articles-authoring](../../articles/articles-authoring/) — the article form that uses `InputContent`

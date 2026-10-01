@@ -63,5 +63,5 @@ The full `StorageAdapter` API (including `uploadBuffer`, `getFile`, `headFile`, 
 ## Related Links
 
 - [Moderation](../moderation/) — image moderation runs inside the upload pipeline
-- [Media & Images](../../features/media-and-images/) — image upload hooks and routes
+- [Media & Images](../media-and-images/) — image upload hooks and routes
 - [Email & Marketing](../email-and-marketing/) — other external integrations

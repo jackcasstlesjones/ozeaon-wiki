@@ -5,7 +5,7 @@ description: Organization feed cards, the create and settings forms, member mana
 
 Organization components serve three audiences: the public feed (`OrganizationsInfiniteFeed`, `OrganizationCard`), the signed-in user's own memberships and invitations (`OrganizationsTabs` and the `User*Card` trio), and organization admins (the members screens and the two forms). There are no barrel files; import each component from its file path. Client cards send `fetch` calls to `/api/organizations/{orgId}/…` and then call `router.refresh()`; invites are the exception and go through the `inviteMember` server action.
 
-See also: [Organizations feature](../../features/organizations/)
+See also: [Organizations feature](../../organisations/organisations/)
 
 ```mermaid
 flowchart LR

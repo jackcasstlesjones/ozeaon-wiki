@@ -2,7 +2,7 @@
 title: "User Profiles & Social Graph"
 description: "User profiles, profile images, and the (currently unwired) follow, connection and blocking graph."
 sidebar:
-  order: 7
+  order: 1
 ---
 
 This page covers how a member is represented on Ozeaon (the `user_profiles` row, its card and hero projections, avatar and cover uploads) and the social graph between members: directed follows, bilateral connection requests with an audit history, and blocks.
@@ -22,7 +22,7 @@ The social graph models two different user-to-user relationships, and the distin
 | Follow | `user_follows` | One-directional interest edge | None |
 | Connection | `user_connections` | Mutual relationship via request and acceptance | The recipient must accept |
 
-Accepting a connection also creates mutual follows. Every pending window of a connection request is mirrored into `user_connection_history`, and blocks live in `user_blocks`. Organization follows (`organization_follows`) are not part of this graph; see [Organization Profiles, Membership & Roles](../organizations/).
+Accepting a connection also creates mutual follows. Every pending window of a connection request is mirrored into `user_connection_history`, and blocks live in `user_blocks`. Organization follows (`organization_follows`) are not part of this graph; see [Organization Profiles, Membership & Roles](../../organisations/organisations/).
 
 ## Architecture
 
@@ -51,7 +51,7 @@ flowchart TD
 
 ## Profile Images
 
-Avatar and cover uploads share one hook, [`use-profile-image-upload`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-profile-image-upload.ts), parameterized by `type` (`avatar` or `coverImage`). It uploads through the shared moderated upload helper to [`/api/profile/image?type=…`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/profile/image/route.ts) (removal is a `DELETE` to the same endpoint), so both slots get the same moderation and error mapping; see [Media & Images](../media-and-images/). After either operation it calls `refreshProfile()` from `useAuth()` and `router.refresh()`, so the new image shows across the session without a reload.
+Avatar and cover uploads share one hook, [`use-profile-image-upload`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-profile-image-upload.ts), parameterized by `type` (`avatar` or `coverImage`). It uploads through the shared moderated upload helper to [`/api/profile/image?type=…`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/profile/image/route.ts) (removal is a `DELETE` to the same endpoint), so both slots get the same moderation and error mapping; see [Media & Images](../../moderation-and-storage/media-and-images/). After either operation it calls `refreshProfile()` from `useAuth()` and `router.refresh()`, so the new image shows across the session without a reload.
 
 ## Connection Request Lifecycle
 
@@ -117,9 +117,9 @@ The other dormant actions in `queries/profile.ts` are `disconnectConnection`, `u
 
 ## Related Links
 
-- [Media & Images](../media-and-images/)
-- [Organization Profiles, Membership & Roles](../organizations/)
-- [Posts](../posts/)
+- [Media & Images](../../moderation-and-storage/media-and-images/)
+- [Organization Profiles, Membership & Roles](../../organisations/organisations/)
+- [Posts](../../posts/posts/)
 - [Profiles components](../../components/profiles/)
 - [User Settings](../../auth-and-accounts/user-settings/)
 - [Data Model & Schema](../../architecture/data-model-and-schema/)

@@ -82,7 +82,7 @@ Details worth knowing when extending it:
 
 ## Feature Hooks
 
-Notifications, comments, posting, moderation, and form hooks are documented on their feature pages: [Notifications](../../features/notifications/), [Comments & Reactions](../../features/comments-and-reactions/), [Posts](../../features/posts/). Three hooks are described here because they sit at the intersection of multiple features or have unusual conventions.
+Notifications, comments, posting, moderation, and form hooks are documented on their feature pages: [Notifications](../../community/notifications/), [Comments & Reactions](../../community/comments-and-reactions/), [Posts](../../posts/posts/). Three hooks are described here because they sit at the intersection of multiple features or have unusual conventions.
 
 ### `useArticleValidation`
 
@@ -121,7 +121,7 @@ The hook also returns `handleRepost(postId)`, which only logs the call and retur
 ## Related Links
 
 - [`src/hooks/index.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/index.ts) — barrel export contract
-- [Notifications](../../features/notifications/) — `useNotifications`, `useNotificationCount`
-- [Comments & Reactions](../../features/comments-and-reactions/) — `useThreadComments`, `useCommentIdentity`
-- [Posts](../../features/posts/) — `useCreatePost`, `usePostImages`, `useRepost`
+- [Notifications](../../community/notifications/) — `useNotifications`, `useNotificationCount`
+- [Comments & Reactions](../../community/comments-and-reactions/) — `useThreadComments`, `useCommentIdentity`
+- [Posts](../../posts/posts/) — `useCreatePost`, `usePostImages`, `useRepost`
 - [Logging & Observability](../../operations/logging-observability/) — logger consumed by `useAsyncAction`

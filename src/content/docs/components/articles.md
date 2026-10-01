@@ -5,7 +5,7 @@ description: Components for article feeds and cards, the article authoring form,
 
 `src/components/articles/` covers three surfaces: feed cards and lists, the single-page authoring form at `/articles/new`, and the public reader at `/articles/[slug]`. Import from the barrel at `@/components/articles` or by path for internal pieces.
 
-See also: [Article Authoring & Publishing](../../features/articles-authoring/) and [Article Reader](../../features/articles-reader/).
+See also: [Article Authoring & Publishing](../../articles/articles-authoring/) and [Article Reader](../../articles/articles-reader/).
 
 The form's write path works as follows: the `/articles/new` server page fetches lookup tables and any existing draft, then passes them to the client `ArticleForm`. The form writes fields to `/api/articles` (POST to create, PATCH to update). The Tiptap body goes through `/api/articles/{id}/content`, and files upload to dedicated `/api/articles/{id}/...` routes.
 

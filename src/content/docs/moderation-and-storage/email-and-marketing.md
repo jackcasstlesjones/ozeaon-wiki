@@ -59,4 +59,4 @@ When notification emails and other transactional sends ship, they will go throug
 
 - [Moderation](../moderation/) — content moderation pipeline
 - [Storage (R2)](../storage-r2/) — object storage
-- [Notifications](../../features/notifications/) — notification pipeline (in progress)
+- [Notifications](../../community/notifications/) — notification pipeline (in progress)

@@ -3,7 +3,7 @@ title: "Notifications"
 description: The unread-notifications overlay opened from the top nav bell, and its row and skeleton components.
 ---
 
-These components render the notification overlay. Import them from `@/components/notifications`. See also [Notifications](../../features/notifications/).
+These components render the notification overlay. Import them from `@/components/notifications`. See also [Notifications](../../community/notifications/).
 
 :::note[In progress]
 Notifications are in progress (first release). The bell and overlay update in realtime and render only when `env.features.notifications` is on. The dedicated notifications page doesn't exist yet: the mobile bell renders without an overlay. Settings, grouping and digests are planned.

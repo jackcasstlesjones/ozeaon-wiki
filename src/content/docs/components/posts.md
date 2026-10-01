@@ -3,7 +3,7 @@ title: "Posts"
 description: The community feed — post cards and their attachments, like/repost/comment actions, the infinite feed, and the mobile/desktop post composer.
 ---
 
-`src/components/posts/` builds the Posts feed, each post card, the composer and its attachments. Import cards from `@/components/posts/cards`, attachments from `@/components/posts/attachments`, and utilities from `@/components/posts/utils`. See also [Posts](../../features/posts/).
+`src/components/posts/` builds the Posts feed, each post card, the composer and its attachments. Import cards from `@/components/posts/cards`, attachments from `@/components/posts/attachments`, and utilities from `@/components/posts/utils`. See also [Posts](../../posts/posts/).
 
 ```mermaid
 flowchart LR

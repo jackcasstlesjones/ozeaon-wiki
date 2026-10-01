@@ -3,7 +3,7 @@ title: "Projects"
 description: Project feeds, cards, the multi-section create/edit form, and the public project page sections.
 ---
 
-`src/components/projects/` covers four surfaces: public feeds and cards, the multi-section create/edit form, the public project page, and shared dialogs. Import cards from `@/components/projects/cards`, form steps from `@/components/projects/form/steps`, and page components from `@/components/projects/page`. See also [Projects](../../features/projects/).
+`src/components/projects/` covers four surfaces: public feeds and cards, the multi-section create/edit form, the public project page, and shared dialogs. Import cards from `@/components/projects/cards`, form steps from `@/components/projects/form/steps`, and page components from `@/components/projects/page`. See also [Projects](../../projects/projects/).
 
 Project funding, donations and rewards are on the roadmap; all funding UI (the disabled toggles in ConfigurationSection, the static "Funding - Soon" badge on CondensedProjectCard, the "Fund - Coming Soon" CTA in ProjectHeroCta, and FundingSection) is placeholder.
 

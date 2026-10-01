@@ -25,7 +25,7 @@ The history falls into a few eras. Read the files themselves for detail. The hea
 | May: security wave | Linter clean-up, `REVOKE … FROM PUBLIC`, dropping `pg_graphql`, and moving RLS helpers into a `private` schema |
 | May–Jul: content plumbing | `article_images`/`article_documents` replacing `article_attachments`, `ON DELETE SET NULL` image FKs, engagement scores and profile fields |
 | Aug: ownership & deletion | Explicit project and article ownership (`owner_id` XOR `organization_id`), shared `private` RLS helpers, comment soft-delete and two-level nesting, the account and org deletion cascades with `delete_user_account()`/`delete_organization()`, the moderation log and the alpha badge |
-| Sep: notifications | The new `notifications` table, trigger-only delivery and narrowed grants. See [Notifications](../../features/notifications/). |
+| Sep: notifications | The new `notifications` table, trigger-only delivery and narrowed grants. See [Notifications](../../community/notifications/). |
 
 :::caution[Schema for unbuilt features]
 Several migrations create objects for features that aren't built yet. Don't read their presence as a working feature:

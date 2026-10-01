@@ -3,7 +3,7 @@ title: "Search"
 description: The desktop and mobile search fields in the top nav, and the infinite results feed on /search.
 ---
 
-The search UI has three components, all imported from `@/components/search`. Today's search is a basic keyword match on name or title across organizations, projects, articles and people. Search across every content type is on the roadmap. See also [Search & Discovery](../../features/search/).
+The search UI has three components, all imported from `@/components/search`. Today's search is a basic keyword match on name or title across organizations, projects, articles and people. Search across every content type is on the roadmap. See also [Search & Discovery](../../community/search/).
 
 Both search fields read `useSearchParams()`, so `TopNavClient` wraps each in a `Suspense` boundary to keep static pages prerendering.
 

@@ -3,7 +3,7 @@ title: "Users"
 description: Shared user-presentation primitives — avatars, author bylines and meta, user cards, and the Network directory feed.
 ---
 
-The `users/` components show a person anywhere in the app. `UserAvatar` and `AuthorByline` can also show an organization. They take already-fetched data as props and never query Supabase. Import them from `@/components/users`; `ExpandableBio` isn't in the barrel. See also [User Profiles & Social Graph](../../features/profiles-and-social-graph/).
+The `users/` components show a person anywhere in the app. `UserAvatar` and `AuthorByline` can also show an organization. They take already-fetched data as props and never query Supabase. Import them from `@/components/users`; `ExpandableBio` isn't in the barrel. See also [User Profiles & Social Graph](../../profiles/profiles-and-social-graph/).
 
 ## UserAvatar
 

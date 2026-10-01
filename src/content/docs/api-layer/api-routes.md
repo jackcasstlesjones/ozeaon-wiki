@@ -73,19 +73,19 @@ The full route tree is in [`src/app/api`](https://github.com/ozeaon/ozeaon-v2/tr
 
 **Active Account** — `GET`/`POST` to read and switch the active-account cookie. Validates caller is owner or admin of the requested org before writing the cookie. See [Account Switching](../../auth-and-accounts/account-switching/).
 
-**Organizations** — the largest family: org feed and creation, settings, logo/cover upload, search, invites, join requests, custom links, and membership management. Org creation has a four-step gate (ownership cap, Zod validation, slug pre-check, text moderation). Invite revocation allows the invitee to decline their own invite; otherwise owner/admin is required. Membership `PATCH` maps a custom Postgres error (`X0001`) to 409 when a role change would demote the last admin. See [Organizations](../../features/organizations/).
+**Organizations** — the largest family: org feed and creation, settings, logo/cover upload, search, invites, join requests, custom links, and membership management. Org creation has a four-step gate (ownership cap, Zod validation, slug pre-check, text moderation). Invite revocation allows the invitee to decline their own invite; otherwise owner/admin is required. Membership `PATCH` maps a custom Postgres error (`X0001`) to 409 when a role change would demote the last admin. See [Organizations](../../organisations/organisations/).
 
 **Profile** — the caller's own profile row, bio, education, experience, and avatar/cover images. Education and experience are full-CRUD routes; `DELETE` takes a row `id` as a query parameter rather than a dynamic segment, the only CRUD family shaped this way.
 
 **Projects** — project feed (public and dashboard modes from one code path), creation, comments, PDF documents, section images, section deletion, and cover/logo upload. The `userId`/`organizationId` ownership params are validated as UUIDs before interpolation into a PostgREST `or()` filter — a non-UUID value would alter the query grammar, and silently dropping it would widen a scoped request to the entire feed. Creation selects between `projectDraftSchema` and `projectPublishSchema` based on `published: true` in the payload.
 
-**Posts** — `GET`/`POST` on the posts collection, `GET`/`PATCH`/`DELETE` on individual posts, and post image upload at `/api/posts/image`. Post comments use the shared comment factory (see [Comments & Reactions](../../features/comments-and-reactions/)).
+**Posts** — `GET`/`POST` on the posts collection, `GET`/`PATCH`/`DELETE` on individual posts, and post image upload at `/api/posts/image`. Post comments use the shared comment factory (see [Comments & Reactions](../../community/comments-and-reactions/)).
 
 **Storage** — `/api/storage` serves R2 objects with an immutable `Cache-Control` and a quoted ETag. See [Storage & R2](../../moderation-and-storage/storage-r2/).
 
-**Follows** — read-only endpoints for followers/following lists and follow status. Follow and unfollow are server actions in `queries/profile.ts`, not routes. The status endpoint (`/api/follows/:userId/status`) degrades gracefully for anonymous callers, returning `{ isFollowing: false }` rather than 401. See [Profiles & Social Graph](../../features/profiles-and-social-graph/).
+**Follows** — read-only endpoints for followers/following lists and follow status. Follow and unfollow are server actions in `queries/profile.ts`, not routes. The status endpoint (`/api/follows/:userId/status`) degrades gracefully for anonymous callers, returning `{ isFollowing: false }` rather than 401. See [Profiles & Social Graph](../../profiles/profiles-and-social-graph/).
 
-**Search** — `GET /api/search` delegates to `searchContent`, which matches over org names, project/article titles, and profile names and usernames. Global search (posts, body text, tags, SDGs) is **planned**. See [Search](../../features/search/).
+**Search** — `GET /api/search` delegates to `searchContent`, which matches over org names, project/article titles, and profile names and usernames. Global search (posts, body text, tags, SDGs) is **planned**. See [Search](../../community/search/).
 
 **Session** — `GET /api/session` is the client bootstrap for `SessionProvider`. It also repairs a stale active-account cookie pointing at a deleted org, downgrading the response to user mode in the same request — the only place the cookie can be written in a read path.
 
@@ -221,8 +221,8 @@ To add an endpoint:
 - [Edge Functions](../edge-functions/) — Supabase edge functions
 - [Content Moderation](../../moderation-and-storage/moderation/) — the `moderateAndLog` pipeline called by routes
 - [Storage & R2](../../moderation-and-storage/storage-r2/) — image and document upload
-- [Comments & Reactions](../../features/comments-and-reactions/) — comment thread rules and shared factory
-- [Organizations](../../features/organizations/) — org membership model
-- [Profiles & Social Graph](../../features/profiles-and-social-graph/) — follows and blocks
-- [Search](../../features/search/) — search rules and coverage
+- [Comments & Reactions](../../community/comments-and-reactions/) — comment thread rules and shared factory
+- [Organizations](../../organisations/organisations/) — org membership model
+- [Profiles & Social Graph](../../profiles/profiles-and-social-graph/) — follows and blocks
+- [Search](../../community/search/) — search rules and coverage
 - [Account Switching](../../auth-and-accounts/account-switching/) — active-account cookie

@@ -2,7 +2,7 @@
 title: "Article Authoring & Publishing"
 description: "Creating, saving and publishing articles: the editor route, the ArticleForm state model, and the draft vs publish flow."
 sidebar:
-  order: 3
+  order: 1
 ---
 
 The Articles authoring capability lets authenticated users write, save as draft, and publish long-form content with rich-text bodies, authors, licensing, SDGs, categories and attachments. This page covers the editor route, the `ArticleForm` state model, and how draft saves differ from publication. For the reader route and public feeds, see [Article Reader](../articles-reader/).
@@ -177,4 +177,4 @@ The slug is locked from the moment of publishing; the form-wide lock applies onl
 - [Article API routes](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/articles/route.ts)
 - [Article Reader](../articles-reader/) — reader route and static generation
 - [Article components](../../components/articles/)
-- [Media & Images](../media-and-images/) — upload transport and image URL helpers
+- [Media & Images](../../moderation-and-storage/media-and-images/) — upload transport and image URL helpers

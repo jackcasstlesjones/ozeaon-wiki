@@ -158,7 +158,7 @@ export const { PATCH, DELETE } = createCommentItemRoutes(PROJECT_COMMENT_SOURCE)
 | `createCommentThreadRoutes(source)` | `GET` (public, parallel roots + live count, per-root reply caps, redaction) and `POST` (`withAuthUser`, Zod validation, open check, moderation, 201) |
 | `createCommentItemRoutes(source)` | `PATCH` (authorship-scoped update, pre-moderation) and `DELETE` (placeholder rule: soft-delete when replies exist, hard-delete leaf; no open-check by design so authors can retract even when comments are closed) |
 
-The threading rules, redaction, and placeholder behaviour these factories implement are documented in [Comments & Reactions](../../features/comments-and-reactions/).
+The threading rules, redaction, and placeholder behaviour these factories implement are documented in [Comments & Reactions](../../community/comments-and-reactions/).
 
 ## Failure Modes & Edge Cases
 
@@ -197,5 +197,5 @@ The threading rules, redaction, and placeholder behaviour these factories implem
 - [API Routes](../api-routes/) — route handler conventions
 - [Edge Functions](../edge-functions/) — Supabase edge functions
 - [Supabase Client Patterns](../../architecture/supabase-client-patterns/) — client choice rules and the `CommentSource` query half
-- [Comments & Reactions](../../features/comments-and-reactions/) — threading rules the factories implement
+- [Comments & Reactions](../../community/comments-and-reactions/) — threading rules the factories implement
 - [SSR & Caching](../../architecture/ssr-rendering-and-caching/) — rendering rules and caching restrictions

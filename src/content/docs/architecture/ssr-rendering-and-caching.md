@@ -63,7 +63,7 @@ The Content Security Policy is built from environment variables. Both storage ho
 
 ### Images
 
-`images.loader` is `"custom"`, pointing at [`src/lib/image-loader.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/image-loader.ts). The loader rewrites production R2 URLs to Cloudflare Image Transformations (`/cdn-cgi/image/...`) on the storage domain. Cloudflare resizes, re-encodes and edge-caches the image there. Local `/api/storage` URLs get width and quality hints. Everything else passes through unchanged. See [Media & Images](../../features/media-and-images/) and [Storage (R2)](../../moderation-and-storage/storage-r2/).
+`images.loader` is `"custom"`, pointing at [`src/lib/image-loader.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/image-loader.ts). The loader rewrites production R2 URLs to Cloudflare Image Transformations (`/cdn-cgi/image/...`) on the storage domain. Cloudflare resizes, re-encodes and edge-caches the image there. Local `/api/storage` URLs get width and quality hints. Everything else passes through unchanged. See [Media & Images](../../moderation-and-storage/media-and-images/) and [Storage (R2)](../../moderation-and-storage/storage-r2/).
 
 ## Failure Modes & Edge Cases
 
@@ -91,5 +91,5 @@ The Content Security Policy is built from environment variables. Both storage ho
 - [App Structure](../app-structure/)
 - [Middleware & Sessions](../middleware-sessions/)
 - [Storage (R2)](../../moderation-and-storage/storage-r2/)
-- [Media & Images](../../features/media-and-images/)
+- [Media & Images](../../moderation-and-storage/media-and-images/)
 - [Cloudflare Deployment](../../operations/cloudflare-deployment/)

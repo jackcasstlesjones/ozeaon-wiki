@@ -45,7 +45,7 @@ Two functions are consumed downstream. `buildSlugBase` is called directly by the
 
 - `date.ts` — absolute date formats (locale strings, ISO snippets).
 - `number.ts` — locale-aware number and percentage formatting.
-- `file-size.ts` — converts bytes to human-readable size strings (used by [Media & Images](../../features/media-and-images/) upload feedback).
+- `file-size.ts` — converts bytes to human-readable size strings (used by [Media & Images](../../moderation-and-storage/media-and-images/) upload feedback).
 - `string.ts` — `capitalize`, `truncate`, `toLabel` (camel/snake → sentence case). `toLabel` is also consumed by the [Zod validation](../zod-validation/) custom-error hook to derive field display names.
 - `array.ts` — dedupe, chunk, and sort helpers.
 - `object.ts` — `omit`, `pick`, and deep-equality helpers.
@@ -67,13 +67,13 @@ Two functions are consumed downstream. `buildSlugBase` is called directly by the
 
 - `content-type.ts` — `getContentType` maps a filename extension to a MIME type; `getDocumentType` classifies a MIME type into a broader category (image, video, pdf, doc, etc.).
 - `image.ts` — `getImageUrl` / `getImageUrlFromKey` build the public CDN URL for an uploaded asset; `getBlurDataUrl` returns a base64 blur placeholder; `downloadFile` triggers a browser download from a blob URL.
-- `search.ts` — `searchHref` builds the query-string URL for the [Search](../../features/search/) route.
+- `search.ts` — `searchHref` builds the query-string URL for the [Search](../../community/search/) route.
 
 ### Top-Level Helpers
 
 - [`articles.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/articles.ts) — `getArticleTypeName` and `canManageArticleFromActiveAccount`. The latter derives manage permissions from the unsigned active-account cookie for cosmetic UI gating only; server actions use the authoritative `canManageArticle` RPC.
 - [`sanitize.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/sanitize.ts) — `sanitizeArticleHtml` runs an allowlist XSS filter (via `xss`) mirroring the exact TipTap extension vocabulary. Called on the write path (API route) and again on the render path; see [Editor](../../editor/tiptap-core/).
-- [`notifications.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/notifications.ts) — a `CATALOGUE` record keyed by `NotificationType` maps each type to a text factory and a snippet factory; consumed by the [Notifications](../../features/notifications/) feature layer.
+- [`notifications.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/notifications.ts) — a `CATALOGUE` record keyed by `NotificationType` maps each type to a text factory and a snippet factory; consumed by the [Notifications](../../community/notifications/) feature layer.
 - [`nav-history.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/nav-history.ts) and [`safe-router-back.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/safe-router-back.ts) — `nav-history.ts` patches `pushState`/`replaceState` to stamp a depth counter onto each history entry. `safeRouterBack` uses both in-app depth and `document.referrer` to decide whether `router.back()` is safe; if neither signal confirms in-app history, it falls back to a caller-supplied URL. `window.history.length` is unreliable because it counts entries predating the user's arrival on the site.
 - [`toast.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/toast.ts) — `showUndoToast` shows a Sonner toast with an Undo button. The `onCommit` callback fires after the toast duration expires, not on dismiss, so the action is deferred.
 - [`project.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/project.ts) — `parseProjectFilters`, `getProjectTags`, `getSubcategoryIds`, `getSDGIds`, `getDisplayProjectType`, and `updateDraftUrl`. `getDisplayCurrency`, `getDisplayCurrencySymbol`, and `formatFundingAmount` are scaffolding for planned project funding and have no current callers in components.
@@ -113,8 +113,8 @@ All `formatters/`, `generators/`, `validators/`, and `shadcn/` modules are pure 
 - [Zod Validation](../zod-validation/) — schema and form validation layer; `zod-to-db.ts` bridges the two
 - [Config Constants](../config-constants/) — env vars and constants that some validators and formatters reference
 - [Storage (R2)](../../moderation-and-storage/storage-r2/) — `storage-key.ts` builds keys for R2 uploads
-- [Media & Images](../../features/media-and-images/) — image validation and upload pipeline
-- [Notifications](../../features/notifications/) — `CATALOGUE` in `notifications.ts` is the notification copy source
-- [Search](../../features/search/) — `searchHref` in `url/search.ts` supports search routing
+- [Media & Images](../../moderation-and-storage/media-and-images/) — image validation and upload pipeline
+- [Notifications](../../community/notifications/) — `CATALOGUE` in `notifications.ts` is the notification copy source
+- [Search](../../community/search/) — `searchHref` in `url/search.ts` supports search routing
 - [Nav](../../components/nav/) — `nav-history.ts` and `safe-router-back.ts` back the safe back-navigation component
 - [Editor](../../editor/tiptap-core/) — `sanitize.ts` mirrors the TipTap extension allowlist

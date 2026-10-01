@@ -7,7 +7,7 @@ sidebar:
 
 The shared comment system. In almost every case you want `EntityComments` (optionally inside `CardComments`, toggled by `CommentToggle` on feed cards); the lower-level pieces are composed by it and not used directly elsewhere. Import from `@/components/ui/comments`.
 
-See also: [Comments & Reactions](../../../features/comments-and-reactions/).
+See also: [Comments & Reactions](../../../community/comments-and-reactions/).
 
 The hierarchy is:
 

@@ -10,12 +10,12 @@ OZEAON is the web application behind the OZEAON ocean conservation platform. Org
 ## Features
 
 - **Accounts:** sign up, sign in, email verification, password reset, profile settings, switching between a personal account and an organization account, and account deletion. See [Auth Flows](../../auth-and-accounts/auth-flows/) and [Account Switching & Active Account](../../auth-and-accounts/account-switching/).
-- **Organizations:** public profiles, members and roles, invitations and join requests, and organization deletion. See [Organization Profiles, Membership & Roles](../../features/organizations/).
-- **Projects:** multi-section project pages, drafts and publishing, My Projects, and deletion. See [Project Lifecycle & Discovery](../../features/projects/).
-- **Articles:** a Tiptap-based editor, publishing, My Articles and a reader view. See [Article Authoring & Publishing](../../features/articles-authoring/) and [Article Reader Experience](../../features/articles-reader/).
-- **Posts:** a community feed with image attachments and reposts. See [Posts](../../features/posts/).
-- **Comments** on posts, projects and articles, and **likes** on posts and comments. See [Comments & Reactions](../../features/comments-and-reactions/).
-- **Search:** name and title search across organizations, projects, articles and people. See [Search & Discovery](../../features/search/).
+- **Organizations:** public profiles, members and roles, invitations and join requests, and organization deletion. See [Organization Profiles, Membership & Roles](../../organisations/organisations/).
+- **Projects:** multi-section project pages, drafts and publishing, My Projects, and deletion. See [Project Lifecycle & Discovery](../../projects/projects/).
+- **Articles:** a Tiptap-based editor, publishing, My Articles and a reader view. See [Article Authoring & Publishing](../../articles/articles-authoring/) and [Article Reader Experience](../../articles/articles-reader/).
+- **Posts:** a community feed with image attachments and reposts. See [Posts](../../posts/posts/).
+- **Comments** on posts, projects and articles, and **likes** on posts and comments. See [Comments & Reactions](../../community/comments-and-reactions/).
+- **Search:** name and title search across organizations, projects, articles and people. See [Search & Discovery](../../community/search/).
 - **Automated moderation:** content is checked with the OpenAI moderation API before it publishes. See [Content Moderation Pipeline](../../moderation-and-storage/moderation/).
 - **Founding-member (alpha) badges** for early users and organizations.
 - **UN SDG tagging** on projects and articles.

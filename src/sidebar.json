@@ -30,11 +30,61 @@
     ]
   },
   {
-    "label": "Content & Social Features",
+    "label": "Posts",
     "items": [
       {
         "autogenerate": {
-          "directory": "features"
+          "directory": "posts"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Projects",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "projects"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Articles",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "articles"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Organisations",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "organisations"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Profiles & Social",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "profiles"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Community",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "community"
         }
       }
     ]
@@ -60,7 +110,7 @@
     ]
   },
   {
-    "label": "Content Moderation & Storage",
+    "label": "Moderation & Storage",
     "items": [
       {
         "autogenerate": {

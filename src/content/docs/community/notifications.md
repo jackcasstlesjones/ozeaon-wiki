@@ -2,7 +2,7 @@
 title: "Notifications"
 description: "Bell, overlay and realtime delivery for per-account notifications (in progress, behind a feature flag)."
 sidebar:
-  order: 9
+  order: 2
 ---
 
 The notifications subsystem delivers per-user, account-scoped notification events to the app's notification bell and overlay, keeping unread counts and the unread list live through Supabase Realtime.

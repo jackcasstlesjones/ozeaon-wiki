@@ -1,11 +1,11 @@
 ---
 title: "Media & Images"
 sidebar:
-  order: 11
+  order: 4
 description: "How images and files are uploaded, validated, moderated and turned back into URLs."
 ---
 
-Ozeaon stores media as objects in a blob store, not as database rows. Every uploaded asset is written to an R2-style object store under a generated, collision-resistant key; the database persists only that key. Rendering code converts the key back to a URL through a single image-URL helper. This page covers the client-side upload transport and the image URL helpers. For the `StorageAdapter`, the R2 read path, and the server-side moderation pipeline see [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/).
+Ozeaon stores media as objects in a blob store, not as database rows. Every uploaded asset is written to an R2-style object store under a generated, collision-resistant key; the database persists only that key. Rendering code converts the key back to a URL through a single image-URL helper. This page covers the client-side upload transport and the image URL helpers. For the `StorageAdapter`, the R2 read path, and the server-side moderation pipeline see [Storage Abstraction & R2 Integration](../storage-r2/).
 
 ## Overview
 
@@ -73,7 +73,7 @@ Validation runs before the adapter so a rejected file never consumes a storage w
 
 Every host that serves media must be listed in `STORAGE_HOSTS`, which is interpolated into the `img-src` directive of the Content-Security-Policy in [`next.config.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/next.config.ts). `data:` and `blob:` are also allowed in `img-src` to permit inline previews during upload flows. `media-src` is restricted to `'self'`; features that stream audio or video from the bucket would need it extended.
 
-`/api/storage` serves assets with `Cache-Control: public, max-age=31536000, immutable` and a quoted ETag. It also exposes `/api/storage/audit`. The full caching chain (Cloudflare Cache API → ETag 304 → R2 read) and the adapter's additional methods (`uploadBuffer`, `getFile`, `headFile`, `deleteFiles`) are documented on [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/).
+`/api/storage` serves assets with `Cache-Control: public, max-age=31536000, immutable` and a quoted ETag. It also exposes `/api/storage/audit`. The full caching chain (Cloudflare Cache API → ETag 304 → R2 read) and the adapter's additional methods (`uploadBuffer`, `getFile`, `headFile`, `deleteFiles`) are documented on [Storage Abstraction & R2 Integration](../storage-r2/).
 
 ## Extension Points
 
@@ -86,6 +86,6 @@ Every host that serves media must be listed in `STORAGE_HOSTS`, which is interpo
 - [`src/lib/images/client.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/images/client.ts) — `uploadModeratedImage` / `uploadModeratedFiles` / `imageRejectedMessage`
 - [`src/utils/url/image.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/url/image.ts) — `getImageUrl` / `getImageUrlFromKey`
 - [`src/utils/generators/storage-key.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/utils/generators/storage-key.ts) — `generateUniqueKey`
-- [Storage Abstraction & R2 Integration](../../moderation-and-storage/storage-r2/) — `StorageAdapter`, `/api/storage` serving path, server-side upload pipeline
-- [Post Images & Reposts](../post-attachments/) — post image upload flow using this transport
+- [Storage Abstraction & R2 Integration](../storage-r2/) — `StorageAdapter`, `/api/storage` serving path, server-side upload pipeline
+- [Post Images & Reposts](../../posts/post-attachments/) — post image upload flow using this transport
 - [`next.config.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/next.config.ts) — CSP `img-src`/`media-src` wiring

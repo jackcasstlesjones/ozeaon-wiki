@@ -2,7 +2,7 @@
 title: "Article Reader Experience"
 description: "How a published article is resolved, rendered and statically generated at /articles/[slug]."
 sidebar:
-  order: 4
+  order: 2
 ---
 
 The reader experience is the public-facing surface where a visitor opens a published article and reads its rendered HTML content, attachments, bylines, and metadata. This page covers the server-rendered reader route at `(main)/(reader)/articles/[slug]`, its parallel `@sidebar` slot, and the data pipeline that assembles an article for display. For authoring and the draft/publish flow, see [Article Authoring & Publishing](../articles-authoring/).

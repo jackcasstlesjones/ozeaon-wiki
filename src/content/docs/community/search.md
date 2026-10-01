@@ -2,7 +2,7 @@
 title: "Search & Discovery"
 description: "Keyword search across organizations, projects, articles and people, built on the existing feed queries."
 sidebar:
-  order: 10
+  order: 3
 ---
 
 Search on Ozeaon is a keyword match by name or title over four kinds of entity: organizations, projects, articles and people. It has no search index. Each kind is matched with an `ilike` query that returns only ids and a date. The matches are merged newest-first and sliced to the requested page, and the surviving ids are then hydrated through the same feed queries that power the public feeds. Search results therefore render with the same cards as the feeds.
@@ -95,6 +95,6 @@ To add a new kind of result:
 ## Related Links
 
 - [Search components](../../components/search/)
-- [Articles reader](../articles-reader/), [Projects](../projects/) and [Organizations](../organizations/) for the feed queries reused during hydration
+- [Articles reader](../../articles/articles-reader/), [Projects](../../projects/projects/) and [Organizations](../../organisations/organisations/) for the feed queries reused during hydration
 - [API routes](../../api-layer/api-routes/)
 - [`queries/search.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/search.ts), [`app/api/search/route.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/search/route.ts), [`components/search/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/search)

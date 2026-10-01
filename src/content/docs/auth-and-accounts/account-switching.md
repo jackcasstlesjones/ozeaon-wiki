@@ -74,4 +74,4 @@ Org-only pages redirect to `/settings` when the active account is not org mode. 
 
 - [Auth Flows](../auth-flows/) — session setup, login and signup
 - [User Settings & Account Management](../user-settings/) — account deletion and profile settings
-- [Organizations](../../features/organizations/) — org membership and roles
+- [Organizations](../../organisations/organisations/) — org membership and roles

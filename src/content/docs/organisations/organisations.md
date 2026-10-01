@@ -2,7 +2,7 @@
 title: "Organization Profiles, Membership & Roles"
 description: "Organization profiles, membership and roles, invites and join requests."
 sidebar:
-  order: 6
+  order: 1
 ---
 
 Organizations are first-class public entities with slug-addressable pages, a role-backed membership graph, and an invite/join-request workflow. This page covers the query layer in [`src/lib/supabase/queries/organizations.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts), role resolution, membership lifecycle, and the validation constants that govern organization data.

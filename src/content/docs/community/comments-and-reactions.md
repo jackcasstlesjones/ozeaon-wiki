@@ -2,7 +2,7 @@
 title: "Comments & Reactions"
 description: "Threaded comments on posts, projects and articles, with soft delete, acting-identity authorship and comment likes."
 sidebar:
-  order: 8
+  order: 1
 ---
 
 The Comments & Reactions subsystem provides entity-agnostic threaded discussions on posts, projects and articles, with soft deletion, organization-vs-user identity authorship, realtime updates and per-comment reaction counting.

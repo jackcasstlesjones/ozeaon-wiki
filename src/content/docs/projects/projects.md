@@ -2,7 +2,7 @@
 title: "Project Lifecycle & Discovery"
 description: "How projects move from draft to published, and the feeds that list them."
 sidebar:
-  order: 5
+  order: 1
 ---
 
 Projects are structured, publishable records with title, tagline, cover/logo imagery, SDG alignment, resource categories, tags and geographic coordinates. This page covers the write path (REST endpoints, dual Zod schemas, authorization, slug generation and moderation) and the query layer that backs project feeds and the dashboard list.

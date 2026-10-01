@@ -3,7 +3,7 @@ title: "Profiles"
 description: Components that build the user profile and organization profile pages — shared page shell, header data slots, owner image controls, actions and overview sections.
 ---
 
-`src/components/profiles/` assembles the two profile page layouts: user profiles at `/profiles/[username]` and organization profiles at `/organizations/[slug]`. Both layouts compose the same `shared/` frame — `ProfilePageShell` with a cover, header, tabs and sidebar — and fill its slots with domain-specific pieces from `users/` or `organizations/`. Owner editing (cover, avatar, the Edit Profile link) is offered only while the active account is the user themself, not an organization they manage. See also [Profiles & Social Graph](../../features/profiles-and-social-graph/).
+`src/components/profiles/` assembles the two profile page layouts: user profiles at `/profiles/[username]` and organization profiles at `/organizations/[slug]`. Both layouts compose the same `shared/` frame — `ProfilePageShell` with a cover, header, tabs and sidebar — and fill its slots with domain-specific pieces from `users/` or `organizations/`. Owner editing (cover, avatar, the Edit Profile link) is offered only while the active account is the user themself, not an organization they manage. See also [Profiles & Social Graph](../../profiles/profiles-and-social-graph/).
 
 ```mermaid
 flowchart TD
@@ -239,6 +239,6 @@ A "Members" heading and a one- or two-column grid of `UserCard`s. Returns `null`
 
 ### OrgPostsFeed
 
-Empty placeholder file — no content, no exports, not in the sections barrel. The organization posts tab renders the shared `PostsInfiniteFeed` with an `organizationId` directly (see [Posts](../../features/posts/)).
+Empty placeholder file — no content, no exports, not in the sections barrel. The organization posts tab renders the shared `PostsInfiniteFeed` with an `organizationId` directly (see [Posts](../../posts/posts/)).
 
 **Source:** [src/components/profiles/organizations/sections/OrgPostsFeed.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/sections/OrgPostsFeed.tsx)
