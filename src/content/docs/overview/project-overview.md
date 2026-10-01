@@ -5,19 +5,19 @@ sidebar:
   order: 1
 ---
 
-OZEAON is the web application behind the OZEAON ocean conservation platform. Organizations, projects and individuals publish and discuss conservation work in one place. It is a single Next.js App Router app running on Cloudflare Workers, with Supabase for data and auth, and Cloudflare R2 for files.
+OZEAON is the web application behind the OZEAON ocean conservation platform. Organisations, projects and individuals publish and discuss conservation work in one place. It is a single Next.js App Router app running on Cloudflare Workers, with Supabase for data and auth, and Cloudflare R2 for files.
 
 ## Features
 
-- **Accounts:** sign up, sign in, email verification, password reset, profile settings, switching between a personal account and an organization account, and account deletion. See [Auth Flows](../../auth-and-accounts/auth-flows/) and [Account Switching & Active Account](../../auth-and-accounts/account-switching/).
-- **Organizations:** public profiles, members and roles, invitations and join requests, and organization deletion. See [Organization Profiles, Membership & Roles](../../organisations/organisations/).
+- **Accounts:** sign up, sign in, email verification, password reset, profile settings, switching between a personal account and an organisation account, and account deletion. See [Auth Flows](../../auth-and-accounts/auth-flows/) and [Account Switching & Active Account](../../auth-and-accounts/account-switching/).
+- **Organisations:** public profiles, members and roles, invitations and join requests, and organisation deletion. See [Organisation Profiles, Membership & Roles](../../organisations/organisations/).
 - **Projects:** multi-section project pages, drafts and publishing, My Projects, and deletion. See [Project Lifecycle & Discovery](../../projects/projects/).
 - **Articles:** a Tiptap-based editor, publishing, My Articles and a reader view. See [Article Authoring & Publishing](../../articles/articles-authoring/) and [Article Reader Experience](../../articles/articles-reader/).
 - **Posts:** a community feed with image attachments and reposts. See [Posts](../../posts/posts/).
 - **Comments** on posts, projects and articles, and **likes** on posts and comments. See [Comments & Reactions](../../community/comments-and-reactions/).
-- **Search:** name and title search across organizations, projects, articles and people. See [Search & Discovery](../../community/search/).
+- **Search:** name and title search across organisations, projects, articles and people. See [Search & Discovery](../../community/search/).
 - **Automated moderation:** content is checked with the OpenAI moderation API before it publishes. See [Content Moderation Pipeline](../../moderation-and-storage/moderation/).
-- **Founding-member (alpha) badges** for early users and organizations.
+- **Founding-member (alpha) badges** for early users and organisations.
 - **UN SDG tagging** on projects and articles.
 
 In progress: notifications (behind the `NEXT_PUBLIC_FEATURE_NOTIFICATIONS` flag), legal pages, and in-feed filters on the article and project feeds.

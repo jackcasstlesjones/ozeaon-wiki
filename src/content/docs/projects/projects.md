@@ -14,7 +14,7 @@ The feature is split along a draft/published boundary:
 | Concern | Draft | Published |
 | --- | --- | --- |
 | Schema | `projectDraftSchema` (partial, minimal validation) | `projectPublishSchema` (strict `superRefine` validations) |
-| Visibility | Owner + organization members only, via RLS | Public read path (`published = true`) |
+| Visibility | Owner + organisation members only, via RLS | Public read path (`published = true`) |
 | Discovery | Dashboard feed via `v_project_status` view | Public projects feed (`/projects`, newest-first) |
 | Write endpoint | `PATCH /api/projects/[id]` with `published !== true` | `PATCH /api/projects/[id]` with `published === true` |
 
@@ -158,7 +158,7 @@ if (filteredIds !== null && !filteredIds.length) return [];
 - **`getPublishedProjects`** — the default public feed, newest-first, filtered to `published = true`. Accepts subcategory, SDG, project type and date range filters. Date `to` is appended with `T23:59:59Z` so a project ending on the selected day is not excluded (end_date is a date, not a timestamp).
 - **`getTrendingProjects`** — orders by the precomputed `engagement_score` on `project_stats`, capped at 20 rows. Ranking is an index-ordered scan, not a runtime aggregate.
 - **`getNewProjects`** — projects created since UTC midnight today (truncated to `T00:00:00Z` to normalize to a UTC day boundary), capped at 20.
-- **`getLatestProjects`** — a lightweight fixed-size list (default 4) using a narrower `LATEST_PROJECTS_SELECT` that embeds cover image, author, authoring organization and subcategories in one request. Returns `FeaturedProject[]` and logs errors with context because this feeds a high-visibility slot.
+- **`getLatestProjects`** — a lightweight fixed-size list (default 4) using a narrower `LATEST_PROJECTS_SELECT` that embeds cover image, author, authoring organisation and subcategories in one request. Returns `FeaturedProject[]` and logs errors with context because this feeds a high-visibility slot.
 
 The trending, new and latest feeds exist but nothing in the UI currently links to them — see the note above about commented-out tabs.
 
@@ -184,7 +184,7 @@ flowchart TD
 
 ### Ownership Filtering
 
-A project belongs to a user or an organization, never both. `filterByOwnership` OR-s the two conditions when both id lists are non-empty — AND-ing them matches nothing:
+A project belongs to a user or an organisation, never both. `filterByOwnership` OR-s the two conditions when both id lists are non-empty — AND-ing them matches nothing:
 
 ```typescript
 return query.or(
@@ -217,7 +217,7 @@ The `v_project_status` view computes draft-vs-published status server-side so th
 ## Failure Modes & Edge Cases
 
 - **Null vs. `[]` from `resolveFilterIds`** — callers must distinguish "no filter" from "filter returned nothing". Every caller checks `filteredIds !== null && !filteredIds.length` before issuing the projects query.
-- **Ownership OR requirement** — AND-ing owner and organization filters matches nothing because ownership is exclusive. Both conditions must be OR'd.
+- **Ownership OR requirement** — AND-ing owner and organisation filters matches nothing because ownership is exclusive. Both conditions must be OR'd.
 - **UUID precondition in `filterByOwnership`** — IDs interpolated into the raw PostgREST `or(...)` expression are parsed as filter grammar if they are not valid UUIDs. The `/api/projects` route validates request-supplied IDs via `ownershipParamsSchema` before they reach the function.
 - **Date-suffix gotcha** — `end_date` is a date, not a timestamp. Filtering with `lte` without appending `T23:59:59Z` excludes projects ending on the selected day.
 - **Moderation fail-closed** — a `ModerationError` returns 503 rather than proceeding with persistence.

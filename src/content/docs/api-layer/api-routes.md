@@ -73,7 +73,7 @@ The full route tree is in [`src/app/api`](https://github.com/ozeaon/ozeaon-v2/tr
 
 **Active Account** — `GET`/`POST` to read and switch the active-account cookie. Validates caller is owner or admin of the requested org before writing the cookie. See [Account Switching](../../auth-and-accounts/account-switching/).
 
-**Organizations** — the largest family: org feed and creation, settings, logo/cover upload, search, invites, join requests, custom links, and membership management. Org creation has a four-step gate (ownership cap, Zod validation, slug pre-check, text moderation). Invite revocation allows the invitee to decline their own invite; otherwise owner/admin is required. Membership `PATCH` maps a custom Postgres error (`X0001`) to 409 when a role change would demote the last admin. See [Organizations](../../organisations/organisations/).
+**Organisations** — the largest family: org feed and creation, settings, logo/cover upload, search, invites, join requests, custom links, and membership management. Org creation has a four-step gate (ownership cap, Zod validation, slug pre-check, text moderation). Invite revocation allows the invitee to decline their own invite; otherwise owner/admin is required. Membership `PATCH` maps a custom Postgres error (`X0001`) to 409 when a role change would demote the last admin. See [Organisations](../../organisations/organisations/).
 
 **Profile** — the caller's own profile row, bio, education, experience, and avatar/cover images. Education and experience are full-CRUD routes; `DELETE` takes a row `id` as a query parameter rather than a dynamic segment, the only CRUD family shaped this way.
 
@@ -222,7 +222,7 @@ To add an endpoint:
 - [Content Moderation](../../moderation-and-storage/moderation/) — the `moderateAndLog` pipeline called by routes
 - [Storage & R2](../../moderation-and-storage/storage-r2/) — image and document upload
 - [Comments & Reactions](../../community/comments-and-reactions/) — comment thread rules and shared factory
-- [Organizations](../../organisations/organisations/) — org membership model
+- [Organisations](../../organisations/organisations/) — org membership model
 - [Profiles & Social Graph](../../profiles/profiles-and-social-graph/) — follows and blocks
 - [Search](../../community/search/) — search rules and coverage
 - [Account Switching](../../auth-and-accounts/account-switching/) — active-account cookie

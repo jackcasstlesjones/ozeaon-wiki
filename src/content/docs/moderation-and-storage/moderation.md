@@ -28,7 +28,7 @@ The retry condition: transient upstream errors (rate limit, timeout, network) ar
 
 ### Surfaces & Callers
 
-The `moderation_surface` enum covers seven values: `project`, `article`, `post`, `post_comment`, `project_comment`, `article_comment`, `profile`. All organization creates and updates also use the `profile` surface (there is no separate `organization` value in the enum).
+The `moderation_surface` enum covers seven values: `project`, `article`, `post`, `post_comment`, `project_comment`, `article_comment`, `profile`. All organisation creates and updates also use the `profile` surface (there is no separate `organization` value in the enum).
 
 Active callers of `moderateAndLog`:
 
@@ -36,7 +36,7 @@ Active callers of `moderateAndLog`:
 - **Article publish/update** — [`api/articles/route.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/articles/route.ts)
 - **Post create** — [`api/posts/route.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/posts/route.ts)
 - **Comment create/edit** (all three types) — [`lib/api/comments/moderation.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/api/comments/moderation.ts)
-- **Organization create/update** — [`api/organizations/route.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/organizations/route.ts), [`api/organizations/[id]/route.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/organizations/[id]/route.ts)
+- **Organisation create/update** — [`api/organizations/route.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/organizations/route.ts), [`api/organizations/[id]/route.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/organizations/[id]/route.ts)
 
 `moderateField` is used by the profile bio server action in [`account/actions.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(feed)/(private)/account/actions.ts).
 
@@ -51,7 +51,7 @@ moderation_attempts  1──* moderation_checks
 moderation_attempts  1──1 (project|article|post_comment|project_comment|article_comment)_moderation_attempts
 ```
 
-`moderation_attempts` records the surface, actor, duration and optional failure reason. `moderation_checks` stores the per-field verdict and the 13 category scores. The five typed link tables connect an attempt to its target content row. Post creates and comment creates have no target row at check time, so they carry no link row. Profile and organization checks also carry no link row — the attempt's `owner_id` and `organization_id` columns already identify the actor.
+`moderation_attempts` records the surface, actor, duration and optional failure reason. `moderation_checks` stores the per-field verdict and the 13 category scores. The five typed link tables connect an attempt to its target content row. Post creates and comment creates have no target row at check time, so they carry no link row. Profile and organisation checks also carry no link row — the attempt's `owner_id` and `organization_id` columns already identify the actor.
 
 Tunables (retry counts, timeouts, category thresholds) live in [`src/config/constants/moderation.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/moderation.ts).
 

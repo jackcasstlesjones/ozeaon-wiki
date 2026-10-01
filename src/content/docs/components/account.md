@@ -46,6 +46,6 @@ Current, new and confirm password fields that submit through the `changePassword
 
 ## DeleteAccountDialog
 
-Multi-step confirmation for permanent account deletion, ending in a typed-confirmation gate that calls `deleteAccount`. Regular users see two steps; organization owners get an extra warning step about their owned organizations before the final confirm.
+Multi-step confirmation for permanent account deletion, ending in a typed-confirmation gate that calls `deleteAccount`. Regular users see two steps; organisation owners get an extra warning step about their owned organisations before the final confirm.
 
 **Source:** [src/components/account/DeleteAccountDialog.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/account/DeleteAccountDialog.tsx)

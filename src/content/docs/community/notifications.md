@@ -48,7 +48,7 @@ Both hooks translate the reactive account scope (from `useActiveAccount`) into a
 
 ### Account Scoping
 
-Every read is scoped to the account the user is currently acting as. `null` means the individual-account copy; a UUID means an organization account. The two branches (`.eq("recipient_org_id", scopeOrgId)` vs `.is("recipient_org_id", null)`) can never overlap.
+Every read is scoped to the account the user is currently acting as. `null` means the individual-account copy; a UUID means an organisation account. The two branches (`.eq("recipient_org_id", scopeOrgId)` vs `.is("recipient_org_id", null)`) can never overlap.
 
 Scoping is **display-only**. The real security boundary is the `recipient_user_id` RLS predicate on the base table, because the acting-as cookie is unsigned.
 

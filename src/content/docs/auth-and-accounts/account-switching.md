@@ -1,11 +1,11 @@
 ---
 title: "Account Switching & Active Account"
-description: "How Ozeaon lets an authenticated user act as themselves or as an organization they administer, via the oz_active_account cookie and the /api/active-account endpoint."
+description: "How Ozeaon lets an authenticated user act as themselves or as an organisation they administer, via the oz_active_account cookie and the /api/active-account endpoint."
 sidebar:
   order: 2
 ---
 
-A signed-in user can act either as themselves or as an organization they own or administer. The choice is persisted in the `oz_active_account` cookie and surfaced uniformly across server components, API routes, and client state via `getActiveAccount()` and the `SessionProvider`. The "Switch account" modal and the `useAccountSwitch` hook drive this from the browser.
+A signed-in user can act either as themselves or as an organisation they own or administer. The choice is persisted in the `oz_active_account` cookie and surfaced uniformly across server components, API routes, and client state via `getActiveAccount()` and the `SessionProvider`. The "Switch account" modal and the `useAccountSwitch` hook drive this from the browser.
 
 ## Overview
 
@@ -74,4 +74,4 @@ Org-only pages redirect to `/settings` when the active account is not org mode. 
 
 - [Auth Flows](../auth-flows/) — session setup, login and signup
 - [User Settings & Account Management](../user-settings/) — account deletion and profile settings
-- [Organizations](../../organisations/organisations/) — org membership and roles
+- [Organisations](../../organisations/organisations/) — org membership and roles

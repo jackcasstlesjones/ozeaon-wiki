@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-Every validation contract lives under [`src/zod/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/zod), with one folder per domain (projects, articles, organizations, auth, comments, posts, profile, events). The same schema validates the form on the client (through `zodResolver`) and the request body in the API route, so limits and messages are declared once. Form wiring is covered in [Forms, Hooks & Validation Patterns](../../design-system/forms-and-validation/).
+Every validation contract lives under [`src/zod/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/zod), with one folder per domain (projects, articles, organisations, auth, comments, posts, profile, events). The same schema validates the form on the client (through `zodResolver`) and the request body in the API route, so limits and messages are declared once. Form wiring is covered in [Forms, Hooks & Validation Patterns](../../design-system/forms-and-validation/).
 
 ## Overview
 
@@ -31,7 +31,7 @@ Everything else (formats, enums, number or array sizes, custom refinements) keep
 
 - **Projects:** one file per form step (`step1`–`step11`). Steps follow a naming quartet (`…SchemaObject`, `…Schema`, `…CompleteSchema`, `…PublishSchema`) and are recombined into `projectDraftSchema` and `projectPublishSchema`. Step 7 (documents) has no schema, because uploads are handled outside the form. Step 11 (comments) exports are kept but detached from the form.
 - **Articles:** step fragments plus `combined.ts`, recombined into `articleDraftSchema` (title and type required) and `articlePublishSchema`. The article form is a single page, and the "steps" are just schema fragments.
-- **Organizations:** `step1`–`step3`, an aggregate `schema.ts`, plus `settings.ts` and `members.ts` for the settings and membership mutations.
+- **Organisations:** `step1`–`step3`, an aggregate `schema.ts`, plus `settings.ts` and `members.ts` for the settings and membership mutations.
 - **Auth, comments, posts, profile:** a single module each.
 - **Events:** `newEventSchema` is used only by the unmounted `NewEventDialog`. Events are on the roadmap and not built.
 

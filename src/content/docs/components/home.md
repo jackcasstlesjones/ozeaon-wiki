@@ -3,13 +3,13 @@ title: "Home"
 description: Home feed sections (welcome header, create-post slot, activity metrics), home cards and small home helpers.
 ---
 
-Components in [`src/components/home/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/home) build the home page at `/`. The page streams three slot components — `WelcomeSlot`, `CreatePostFormSlot` and `ActivitySlot` — followed by carousel sections for projects, articles and organizations. Each slot wraps an async child in `Suspense` that calls `getAuthUser()`, so auth reads stream in without blocking the rest of the page. `WelcomeSlot` (`src/components/home/index.ts`) exports `WelcomeSlot`, `ActivitySlot`, `CreatePostFormSlot`, `MetricCard`, `SectionAllLink` and `OrganisationCard`.
+Components in [`src/components/home/`](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/home) build the home page at `/`. The page streams three slot components — `WelcomeSlot`, `CreatePostFormSlot` and `ActivitySlot` — followed by carousel sections for projects, articles and organisations. Each slot wraps an async child in `Suspense` that calls `getAuthUser()`, so auth reads stream in without blocking the rest of the page. `WelcomeSlot` (`src/components/home/index.ts`) exports `WelcomeSlot`, `ActivitySlot`, `CreatePostFormSlot`, `MetricCard`, `SectionAllLink` and `OrganisationCard`.
 
 ## Slots & Helpers
 
 ### WelcomeSlot
 
-Streams the viewer's name into `WelcomeHeader`. When acting as an organization it uses the org name; signed-out viewers get an empty string. The Suspense fallback renders `<WelcomeHeader name="" />`.
+Streams the viewer's name into `WelcomeHeader`. When acting as an organisation it uses the org name; signed-out viewers get an empty string. The Suspense fallback renders `<WelcomeHeader name="" />`.
 
 **Source:** [src/components/home/WelcomeSlot.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/home/WelcomeSlot.tsx)
 
@@ -65,7 +65,7 @@ Coloured stat tile with a title, large value, label and a "vs. last month" trend
 
 ### OrganisationCard
 
-Fixed-width carousel card for an organization: logo, name, mission, member and project counts, and the viewer's role. Uses `snap-center` for carousel snapping and `prefetch={false}` on its link.
+Fixed-width carousel card for an organisation: logo, name, mission, member and project counts, and the viewer's role. Uses `snap-center` for carousel snapping and `prefetch={false}` on its link.
 
 **Source:** [src/components/home/cards/OrganisationCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/home/cards/OrganisationCard.tsx)
 

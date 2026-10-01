@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-Shared card pieces. The `CondensedCard*` parts compose the fixed-width article and project cards used in carousels. `CollapsibleCard` is the expandable section card used in editor forms and organization member lists. The `cards` barrel exports only the three `CondensedCard*` parts, so import the other two from their own files. See also [Cards & Layout](../../../design-system/cards-and-layout/).
+Shared card pieces. The `CondensedCard*` parts compose the fixed-width article and project cards used in carousels. `CollapsibleCard` is the expandable section card used in editor forms and organisation member lists. The `cards` barrel exports only the three `CondensedCard*` parts, so import the other two from their own files. See also [Cards & Layout](../../../design-system/cards-and-layout/).
 
 ## Condensed Cards
 

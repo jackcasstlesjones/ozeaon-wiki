@@ -1,21 +1,21 @@
 ---
-title: "Organization Profiles, Membership & Roles"
-description: "Organization profiles, membership and roles, invites and join requests."
+title: "Organisation Profiles, Membership & Roles"
+description: "Organisation profiles, membership and roles, invites and join requests."
 sidebar:
   order: 1
 ---
 
-Organizations are first-class public entities with slug-addressable pages, a role-backed membership graph, and an invite/join-request workflow. This page covers the query layer in [`src/lib/supabase/queries/organizations.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts), role resolution, membership lifecycle, and the validation constants that govern organization data.
+Organisations are first-class public entities with slug-addressable pages, a role-backed membership graph, and an invite/join-request workflow. This page covers the query layer in [`src/lib/supabase/queries/organizations.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts), role resolution, membership lifecycle, and the validation constants that govern organisation data.
 
 ## Overview
 
-An organization has a `slug`-addressable public page, branding images (`logo_image`, `cover_image`), a `mission` and `description`, contact and social links, and denormalized counters (`member_count`, `project_count`, `article_count`). A `verified` flag exists but is currently only a flag — [migration 20260720164149](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260720164149_unverify_all_organizations.sql) reset it to false for all organizations. Org verification and paid subscriptions are on the roadmap.
+An organisation has a `slug`-addressable public page, branding images (`logo_image`, `cover_image`), a `mission` and `description`, contact and social links, and denormalized counters (`member_count`, `project_count`, `article_count`). A `verified` flag exists but is currently only a flag — [migration 20260720164149](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260720164149_unverify_all_organizations.sql) reset it to false for all organisations. Org verification and paid subscriptions are on the roadmap.
 
 Membership is a many-to-many graph between `user_profiles` and `organizations`, mediated by `organization_members`. Each row carries a `role_id` into `member_roles` (a lookup table; the application interprets only the slugs `owner`, `admin`, `member`), a free-text `title` for that member within the org, and a `joined_at` timestamp for stable roster ordering.
 
 Two asymmetric flows bring users into membership: admins create **invitations** (`organization_invites`) targeting a specific user and role; users submit **join requests** (`organization_join_requests`) with an optional message. In addition, `POST /api/organizations/[id]/members` ([route](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/organizations/%5Bid%5D/members/route.ts)) lets an owner or admin insert any user directly, and lets an invitee self-insert against a pending invite.
 
-`ORG_LATEST_SELECT` joins in `organization_follows`, but organization follows have no UI — `organization_follows` is only read in that select fragment. Follows fall under the connections roadmap item.
+`ORG_LATEST_SELECT` joins in `organization_follows`, but organisation follows have no UI — `organization_follows` is only read in that select fragment. Follows fall under the connections roadmap item.
 
 ## Architecture
 
@@ -27,14 +27,14 @@ The feed type `OrgFeedRow` embeds `viewer_role` — the viewing user's role slug
 
 ## Roles & Authorization
 
-Role resolution answers one question: what role does this user hold in this organization? `getUserOrgRole` ([source](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts#L211-L230)) returns `"owner" | "admin" | "member" | null` with four properties worth internalizing:
+Role resolution answers one question: what role does this user hold in this organisation? `getUserOrgRole` ([source](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts#L211-L230)) returns `"owner" | "admin" | "member" | null` with four properties worth internalizing:
 
 - Only the `slug` is fetched — not `id` or `name`. The authorization decision needs the machine identifier.
-- `maybeSingle()` encodes the invariant that a user has at most one membership per organization.
+- `maybeSingle()` encodes the invariant that a user has at most one membership per organisation.
 - The comparison is an **allow-list**: an unrecognized role slug resolves to `null` (fail closed). A typo'd or newly seeded role in `member_roles` will not be treated as privileged.
 - Errors **throw** here. Because this function feeds authorization decisions, silent failure is not acceptable.
 
-`getAdminOrgs` ([source](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts#L39-L74)) answers "which organizations can I manage?" with different semantics:
+`getAdminOrgs` ([source](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts#L39-L74)) answers "which organisations can I manage?" with different semantics:
 
 - **`cache()` wrapped** (React's request-scoped cache) — deduplicated across the nav, switcher, and layout guard within one render.
 - **Single query, client-side filter** for `owner`/`admin`. Membership counts per user are small; filtering in code avoids a second lookup.
@@ -106,7 +106,7 @@ flowchart TD
 ```
 
 - Slug not found on a route → `notFound()` via `getOrgIdBySlugOrNotFound`; placeholder slugs are rejected before any DB call.
-- Organization deleted mid-session → `null` payload from `getOrgForEdit` (`maybeSingle`).
+- Organisation deleted mid-session → `null` payload from `getOrgForEdit` (`maybeSingle`).
 - Unknown or typo'd role slug → resolves to `null` (fail closed) in `getUserOrgRole`.
 - Query error loading admin orgs → returns `[]`; navigation degrades gracefully.
 - Activity widget count error → logged via `logError`, counts fall back to `0`.
@@ -132,10 +132,10 @@ flowchart TD
 
 - [src/types/organizations.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/types/organizations.ts) — domain types (`OrganizationMember`, `OrgMemberRole`, `OrgFeedRow`, `OrgInvite`, `OrgJoinRequest`, `OrganizationForLayout`, …)
 - [src/config/constants/organizations.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/organizations.ts) — field limits and required-field definitions
-- [src/lib/supabase/queries/organizations.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts) — organization, member, role, invite and join-request reads
+- [src/lib/supabase/queries/organizations.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/organizations.ts) — organisation, member, role, invite and join-request reads
 - [src/lib/supabase/queries/profile-reads.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/lib/supabase/queries/profile-reads.ts) — provides `USER_CARD_SELECT` used to hydrate member and invitee cards
 - [src/app/api/organizations/\[id\]/members/route.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/api/organizations/%5Bid%5D/members/route.ts) — direct member insertion endpoint
-- [src/app/(main)/(dashboard)/settings/(organizations)/members/actions.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/%28main%29/%28dashboard%29/settings/%28organizations%29/members/actions.ts) — invite and request resolution server actions
+- [src/app/(main)/(dashboard)/settings/(organisations)/members/actions.ts](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/%28main%29/%28dashboard%29/settings/%28organizations%29/members/actions.ts) — invite and request resolution server actions
 - [src/components/organizations/](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/organizations) — UI components (OrganizationForm, OrganizationCard, OrganizationsInfiniteFeed, …)
 - [supabase/migrations/20260507000000_add_organization_id_to_content_tables.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260507000000_add_organization_id_to_content_tables.sql)
 - [supabase/migrations/20260520000000_organization_add_member_triggers.sql](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/supabase/migrations/20260520000000_organization_add_member_triggers.sql)

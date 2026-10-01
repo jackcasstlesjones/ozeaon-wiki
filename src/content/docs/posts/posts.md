@@ -5,7 +5,7 @@ sidebar:
 description: "The posts feed (infinite, paginated) and the post composer."
 ---
 
-Posts are the core social publishing surface of Ozeaon. Users and organizations compose text-and-image posts, optionally embedding a quote-repost of an existing post. The feed renders them through a server-seeded infinite list that paginates client-side against `/api/posts`.
+Posts are the core social publishing surface of Ozeaon. Users and organisations compose text-and-image posts, optionally embedding a quote-repost of an existing post. The feed renders them through a server-seeded infinite list that paginates client-side against `/api/posts`.
 
 ## Overview
 

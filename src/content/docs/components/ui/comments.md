@@ -36,7 +36,7 @@ The comment thread for a commentable entity. Maps the entity to its API route, r
 
 ## CommentThread
 
-The stateful thread: loads comments through `useThreadComments`, subscribes to Supabase realtime, and renders the root composer, list and dialogs. Key behaviour to know: realtime `INSERT` and `DELETE` events refetch the thread, but other users' edits do not arrive live. Switching the acting account (personal vs organization) resets the open composer and the liked set. Ownership is per acting identity — a user and an organization they post as are separate participants. Shows `ModerationRejectedDialog` when a write is rejected.
+The stateful thread: loads comments through `useThreadComments`, subscribes to Supabase realtime, and renders the root composer, list and dialogs. Key behaviour to know: realtime `INSERT` and `DELETE` events refetch the thread, but other users' edits do not arrive live. Switching the acting account (personal vs organisation) resets the open composer and the liked set. Ownership is per acting identity — a user and an organisation they post as are separate participants. Shows `ModerationRejectedDialog` when a write is rejected.
 
 **Source:** [src/components/ui/comments/CommentThread.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/comments/CommentThread.tsx)
 
@@ -48,7 +48,7 @@ Groups comments into Level 1 threads with their replies and renders `CommentItem
 
 ## CommentItem
 
-A single comment row: avatar and name linking to the author's or organization's profile, relative date, owner edit/delete controls, like button and reply control, plus inline edit or reply composers. Profile links go to `/organizations/{slug}` when authored as an organization, otherwise `/profiles/{username}/posts`. Deleted comments render "This comment was deleted" and cannot be liked or replied to.
+A single comment row: avatar and name linking to the author's or organisation's profile, relative date, owner edit/delete controls, like button and reply control, plus inline edit or reply composers. Profile links go to `/organizations/{slug}` when authored as an organisation, otherwise `/profiles/{username}/posts`. Deleted comments render "This comment was deleted" and cannot be liked or replied to.
 
 **Source:** [src/components/ui/comments/CommentItem.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/comments/CommentItem.tsx)
 

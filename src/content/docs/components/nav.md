@@ -91,7 +91,7 @@ The main desktop sidebar: a Create dropdown, collapsible Platform and My Library
 
 ### DashboardSidebar
 
-The dashboard sidebar: a "Create New" dropdown (Article, Project, Organization) and the dashboard nav for the active account type.
+The dashboard sidebar: a "Create New" dropdown (Article, Project, Organisation) and the dashboard nav for the active account type.
 
 **Source:** [src/components/nav/DashboardSidebar.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/DashboardSidebar.tsx)
 
@@ -111,7 +111,7 @@ Shows where the viewer is. On section pages it is the mega-menu trigger. On crea
 
 ### AccountSwitcherModal
 
-Lists the organizations the user administers plus the personal account. See [Account Switching](../../auth-and-accounts/account-switching/).
+Lists the organisations the user administers plus the personal account. See [Account Switching](../../auth-and-accounts/account-switching/).
 
 **Source:** [src/components/nav/components/AccountSwitcherModal.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/nav/components/AccountSwitcherModal.tsx)
 

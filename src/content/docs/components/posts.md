@@ -56,7 +56,7 @@ Shows the repost count; clicking hands the post to the composer's repost mode vi
 
 ### PostCard
 
-The full feed card: author header, collapsible message, image carousel, a single attachment and the interactions row. `post.message` is JSON-encoded and parsed with `parseJSON<string>`. The attachment is picked in priority order: `organization` → `project` → `article` → `reposted_post`; if none is present, the first set `*_unavailable` flag renders `UnavailablePost`. Organization-authored posts show the organization logo and name.
+The full feed card: author header, collapsible message, image carousel, a single attachment and the interactions row. `post.message` is JSON-encoded and parsed with `parseJSON<string>`. The attachment is picked in priority order: `organization` → `project` → `article` → `reposted_post`; if none is present, the first set `*_unavailable` flag renders `UnavailablePost`. Organisation-authored posts show the organisation logo and name.
 
 **Source:** [src/components/posts/cards/PostCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/cards/PostCard.tsx)
 
@@ -73,7 +73,7 @@ The full feed card: author header, collapsible message, image carousel, a single
 
 ### PostAuthor
 
-The author line with a relative date; adds a "Delete Post" dropdown for owners. Owner detection uses `useSessionInfo()` — an organization post is owned only when the active account is that organization.
+The author line with a relative date; adds a "Delete Post" dropdown for owners. Owner detection uses `useSessionInfo()` — an organisation post is owned only when the active account is that organisation.
 
 **Source:** [src/components/posts/attachments/PostAuthor.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/attachments/PostAuthor.tsx)
 
@@ -109,13 +109,13 @@ Link cards for a project attached to a post, both linking to `/projects/{slug}`.
 
 ### AttachedOrganization
 
-A link card for an organization tagged in a post: name and cover image, or logo when there is no cover.
+A link card for an organisation tagged in a post: name and cover image, or logo when there is no cover.
 
 **Source:** [src/components/posts/attachments/AttachedOrganization.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/attachments/AttachedOrganization.tsx)
 
 ### UnavailablePost
 
-A placeholder for attached content whose author or organization was deleted.
+A placeholder for attached content whose author or organisation was deleted.
 
 **Source:** [src/components/posts/attachments/UnavailablePost.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/attachments/UnavailablePost.tsx)
 
@@ -149,7 +149,7 @@ Returns `null` until hydration and while there is no signed-in user. Builds the 
 
 ### AttachModal
 
-A search dialog for choosing a project, article or organization to attach. Debounces at 3 characters and 500ms. Resets query and results when the dialog closes.
+A search dialog for choosing a project, article or organisation to attach. Debounces at 3 characters and 500ms. Resets query and results when the dialog closes.
 
 **Source:** [src/components/posts/create-form/AttachModal.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/posts/create-form/AttachModal.tsx)
 

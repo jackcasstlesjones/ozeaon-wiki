@@ -31,7 +31,7 @@ A destructive `ConfirmDialog` with the fixed "Delete Article?" copy from `DELETE
 
 ### ArticlesInfiniteFeed
 
-The public infinite scroll feed of `ArticleCard`s. Wraps `GenericInfiniteFeed` with `entity="articles"`, ordered by `published_at` descending. Pass `userId` or `organizationId` to scope it to a profile or organization tab; omitting both gives the global feed.
+The public infinite scroll feed of `ArticleCard`s. Wraps `GenericInfiniteFeed` with `entity="articles"`, ordered by `published_at` descending. Pass `userId` or `organizationId` to scope it to a profile or organisation tab; omitting both gives the global feed.
 
 **Source:** [src/components/articles/ArticlesInfiniteFeed.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/ArticlesInfiniteFeed.tsx)
 
@@ -49,7 +49,7 @@ The desktop actions row of `ArticleCard`: a comment toggle, a "Read Article" lin
 
 ### ArticleBylineRow
 
-Author or authoring organization byline, divider, relative publish date, and optional linked-organization byline. Callers pass the grid-cols template directly via `className` because it depends on whether `linked_organization` is set.
+Author or authoring organisation byline, divider, relative publish date, and optional linked-organisation byline. Callers pass the grid-cols template directly via `className` because it depends on whether `linked_organization` is set.
 
 **Source:** [src/components/articles/cards/ArticleBylineRow.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/articles/cards/ArticleBylineRow.tsx)
 

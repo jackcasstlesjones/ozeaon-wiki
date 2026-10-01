@@ -3,7 +3,7 @@ title: "Users"
 description: Shared user-presentation primitives — avatars, author bylines and meta, user cards, and the Network directory feed.
 ---
 
-The `users/` components show a person anywhere in the app. `UserAvatar` and `AuthorByline` can also show an organization. They take already-fetched data as props and never query Supabase. Import them from `@/components/users`; `ExpandableBio` isn't in the barrel. See also [User Profiles & Social Graph](../../profiles/profiles-and-social-graph/).
+The `users/` components show a person anywhere in the app. `UserAvatar` and `AuthorByline` can also show an organisation. They take already-fetched data as props and never query Supabase. Import them from `@/components/users`; `ExpandableBio` isn't in the barrel. See also [User Profiles & Social Graph](../../profiles/profiles-and-social-graph/).
 
 ## UserAvatar
 
@@ -13,7 +13,7 @@ A round avatar with three states: the image, a coloured initials fallback, or an
 
 ## AuthorByline
 
-An inline author credit. It links to the authoring organization if there is one, otherwise to the author URL, otherwise renders plain text. It returns `null` when given none of these. `AuthorLineDivider`, in the same file, is the decorative dot between byline items. It uses `last:sr-only`, so a trailing divider is hidden.
+An inline author credit. It links to the authoring organisation if there is one, otherwise to the author URL, otherwise renders plain text. It returns `null` when given none of these. `AuthorLineDivider`, in the same file, is the decorative dot between byline items. It uses `last:sr-only`, so a trailing divider is hidden.
 
 **Source:** [src/components/users/AuthorByline.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/users/AuthorByline.tsx)
 

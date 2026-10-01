@@ -18,7 +18,7 @@ A title, a description body and a Cancel/Confirm footer. It is the base for ever
 
 ## ConfirmDeleteDialog
 
-A destructive confirmation that fires `onConfirm` only once the user has typed `DELETE` (trimmed, case-sensitive). Use it for teardowns such as account and organization deletion. Closing it resets the typed text.
+A destructive confirmation that fires `onConfirm` only once the user has typed `DELETE` (trimmed, case-sensitive). Use it for teardowns such as account and organisation deletion. Closing it resets the typed text.
 
 **Source:** [src/components/ui/overlays/ConfirmDeleteDialog.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/overlays/ConfirmDeleteDialog.tsx)
 

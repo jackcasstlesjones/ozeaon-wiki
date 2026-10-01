@@ -22,7 +22,7 @@ The social graph models two different user-to-user relationships, and the distin
 | Follow | `user_follows` | One-directional interest edge | None |
 | Connection | `user_connections` | Mutual relationship via request and acceptance | The recipient must accept |
 
-Accepting a connection also creates mutual follows. Every pending window of a connection request is mirrored into `user_connection_history`, and blocks live in `user_blocks`. Organization follows (`organization_follows`) are not part of this graph; see [Organization Profiles, Membership & Roles](../../organisations/organisations/).
+Accepting a connection also creates mutual follows. Every pending window of a connection request is mirrored into `user_connection_history`, and blocks live in `user_blocks`. Organisation follows (`organization_follows`) are not part of this graph; see [Organisation Profiles, Membership & Roles](../../organisations/organisations/).
 
 ## Architecture
 
@@ -32,7 +32,7 @@ Reads live in [`queries/profile-reads.ts`](https://github.com/ozeaon/ozeaon-v2/b
 
 - Profiles are read through named projections (`USER_CARD_SELECT`, and `USER_GRID_CARD_SELECT` which extends it by interpolation), not `*`. The card projection embeds the `avatar_image:images!avatar_image_id(...)` join, so it can be nested in any query that joins a profile.
 - Per-username reads (`getProfileIdByUsername`, `getProfileHeroDataByUsername`, `getProfileActivityCounts`) are wrapped in React `cache()`, so a page that resolves the same username in several components runs one query.
-- Activity counts use `count: "exact", head: true` queries run in parallel, and the article count excludes organization-authored articles.
+- Activity counts use `count: "exact", head: true` queries run in parallel, and the article count excludes organisation-authored articles.
 - Errors are logged with `logError` and the helper returns an empty result, so one failed read cannot turn a profile page into a 500.
 
 ### Profile Page Composition
@@ -47,7 +47,7 @@ flowchart TD
     DataSlot --> HeaderCard["ProfileHeaderCard"]
 ```
 
-`ProfilePageShell` and `ProfileHeader` are shared with organization profiles. `ProfileHeader` takes separate `dataSlot` and `actions` props; for users the actions slot is empty, while the organization layout passes its `OrganizationActions` through `OrganizationDataSlot` instead. The owner-facing editor is [`ProfileSettings`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/account/ProfileSettings.tsx), validated by [`zod/profile/profileSettings.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/zod/profile/profileSettings.ts) against the limits in [`config/constants/profile.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/profile.ts). The component catalog is on [Profiles](../../components/profiles/).
+`ProfilePageShell` and `ProfileHeader` are shared with organisation profiles. `ProfileHeader` takes separate `dataSlot` and `actions` props; for users the actions slot is empty, while the organisation layout passes its `OrganizationActions` through `OrganizationDataSlot` instead. The owner-facing editor is [`ProfileSettings`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/account/ProfileSettings.tsx), validated by [`zod/profile/profileSettings.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/zod/profile/profileSettings.ts) against the limits in [`config/constants/profile.ts`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/config/constants/profile.ts). The component catalog is on [Profiles](../../components/profiles/).
 
 ## Profile Images
 
@@ -118,7 +118,7 @@ The other dormant actions in `queries/profile.ts` are `disconnectConnection`, `u
 ## Related Links
 
 - [Media & Images](../../moderation-and-storage/media-and-images/)
-- [Organization Profiles, Membership & Roles](../../organisations/organisations/)
+- [Organisation Profiles, Membership & Roles](../../organisations/organisations/)
 - [Posts](../../posts/posts/)
 - [Profiles components](../../components/profiles/)
 - [User Settings](../../auth-and-accounts/user-settings/)

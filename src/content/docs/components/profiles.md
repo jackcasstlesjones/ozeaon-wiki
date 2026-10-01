@@ -1,9 +1,9 @@
 ---
 title: "Profiles"
-description: Components that build the user profile and organization profile pages — shared page shell, header data slots, owner image controls, actions and overview sections.
+description: Components that build the user profile and organisation profile pages — shared page shell, header data slots, owner image controls, actions and overview sections.
 ---
 
-`src/components/profiles/` assembles the two profile page layouts: user profiles at `/profiles/[username]` and organization profiles at `/organizations/[slug]`. Both layouts compose the same `shared/` frame — `ProfilePageShell` with a cover, header, tabs and sidebar — and fill its slots with domain-specific pieces from `users/` or `organizations/`. Owner editing (cover, avatar, the Edit Profile link) is offered only while the active account is the user themself, not an organization they manage. See also [Profiles & Social Graph](../../profiles/profiles-and-social-graph/).
+`src/components/profiles/` assembles the two profile page layouts: user profiles at `/profiles/[username]` and organisation profiles at `/organizations/[slug]`. Both layouts compose the same `shared/` frame — `ProfilePageShell` with a cover, header, tabs and sidebar — and fill its slots with domain-specific pieces from `users/` or `organizations/`. Owner editing (cover, avatar, the Edit Profile link) is offered only while the active account is the user themself, not an organisation they manage. See also [Profiles & Social Graph](../../profiles/profiles-and-social-graph/).
 
 ```mermaid
 flowchart TD
@@ -81,7 +81,7 @@ The profile avatar, with camera (upload) and trash (remove) buttons overlaid on 
 
 ### CoverOwnerControls
 
-Renders `CoverImageEditor` only when the viewer is the profile owner acting as themselves. Returns `null` when the active account is an organization, because the upload route always writes to the personal profile.
+Renders `CoverImageEditor` only when the viewer is the profile owner acting as themselves. Returns `null` when the active account is an organisation, because the upload route always writes to the personal profile.
 
 **Source:** [src/components/profiles/users/CoverOwnerControls.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/users/CoverOwnerControls.tsx)
 
@@ -165,23 +165,23 @@ A square card holding a single `ZoomableImage`.
 
 **Source:** [src/components/profiles/users/images/ImageCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/users/images/ImageCard.tsx)
 
-## Organizations
+## Organisations
 
 ### OrganizationDataSlot
 
-The organization profile header card: logo, name, Verified badge, founding-member badge, contact/social links, mission, member and active-project counts, and an actions slot. Renders the `verified` flag from the database; there is no verification flow yet (organization verification is on the roadmap). Uses `UserAvatar` for the logo, so organizations without a logo get initials.
+The organisation profile header card: logo, name, Verified badge, founding-member badge, contact/social links, mission, member and active-project counts, and an actions slot. Renders the `verified` flag from the database; there is no verification flow yet (organisation verification is on the roadmap). Uses `UserAvatar` for the logo, so organisations without a logo get initials.
 
 **Source:** [src/components/profiles/organizations/OrganizationDataSlot.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/OrganizationDataSlot.tsx)
 
 ### OrganizationActions
 
-Chooses the viewer's action on an organization profile: Edit for owners and admins, Join/Cancel Request for non-members, nothing for other members or signed-out viewers. Reads the viewer's `organization_members` row and any pending join request in parallel; the layout wraps it in `Suspense`.
+Chooses the viewer's action on an organisation profile: Edit for owners and admins, Join/Cancel Request for non-members, nothing for other members or signed-out viewers. Reads the viewer's `organization_members` row and any pending join request in parallel; the layout wraps it in `Suspense`.
 
 **Source:** [src/components/profiles/organizations/OrganizationActions.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/OrganizationActions.tsx)
 
 ### EditOrganizationButton
 
-An "Edit Organisation" button that switches the active account to the organization if needed (via `switchToOrg`), then navigates to `/settings`. Organization settings render from the active account cookie, so the account switch must happen first.
+An "Edit Organisation" button that switches the active account to the organisation if needed (via `switchToOrg`), then navigates to `/settings`. Organisation settings render from the active account cookie, so the account switch must happen first.
 
 **Source:** [src/components/profiles/organizations/EditOrganizationButton.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/EditOrganizationButton.tsx)
 
@@ -193,13 +193,13 @@ A "Join Organisation" button that becomes "Cancel Request" while a join request 
 
 ### OrganizationActivitySidebar
 
-The organization profile sidebar: an activity card with project/article counts and trend, above the organization's links. The overview page renders a second copy inside a `md:hidden` wrapper for mobile.
+The organisation profile sidebar: an activity card with project/article counts and trend, above the organisation's links. The overview page renders a second copy inside a `md:hidden` wrapper for mobile.
 
 **Source:** [src/components/profiles/organizations/OrganizationActivitySidebar.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/OrganizationActivitySidebar.tsx)
 
 ### OrganizationLinks
 
-An organization's contact and social links in an icon-only row (default) or a labelled column. Returns `null` when there are no links. Each link gets an `aria-label` when labels are hidden.
+An organisation's contact and social links in an icon-only row (default) or a labelled column. Returns `null` when there are no links. Each link gets an `aria-label` when labels are hidden.
 
 **Source:** [src/components/profiles/organizations/OrganizationLinks.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/OrganizationLinks.tsx)
 
@@ -209,13 +209,13 @@ Picks a brand icon (LinkedIn, GitHub or globe) for a link based on its label, ma
 
 **Source:** [src/components/profiles/organizations/SocialLinkIcon.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/SocialLinkIcon.tsx)
 
-## Organization Overview Sections
+## Organisation Overview Sections
 
 Barrel: `src/components/profiles/organizations/sections/index.ts` exports `DescriptionSection`, `ActiveProjectsSection`, `RecentArticlesSection` and `MembersSection`.
 
 ### DescriptionSection
 
-A "Description" heading and the organization's description text. Returns `null` when there is no description.
+A "Description" heading and the organisation's description text. Returns `null` when there is no description.
 
 **Source:** [src/components/profiles/organizations/sections/DescriptionSection.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/sections/DescriptionSection.tsx)
 
@@ -239,6 +239,6 @@ A "Members" heading and a one- or two-column grid of `UserCard`s. Returns `null`
 
 ### OrgPostsFeed
 
-Empty placeholder file — no content, no exports, not in the sections barrel. The organization posts tab renders the shared `PostsInfiniteFeed` with an `organizationId` directly (see [Posts](../../posts/posts/)).
+Empty placeholder file — no content, no exports, not in the sections barrel. The organisation posts tab renders the shared `PostsInfiniteFeed` with an `organizationId` directly (see [Posts](../../posts/posts/)).
 
 **Source:** [src/components/profiles/organizations/sections/OrgPostsFeed.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/profiles/organizations/sections/OrgPostsFeed.tsx)

@@ -142,7 +142,7 @@ The slug is locked from the moment of publishing; the form-wide lock applies onl
 | `/articles/[slug]` | `(reader)` | Public article reader. |
 | `@sidebar/articles/[slug]` | `(reader)` | Parallel sidebar slot — Authors and Funding (declared provenance). A `BountyBlock` component exists but is an unrendered "Coming Soon" placeholder; token economy is on the roadmap. |
 | `/settings/my-articles` | `(dashboard)/(personal)` | Personal article management. |
-| `/settings/.../articles` | `(dashboard)/(organizations)` | Organization article management. |
+| `/settings/.../articles` | `(dashboard)/(organizations)` | Organisation article management. |
 
 ## Failure Modes & Edge Cases
 

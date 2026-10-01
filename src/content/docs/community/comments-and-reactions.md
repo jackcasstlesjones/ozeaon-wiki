@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-The Comments & Reactions subsystem provides entity-agnostic threaded discussions on posts, projects and articles, with soft deletion, organization-vs-user identity authorship, realtime updates and per-comment reaction counting.
+The Comments & Reactions subsystem provides entity-agnostic threaded discussions on posts, projects and articles, with soft deletion, organisation-vs-user identity authorship, realtime updates and per-comment reaction counting.
 
 ## Overview
 
@@ -52,7 +52,7 @@ The response envelope `CommentThreadResponse<T>` carries `comments` (the fetched
 
 Select projections are kept as literal strings because Supabase infers result types from the select text — a dynamically built select would erase the inferred types. Each of `POST_COMMENT_SELECT`, `PROJECT_COMMENT_SELECT` and `ARTICLE_COMMENT_SELECT` names its own FK constraint explicitly because `organizations` is reachable from a comment row by more than one path.
 
-`scopeToPostingIdentity` scopes edit and delete to the *currently acting* identity: someone commenting for an organization must be wearing the same hat to edit or delete it. `scopeToOwnComment` composes that with the comment id and author id. Neither helper adds the entity FK column — it is the one column named differently in every comment table (`post_id`, `project_id`, `article_id`), so the entity-specific route adds it.
+`scopeToPostingIdentity` scopes edit and delete to the *currently acting* identity: someone commenting for an organisation must be wearing the same hat to edit or delete it. `scopeToOwnComment` composes that with the comment id and author id. Neither helper adds the entity FK column — it is the one column named differently in every comment table (`post_id`, `project_id`, `article_id`), so the entity-specific route adds it.
 
 `assertCommentsOpen` returns 404 for a nonexistent entity and 403 for a disabled thread. The 404/403 split is intentional: a bad entity id must never read as a disabled thread, or a caller could probe which ids exist.
 

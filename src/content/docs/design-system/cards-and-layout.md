@@ -45,10 +45,10 @@ flowchart TD
 
 The `(dashboard)/layout.tsx` provides all visible chrome: it wraps content in [`TwoColumnShell`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/layout.tsx) with `AppTopbar` and `DashboardSidebar`. The two settings sub-layouts beneath it are authorization guards, not chrome layers:
 
-- [`settings/(organizations)/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/settings/(organizations)/layout.tsx) — redirects to `/settings` if the active account is not an organization
+- [`settings/(organizations)/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/settings/(organisations)/layout.tsx) — redirects to `/settings` if the active account is not an organisation
 - [`settings/(personal)/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/settings/(personal)/layout.tsx) — redirects to `/settings` if the active account is not a user
 
-The [`members/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/settings/(organizations)/members/layout.tsx) goes further: it checks `getUserOrgRole` and redirects non-owners/non-admins to the organization page, then renders `OrgMembersHeader` and `NavTabs` (member list, invitations, and join requests).
+The [`members/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(main)/(dashboard)/settings/(organisations)/members/layout.tsx) goes further: it checks `getUserOrgRole` and redirects non-owners/non-admins to the organisation page, then renders `OrgMembersHeader` and `NavTabs` (member list, invitations, and join requests).
 
 The [`(auth)/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/app/(auth)/layout.tsx) is a flat shell with no dashboard chrome; it renders `AuthMarketingPanel` alongside its children for the marketing split-screen on auth pages.
 
@@ -60,7 +60,7 @@ The [`(auth)/layout.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db
 
 ## Operational Notes
 
-Shell persistence is a direct effect of the App Router layout hierarchy: `TwoColumnShell` (in the dashboard layout) does not re-render when navigating between settings child pages. Moving between organization settings tabs swaps only the leaf `page.tsx`, keeping the sidebar and topbar mounted.
+Shell persistence is a direct effect of the App Router layout hierarchy: `TwoColumnShell` (in the dashboard layout) does not re-render when navigating between settings child pages. Moving between organisation settings tabs swaps only the leaf `page.tsx`, keeping the sidebar and topbar mounted.
 
 Token-driven styling keeps the generated CSS bounded by the token list rather than by the number of pages. For token definitions see [Design Tokens](../design-tokens/).
 

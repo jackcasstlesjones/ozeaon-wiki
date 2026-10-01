@@ -88,7 +88,7 @@ A centred `<section>` with an optional icon, a title, an optional description an
 
 ## FoundingMemberBadge
 
-A gradient "Founding Member" pill with a star glyph. User and organization profiles use different colour palettes; pass `variant="user"` or `variant="organization"`.
+A gradient "Founding Member" pill with a star glyph. User and organisation profiles use different colour palettes; pass `variant="user"` or `variant="organization"`.
 
 **Source:** [src/components/ui/display/FoundingMemberBadge.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/FoundingMemberBadge.tsx)
 
@@ -100,7 +100,7 @@ Generic single-line chip row: measures each chip's real width in a hidden mirror
 
 ## OrgVerifiedBadge
 
-A green check badge marking a verified organization, optionally with a "Verified" label. Renders the `verified` column from the organizations table; there is no verification flow yet (org verification is on the roadmap).
+A green check badge marking a verified organisation, optionally with a "Verified" label. Renders the `verified` column from the organisations table; there is no verification flow yet (org verification is on the roadmap).
 
 **Source:** [src/components/ui/display/OrgVerifiedBadge.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/display/OrgVerifiedBadge.tsx)
 

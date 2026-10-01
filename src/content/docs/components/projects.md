@@ -85,7 +85,7 @@ Category chips deduped from subcategories, fitted on one line with a show more/l
 
 ### CondensedProjectCard
 
-A compact vertical card built on the shared `CondensedCard*` primitives. Used in carousels, mobile feeds and organization profiles. Always renders a static "Funding - Soon" badge (project funding is on the roadmap, not built).
+A compact vertical card built on the shared `CondensedCard*` primitives. Used in carousels, mobile feeds and organisation profiles. Always renders a static "Funding - Soon" badge (project funding is on the roadmap, not built).
 
 **Source:** [src/components/projects/cards/CondensedProjectCard.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/projects/cards/CondensedProjectCard.tsx)
 
@@ -145,7 +145,7 @@ Section 3: a grouped multi-select of subcategories, an SDG checkbox group and a 
 
 ### ConfigurationSection
 
-Section 4: the funding and donations toggles (both disabled, "Coming soon" — project funding is on the roadmap) and the organization connection picker.
+Section 4: the funding and donations toggles (both disabled, "Coming soon" — project funding is on the roadmap) and the organisation connection picker.
 
 **Source:** [src/components/projects/form/steps/ConfigurationSection.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/projects/form/steps/ConfigurationSection.tsx)
 
@@ -219,7 +219,7 @@ One FAQ entry with question and answer inputs. The header shows the trimmed ques
 
 ### ProjectHeroSection
 
-The project page hero: cover image (or brand gradient) with type and status badges, category chips, byline, dates, title, tagline, linked organization, location and CTA. On `md+` these sit in an overlay on the cover; below `md` they stack under it.
+The project page hero: cover image (or brand gradient) with type and status badges, category chips, byline, dates, title, tagline, linked organisation, location and CTA. On `md+` these sit in an overlay on the cover; below `md` they stack under it.
 
 **Source:** [src/components/projects/page/ProjectHeroSection.tsx](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/projects/page/ProjectHeroSection.tsx)
 

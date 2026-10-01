@@ -53,7 +53,7 @@ Account deletion is fully built. `deleteAccount` in [`src/lib/supabase/actions.t
 4. Sends a deletion confirmation email to the account's address.
 5. Signs out locally and calls `clearActiveAccount`, then redirects to `/`.
 
-`ProfileSettings` receives `isOrgOwner` as a prop. When it is true, the delete button opens an extra dialog step informing the user that their organizations will be affected.
+`ProfileSettings` receives `isOrgOwner` as a prop. When it is true, the delete button opens an extra dialog step informing the user that their organisations will be affected.
 
 ## Failure Modes & Edge Cases
 
