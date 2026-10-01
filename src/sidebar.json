@@ -1,0 +1,132 @@
+[
+  {
+    "label": "Overview",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "overview"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Getting Started",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "getting-started"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Architecture",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "architecture"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Authentication & Session Management",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "authentication"
+        }
+      }
+    ]
+  },
+  {
+    "label": "API Layer",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "api-layer"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Core Product Workflows",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "core-workflows"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Rich Text Editor & Content Documents",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "editor-and-documents"
+        }
+      }
+    ]
+  },
+  {
+    "label": "UI Component Library & Design System",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "design-system"
+        }
+      }
+    ]
+  },
+  {
+    "label": "State, Hooks & Utilities",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "hooks-and-utilities"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Data Model & Database",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "data-model"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Integrations & Platform Services",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "integrations"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Deployment & Operations",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "operations"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Developer Guide & Reference",
+    "items": [
+      {
+        "autogenerate": {
+          "directory": "developer-guide"
+        }
+      }
+    ]
+  }
+]
