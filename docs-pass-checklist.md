@@ -345,9 +345,9 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### operations/logging-observability.md (753 → ~220)
 
-- [ ] FORMAT: house-style sweep; fix the mangled `console[method](...)` link; link "Related catalog topics"; fold "Tests & Enforcement" into Operational Notes
-- [ ] ROADMAP/accuracy: the code still uses the manual `Object.keys(record.properties)` workaround while `docs/logging-conventions.md` says not to → state it and flag it as a codebase oddity. Label Sentry/OTel/tracing as roadmap ("Rate limiting & monitoring")
-- [ ] STALE-DETAIL: full `index.ts`/`config.ts` copies (keep the prod formatter excerpt and its array-not-JSON rationale), the `client-config.ts` copy (→ 3 bullets), Configuration Reference tables, API Reference, the duplicate `logError` sequence diagram → cut
+- [x] FORMAT: house-style sweep; fix the mangled `console[method](...)` link; link "Related catalog topics"; fold "Tests & Enforcement" into Operational Notes
+- [x] ROADMAP/accuracy: the code still uses the manual `Object.keys(record.properties)` workaround while `docs/logging-conventions.md` says not to → state it and flag it as a codebase oddity. Label Sentry/OTel/tracing as roadmap ("Rate limiting & monitoring")
+- [x] STALE-DETAIL: full `index.ts`/`config.ts` copies (keep the prod formatter excerpt and its array-not-JSON rationale), the `client-config.ts` copy (→ 3 bullets), Configuration Reference tables, API Reference, the duplicate `logError` sequence diagram → cut
 
 ### operations/migrations-and-seeding.md (475 → ~170)
 
@@ -362,19 +362,19 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### developer-guide/adding-a-feature.md (568 → ~200)
 
-- [ ] FORMAT: house-style sweep; link the sibling wiki pages
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; link the sibling wiki pages
+- [x] ROADMAP/accuracy:
   - the schema overview lists `pods`, `educational_resources`, `project_participants` (dropped) and `bookmarks` (doesn't exist) → link `docs/db/schema.sql`; CLAUDE.md is stale. Drop the platform tagline
   - API routes must use `withAuthUser()`; ESLint bans `auth.getUser()`
   - no local `ci:deploy` or `wrangler rollback`: merge to main, CI deploys, roll back by revert
   - the "TypeScript gate on Stop" is a Claude Code hook, not a project gate → "run `pnpm check`; `pr-validation.yml` runs lint/typecheck"
-- [ ] STALE-DETAIL: branch/commit/PR tables (→ link ci-cd), the deployment and lint command tables, the checklist table duplicating the steps (keep one) → cut
+- [x] STALE-DETAIL: branch/commit/PR tables (→ link ci-cd), the deployment and lint command tables, the checklist table duplicating the steps (keep one) → cut
 
 ### developer-guide/conventions-and-linting.md (509 → ~170)
 
-- [ ] FORMAT: house-style sweep; remove the `<!-- SOURCE FILE REFERENCES -->` comment; link the logging and auth pages
-- [ ] ROADMAP: add a "Caching Model Restrictions" section (`eslint.rules.cache.mjs` bans `force-dynamic`/`force-static`, `use cache`, `cacheTag`, `cacheLife`, `updateTag`). Note that `import/order` is configured but off
-- [ ] STALE-DETAIL: the full `eslint.rules.base.mjs` copy and the ignore list (→ a summary), config import/shared-rules blocks (keep the selector-merge snippet), script bodies, the `globalIgnores` copy, the sequence diagram → cut
+- [x] FORMAT: house-style sweep; remove the `<!-- SOURCE FILE REFERENCES -->` comment; link the logging and auth pages
+- [x] ROADMAP: add a "Caching Model Restrictions" section (`eslint.rules.cache.mjs` bans `force-dynamic`/`force-static`, `use cache`, `cacheTag`, `cacheLife`, `updateTag`). Note that `import/order` is configured but off
+- [x] STALE-DETAIL: the full `eslint.rules.base.mjs` copy and the ignore list (→ a summary), config import/shared-rules blocks (keep the selector-merge snippet), script bodies, the `globalIgnores` copy, the sequence diagram → cut
 
 ### config-and-utils/config-constants.md (713 → ~200)
 
