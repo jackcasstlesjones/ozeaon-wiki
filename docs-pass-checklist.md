@@ -400,13 +400,13 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### config-and-utils/zod-validation.md (1049 → ~220)
 
-- [ ] FORMAT: house-style sweep; delete the "Careful readers should verify" line
-- [ ] ROADMAP: `newEventSchema` and `NewEventDialog` are unwired (Events is planned); the project funding/donation fields are disabled "coming soon"; the article indigenous knowledge fields have no hub (planned)
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; delete the "Careful readers should verify" line
+- [x] ROADMAP: `newEventSchema` and `NewEventDialog` are unwired (Events is planned); the project funding/donation fields are disabled "coming soon"; the article indigenous knowledge fields have no hub (planned)
+- [x] ROADMAP/accuracy:
   - `z.config()` is global, so the only risk is a bundle where `z.ts` was never imported
   - the "four symbols per step" claim → "projects follow a quartet naming; articles and orgs use subsets"
   - list the real `validators.ts` exports in one line
-- [ ] STALE-DETAIL: the `z.ts` copy (keep a 6-line excerpt and the message table), import-line sections, ~500 lines of per-step field tables (→ a paragraph per domain plus the gotchas: `z.coerce.boolean("false")`, SDGs not actually required, the inert article date validation, tag limits from `strings.ts` vs `ARTICLE_FIELD_LIMITS`, `safeString` misuse, `parent_comment_id` set by trigger), the duplicate issue-code table, the duplicate mermaid → cut
+- [x] STALE-DETAIL: the `z.ts` copy (keep a 6-line excerpt and the message table), import-line sections, ~500 lines of per-step field tables (→ a paragraph per domain plus the gotchas: `z.coerce.boolean("false")`, SDGs not actually required, the inert article date validation, tag limits from `strings.ts` vs `ARTICLE_FIELD_LIMITS`, `safeString` misuse, `parent_comment_id` set by trigger), the duplicate issue-code table, the duplicate mermaid → cut
 
 ### design-system/ui-primitives.md (377 → ~50)
 
