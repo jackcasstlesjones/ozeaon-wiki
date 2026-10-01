@@ -19,6 +19,10 @@ Codebase pin: ozeaon-v2 `0a4f1a95`.
 - Status callouts for unbuilt or in-progress features: Starlight asides (`:::note[...]` for in progress or roadmap, `:::caution[...]` for unwired code), not `>` blockquotes.
 - Citations: inline links in prose, not a `> Source:` blockquote after every snippet.
 - Component catalog entries: `## Name`, 1–3 sentences on purpose and when to use it, one `**Source:**` link. No props tables, `Used in:` lists or `Kind:` lines.
+- Spelling: UK "organisation(s)" in prose, titles, descriptions and link labels. Keep code identifiers, file and route paths, link targets and code blocks as written (`OrganizationCard`, `/organizations/[slug]`).
+- Product name: "OZEAON", never "OZEAON V2". Keep `ozeaon-v2` only in repo URLs and code identifiers such as `ozeaondb_v2_*`.
+- Headings: Title Case for every `##`/`###` (code identifiers excepted).
+- Sidebar: one section per domain (Posts, Projects, Articles, Organisations, Profiles & Social, Community) for feature pages; all component catalogues stay together under Components.
 - Keep the why, architecture, flows, gotchas and conventions. Cut field lists, copied types, function-by-function tables, exhaustive constants and version numbers, and link to the code instead.
 
 ## Site-wide
@@ -63,7 +67,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - Delete `## Purpose and Scope`, add `description:`, convert `> Source:` blockquotes to inline links, rename failure/ops sections to the standard names, replace plain-text "sibling page" references and stale generator slugs (`6-api-layer`, `2-architecture`, `8-design-system`…) with real relative links, and delete generator hedging ("not read within the source budget", "exploration budget", "not verified in source", "Careful readers should verify").
 - [x] FORMAT src/sidebar.json (done; was pending `components/tiptap.md`, which still has `sidebar.order` because it was being rewritten; strip it once it's committed): the explicit Components list ignores `sidebar.order` on the top-level component pages (organizations and posts were both 10), and new component pages must be added by hand → drop `sidebar.order` from the top-level component pages and add a README note that `src/sidebar.json` sets their order
 - [x] FORMAT: heading case. Every `##`/`###` heading uses Title Case (code identifiers excepted) → run a site-wide check at the end
-- [x] FORMAT: spelling. Prose mixes "organisation" and "organization" → use "organization" in prose (matching the code identifiers) and keep "Organisation" only in quoted UI strings; sweep the whole site at the end
+- [x] FORMAT: spelling. Prose mixed "organisation" and "organization" → first standardised on "organization", then switched site-wide to UK "organisation" (see Follow-ups)
 - [x] FORMAT: cross-links from component pages to their feature pages (components/projects → features/projects, etc.) → add a one-line "See also" in each component page intro
 
 ### architecture/app-structure.md (460 → ~200)
@@ -197,26 +201,26 @@ These apply to every one of the 46 non-component pages. Each page section below 
   - `docs/hook-form-components.md` describes the old BlockNote editor → drop the link or flag it as stale
 - [x] STALE-DETAIL: the barrel copy and exports table, toolbar JSX, the full selector body, every registry method, the duplicated Editor-prop section (keep it here as 2 sentences), Usage Examples, API Reference, the "~15 re-render" estimate → cut
 
-### features/search.md (708 → ~170)
+### community/search.md (was features/search.md) (708 → ~170)
 
 - [x] FORMAT: house-style sweep; Title Case the lowercase subheadings; use real sibling links
 - [x] ROADMAP: shipped is keyword search at `/search` plus `GET /api/search` over org name, project/article title and profile name/username (plus author matches). Not covered: posts, comments, body text, tags, SDGs, events, resources. Global search is planned
 - [x] ROADMAP/accuracy: the page SSRs page 1 via `searchContent`, and `SearchResultsFeed` fetches later pages from `/api/search` → fix the diagram. Delete the `@redis/search` aside
 - [x] STALE-DETAIL: line-by-line copies of `search.ts` (keep the wildcard-hardening snippet), copied types and the ER diagram, usage examples, constants tables (keep the `SEARCH_AUTHOR_MATCH_CAP` gotcha), the API Reference, padding notes → cut
 
-### features/notifications.md (620 → ~180)
+### community/notifications.md (was features/notifications.md) (620 → ~180)
 
 - [x] FORMAT: title "Notifications & Real-Time Updates" → "Notifications"; house-style sweep; remove ticket/AC codes from prose
 - [x] ROADMAP: in progress (first release). The bell renders only when `NEXT_PUBLIC_FEATURE_NOTIFICATIONS === "true"`, and `/posts/[id]` 404s when the flag is off. There is no notifications page yet. Realtime is wired (`supabase_realtime` publication, `REPLICA IDENTITY FULL`, `subscribeWithAuth`). Summarise the 18 triggers in `20260921000000_notifications_triggers.sql` in one line. Grouping, settings and digests are "second pass" (planned)
 - [x] STALE-DETAIL: hook and query body copies (keep the scope-ref and `.is("read_at", null)` snippets), the API Reference, the constants table, the channel table (→ 2 bullets), the terminology table → cut
 
-### features/profiles-and-social-graph.md (769 → ~200)
+### profiles/profiles-and-social-graph.md (was features/profiles-and-social-graph.md) (769 → ~200)
 
 - [x] FORMAT: house-style sweep; fix the `src/config/connectionConfig` link (add `.ts`)
 - [x] ROADMAP: add a status callout. Follows, connections and blocking have server actions and tables, but no UI calls them: the profile layout passes `actions={null}` (`TODO(post-Phase-0)`). Rewiring them and re-enabling blocking is on the roadmap. Fix the diagram that draws `DataSlot --> Actions`, and the claim that "a block is enforced consistently"
 - [x] STALE-DETAIL: the `UserProfile` type copy, ER columns, read-function bodies, connection action copies (keep the flowchart and 3–4 "why" sentences), the `followUser` copy, upload hook snippets, API Reference, config table → cut
 
-### features/comments-and-reactions.md (560 → ~170)
+### community/comments-and-reactions.md (was features/comments-and-reactions.md) (560 → ~170)
 
 - [x] FORMAT: house-style sweep; add `## Failure Modes & Edge Cases` (redaction in the API only, 404 vs 403, identity switch clears likes) and `## Related Links`
 - [x] ROADMAP/accuracy:
@@ -227,14 +231,14 @@ These apply to every one of the 46 non-component pages. Each page section below 
   - `CommentThread`, not `CommentList`, owns `use-thread-comments`
 - [x] STALE-DETAIL: four copied types (keep the `CommentEntity` template-literal snippet), helper bodies (keep the "same hat" rule and the 404/403 rationale), the constants table, parser copies, ER columns, hook micro-snippets → cut
 
-### features/posts.md (689 → ~160)
+### posts/posts.md (was features/posts.md) (689 → ~160)
 
 - [x] FORMAT: title "Posts Feed & Post Creation" → "Posts"; house-style sweep; remove "referenced only"/"source budget" wording
 - [x] ROADMAP: `filterFollowed` is dormant (no consumer, and follows can't be created) → mark it as roadmap. Explain reposts: quote posts via `post_tag`, counted by `post_stats.repost_count`, and `useRepost().handleRepost` is a stub. The bookmark button is a disabled placeholder (Notes & Bookmarks is planned)
 - [x] ROADMAP/accuracy: `PostsInfiniteFeed` consumers are the posts page and the profile/org posts tabs (`OrgPostsFeed` is unused). `FEED_PAGE_LIMIT` is in `constants/feeds.ts`. State the `/api/posts` params
 - [x] STALE-DETAIL: props table and full feed copies (keep the de-dup snippet), composer snippets, Usage Examples, API Reference, performance table, component inventory → cut
 
-### features/post-attachments.md (357 → ~60, or delete)
+### posts/post-attachments.md (was features/post-attachments.md) (357 → ~60, or delete)
 
 - [x] ROADMAP/accuracy: the whole page describes a stale or invented model:
   - "posts are called articles" is false
@@ -246,7 +250,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [x] FORMAT: title → "Post Images & Reposts"; house-style sweep
 - [x] STALE-DETAIL: RLS SQL, the property table, and the inferred route inventory → cut
 
-### features/media-and-images.md (311 → ~120)
+### moderation-and-storage/media-and-images.md (was features/media-and-images.md) (311 → ~120)
 
 - [x] FORMAT: title → "Media & Images"; house-style sweep; "Client-Side Upload Transport — `src/lib/images/client.ts`" → "Client Upload Transport"; trim the overlap with storage-r2 and link it
 - [x] ROADMAP/accuracy: replace the four "not read" notes with facts:
@@ -258,7 +262,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
   Remove the invented `getImageUrl` width/quality options
 - [x] STALE-DETAIL: the `client.ts` export table, the Used in list, the CSP table (→ 2 sentences), the duplicate sequence diagram → cut
 
-### features/articles-authoring.md (844 → ~220)
+### articles/articles-authoring.md (was features/articles-authoring.md) (844 → ~220)
 
 - [x] FORMAT: house-style sweep; "storefront" → "the form"; move the off-topic storage/prerender bullets
 - [x] ROADMAP/accuracy:
@@ -268,13 +272,13 @@ These apply to every one of the 46 non-component pages. Each page section below 
   - drop the reader detail and link articles-reader
 - [x] STALE-DETAIL: `generateMetadata` and the auth block copied twice, the reference-data block, attachment assembly copied twice, `ArticleFormProps` and API Reference, default values copied three times, language options, `useForm` options copied twice (keep the `shouldUnregister` snippet), the failure table with line links → cut
 
-### features/articles-reader.md (607 → ~110)
+### articles/articles-reader.md (was features/articles-reader.md) (607 → ~110)
 
 - [x] FORMAT: house-style sweep; link label "Articles: Authoring" → "Article Authoring & Publishing"; drop the non-existent "Articles: Feed" page reference
 - [x] ROADMAP: "funding context" → `FundingBlock` shows the declared funding source, not payments. Cut the speculative "different revisions" claim
 - [x] STALE-DETAIL: full copies of both page files (keep the `hasContent` `"<p></p>"` snippet), the decision flowchart, ER and field table, Configuration Options, API Reference, Usage Examples, the state diagram → cut
 
-### features/organizations.md (840 → ~200)
+### organisations/organisations.md (was features/organizations.md) (840 → ~200)
 
 - [x] FORMAT: house-style sweep. Pick one spelling: "organization" in prose (matching the code identifiers), "Organisation" only in quoted UI strings. Fix the stray "公开", "Priviledged", "four count functions" (it's three), and the emoji table
 - [x] ROADMAP:
@@ -285,7 +289,7 @@ These apply to every one of the 46 non-component pages. Each page section below 
 - [x] ROADMAP/accuracy: `POST /api/organizations/[id]/members` lets an owner or admin insert members directly. `20260520000000_organization_add_member_triggers.sql` stamps the originating invite or request; it doesn't maintain `member_count`. Cut the muddled counters sentence
 - [x] STALE-DETAIL: type copies (keep the `viewer_role` no-N+1 point), query copies (keep the `maybeSingle`/`notFound()` rule), `getUserOrgRole`/`getAdminOrgs` bodies (keep the design bullets), pending-list bodies, activity metrics, `ORG_FIELD_LIMITS` values, API Reference and constants, performance restatement → cut
 
-### features/projects.md (872 → ~200)
+### projects/projects.md (was features/projects.md) (872 → ~200)
 
 - [x] FORMAT: title "Project Lifecycle & Discovery" → "Projects"; house-style sweep; add `## Failure Modes & Edge Cases` (null-vs-[] filter, ownership OR, the uuid precondition, the date-suffix slug) and `## Related Links`
 - [x] ROADMAP:
@@ -645,3 +649,16 @@ These apply to every one of the 46 non-component pages. Each page section below 
 ### Cross-cutting (all pages in this set)
 - [x] FORMAT: None of the topic-style intros link to the matching feature page (e.g. components/projects → features/projects, components/search → features/search, components/notifications → features/notifications). → Add a one-line "See also" in each intro, or a "## Related Links" section at the end.
 - [x] STALE-DETAIL: "**Kind:**" and "**Used in:**" lines appear on every entry, across about 270 entries. → Remove them everywhere. Keep a client/server note only where it's a gotcha (e.g. "no directive but uses state, so it only works inside a client parent").
+
+## Follow-ups After the Pass
+
+- [x] FIX: landing page hero links were relative, so `/ozeaon-wiki` without a trailing slash sent them to `/overview/project-overview/` (404) → made absolute
+- [x] FIX: 9 broken relative links (wrong `../` depth) in agent-written pages → corrected; link checker reports 0 broken
+- [x] CHORE: commit `3dd113c` accidentally tracked 22 empty sandbox placeholder files and `.claude/ralph-loop.local.md` → untracked in `0e325d5` and added to `.git/info/exclude` (history not rewritten)
+- [x] CONTENT: project overview rewritten as a standalone description of the current system (Features / Roadmap), with no references to the README or earlier framing
+- [x] CONTENT: ozeaon-v2 `README.md` rewritten on the `docs/readme` branch to describe the current platform; planned work listed as roadmap. Open question: README says MIT but the repo has no `LICENSE` file
+- [x] LANDING: added Start Here and per-section `LinkCard` grids (Adding a Feature card later removed)
+- [x] STYLE: accent colour switched from brand green to Ozeaon Blue (`#4c647e`, lighter tint in dark mode)
+- [x] NAME: site renamed "OZEAON Developer Wiki"; "V2" removed from prose across the wiki
+- [x] STRUCTURE: "Content & Social Features" split into Posts, Projects, Articles, Organisations, Profiles & Social and Community sections; Media & Images moved to Moderation & Storage; URLs changed from `/features/*` and all internal links rewritten
+- [x] SPELLING: UK "organisation" across prose, titles, descriptions and link labels (123 changes); code, paths and link targets unchanged
