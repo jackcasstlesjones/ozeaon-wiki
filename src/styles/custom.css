@@ -14,6 +14,6 @@
 
 /* Keep the landing-page hero logo modest instead of the default 400px. */
 .hero img {
-	width: min(10rem, 40vw);
+	width: min(16rem, 60vw);
 	height: auto;
 }
