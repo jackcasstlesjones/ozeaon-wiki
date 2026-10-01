@@ -229,34 +229,34 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### features/posts.md (689 → ~160)
 
-- [ ] FORMAT: title "Posts Feed & Post Creation" → "Posts"; house-style sweep; remove "referenced only"/"source budget" wording
-- [ ] ROADMAP: `filterFollowed` is dormant (no consumer, and follows can't be created) → mark it as roadmap. Explain reposts: quote posts via `post_tag`, counted by `post_stats.repost_count`, and `useRepost().handleRepost` is a stub. The bookmark button is a disabled placeholder (Notes & Bookmarks is planned)
-- [ ] ROADMAP/accuracy: `PostsInfiniteFeed` consumers are the posts page and the profile/org posts tabs (`OrgPostsFeed` is unused). `FEED_PAGE_LIMIT` is in `constants/feeds.ts`. State the `/api/posts` params
-- [ ] STALE-DETAIL: props table and full feed copies (keep the de-dup snippet), composer snippets, Usage Examples, API Reference, performance table, component inventory → cut
+- [x] FORMAT: title "Posts Feed & Post Creation" → "Posts"; house-style sweep; remove "referenced only"/"source budget" wording
+- [x] ROADMAP: `filterFollowed` is dormant (no consumer, and follows can't be created) → mark it as roadmap. Explain reposts: quote posts via `post_tag`, counted by `post_stats.repost_count`, and `useRepost().handleRepost` is a stub. The bookmark button is a disabled placeholder (Notes & Bookmarks is planned)
+- [x] ROADMAP/accuracy: `PostsInfiniteFeed` consumers are the posts page and the profile/org posts tabs (`OrgPostsFeed` is unused). `FEED_PAGE_LIMIT` is in `constants/feeds.ts`. State the `/api/posts` params
+- [x] STALE-DETAIL: props table and full feed copies (keep the de-dup snippet), composer snippets, Usage Examples, API Reference, performance table, component inventory → cut
 
 ### features/post-attachments.md (357 → ~60, or delete)
 
-- [ ] ROADMAP/accuracy: the whole page describes a stale or invented model:
+- [x] ROADMAP/accuracy: the whole page describes a stale or invented model:
   - "posts are called articles" is false
   - `article_attachments` was dropped
   - `like_total`/`repost_total` no longer exist
   - the RLS quoted is for a dropped table
 
   → rewrite as a short "Post Images & Reposts" note: `/api/posts/image`, `post_images`, `use-post-images`, reposts via `post_tag`, `post_stats`. Move the article content-file note to articles-authoring
-- [ ] FORMAT: title → "Post Images & Reposts"; house-style sweep
-- [ ] STALE-DETAIL: RLS SQL, the property table, and the inferred route inventory → cut
+- [x] FORMAT: title → "Post Images & Reposts"; house-style sweep
+- [x] STALE-DETAIL: RLS SQL, the property table, and the inferred route inventory → cut
 
 ### features/media-and-images.md (311 → ~120)
 
-- [ ] FORMAT: title → "Media & Images"; house-style sweep; "Client-Side Upload Transport — `src/lib/images/client.ts`" → "Client Upload Transport"; trim the overlap with storage-r2 and link it
-- [ ] ROADMAP/accuracy: replace the four "not read" notes with facts:
+- [x] FORMAT: title → "Media & Images"; house-style sweep; "Client-Side Upload Transport — `src/lib/images/client.ts`" → "Client Upload Transport"; trim the overlap with storage-r2 and link it
+- [x] ROADMAP/accuracy: replace the four "not read" notes with facts:
   - `/api/storage?key=` sets an immutable Cache-Control and an ETag
   - validators live in `src/utils/validators/file.ts`/`image.ts`
   - keys come from `utils/generators/storage-key.ts`
   - the adapter also has `uploadBuffer`, `getFile`, `headFile`, `deleteFiles`
 
   Remove the invented `getImageUrl` width/quality options
-- [ ] STALE-DETAIL: the `client.ts` export table, the Used in list, the CSP table (→ 2 sentences), the duplicate sequence diagram → cut
+- [x] STALE-DETAIL: the `client.ts` export table, the Used in list, the CSP table (→ 2 sentences), the duplicate sequence diagram → cut
 
 ### features/articles-authoring.md (844 → ~220)
 
@@ -328,20 +328,20 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### operations/ci-cd-workflows.md (649 → ~200)
 
-- [ ] FORMAT: house-style sweep; delete "API / Entry Point Reference"; "two gaps" lists three
-- [ ] ROADMAP/accuracy:
+- [x] FORMAT: house-style sweep; delete "API / Entry Point Reference"; "two gaps" lists three
+- [x] ROADMAP/accuracy:
   - `staging.yml` is dispatch-only (the staging branch is retired)
   - add `pr-validation.yml`, `pr-monitoring.yml`, `backmerge.yml`, `performance-report.yml` and the `_shared-*` workflows
   - preview binds `staging-app-content`
   - the env table is wrong (the key is PUBLISHABLE_KEY; secrets live in GitHub Environments) → link the Cloudflare page
   - remove local `ci:deploy` and `wrangler rollback`; rollback is revert plus CI
-- [ ] STALE-DETAIL: keep the preview lifecycle on this page only (cloudflare-deployment links here) and the secrets table once; commit/branch tables (→ link `docs/workflows.md`), the Monday status matrix (keep the forward-only rule), the script body, the failure table → cut
+- [x] STALE-DETAIL: keep the preview lifecycle on this page only (cloudflare-deployment links here) and the secrets table once; commit/branch tables (→ link `docs/workflows.md`), the Monday status matrix (keep the forward-only rule), the script body, the failure table → cut
 
 ### operations/cloudflare-deployment.md (596 → ~170)
 
-- [ ] FORMAT: title → "Cloudflare Deployment"; house-style sweep; split "Failure Modes and Operational Notes"; delete "API Reference (Script Contracts)"
-- [ ] ROADMAP/accuracy: production deploys on merge to main; staging is redeploy-on-demand only; `docs/ops-deployment.md` L18–20 is stale. Label `cacheComponents` adoption as planned and link the `eslint.rules.cache.mjs` bans
-- [ ] STALE-DETAIL: script bodies copied twice, version numbers, the `open-next.config.ts` copy and option tables, the preview lifecycle duplicate (→ 3 lines and a link), env table cleanup → cut
+- [x] FORMAT: title → "Cloudflare Deployment"; house-style sweep; split "Failure Modes and Operational Notes"; delete "API Reference (Script Contracts)"
+- [x] ROADMAP/accuracy: production deploys on merge to main; staging is redeploy-on-demand only; `docs/ops-deployment.md` L18–20 is stale. Label `cacheComponents` adoption as planned and link the `eslint.rules.cache.mjs` bans
+- [x] STALE-DETAIL: script bodies copied twice, version numbers, the `open-next.config.ts` copy and option tables, the preview lifecycle duplicate (→ 3 lines and a link), env table cleanup → cut
 
 ### operations/logging-observability.md (753 → ~220)
 

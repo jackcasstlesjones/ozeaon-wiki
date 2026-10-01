@@ -13,7 +13,7 @@ Three layers cooperate. The state engine is React Hook Form: it holds values, di
 
 The wrappers are re-exported from the [barrel](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/index.ts). The barrel also exports `RequiredFieldsProvider`/`useRequiredFields` from [`RequiredFieldsContext.tsx`](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/RequiredFieldsContext.tsx), which lets a form surface a set of required field names to a label renderer without prop drilling.
 
-For the per-component detail see [../../components/ui/](../../components/ui/).
+For the per-component detail see [UI Primitives](../ui-primitives/).
 
 ## Architecture
 
@@ -144,5 +144,5 @@ A wrapper rendered outside a `<Form>` will throw at `useFormContext` — every w
 - [RequiredFieldsContext](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/components/ui/forms/hook-form/RequiredFieldsContext.tsx)
 - [useProjectForm](https://github.com/ozeaon/ozeaon-v2/blob/0a4f1a95824db87782f1221a4108019d174df3d9/src/hooks/use-project-form.ts)
 - [Article step schemas](https://github.com/ozeaon/ozeaon-v2/tree/0a4f1a95824db87782f1221a4108019d174df3d9/src/zod/articles)
-- [../../design-system/zod-validation/](../../design-system/zod-validation/) — Zod schema conventions
-- [../../components/ui/](../../components/ui/) — per-component detail
+- [Zod Schemas & Form Validation](../../config-and-utils/zod-validation/) — Zod schema conventions
+- [UI Primitives](../ui-primitives/) — per-component detail
