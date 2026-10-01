@@ -1,8 +1,6 @@
 ---
 title: "Account"
 description: The personal Profile Settings form and its email, password, custom-link and delete-account dialogs.
-sidebar:
-  order: 1
 ---
 
 The `account/` components make up the personal settings screen at `/settings`. `src/app/(main)/(dashboard)/settings/page.tsx` is a server component: it resolves the user with `getAuthUserOrRedirect()` and, when the active account is a user (not an Organization), loads the `user_profiles` row (with avatar and cover image joins), the user's `user_links`, and whether the user owns any Organization. It passes these to `ProfileSettings`, a client-side React Hook Form that saves through the `updateProfileSettings` server action. Email, password and account deletion are handled outside the form, each in its own dialog that calls its own server action.

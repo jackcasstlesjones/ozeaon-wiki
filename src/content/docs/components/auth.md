@@ -1,8 +1,6 @@
 ---
 title: "Auth"
 description: Page shells, forms and OTP panels for sign in, sign up, email verification, password recovery and auth errors.
-sidebar:
-  order: 3
 ---
 
 These components build the pages under the `src/app/(auth)/` route group plus the `/error` page. The `(auth)` layout renders each page next to `AuthMarketingPanel`; every page wraps its form in `AuthFormPanel`, which supplies `AuthHeader`, the heading and the Privacy Policy footer. The forms are client components that call server actions from `@/lib/supabase/actions` and validate with schemas from `@/zod/auth`.

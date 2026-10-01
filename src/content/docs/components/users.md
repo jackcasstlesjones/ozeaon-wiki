@@ -1,8 +1,6 @@
 ---
 title: "Users"
 description: Shared user-presentation primitives — avatars, author bylines and meta, user cards, and the Network directory feed.
-sidebar:
-  order: 17
 ---
 
 The `users/` components are presentation primitives for showing a person (or, for `UserAvatar` and `AuthorByline`, an Organization) anywhere in the app. `UserAvatar` is the base building block, reused across nav, comments, posts, composers and Organization cards. `AuthorMeta` pairs an avatar with a linked name, `UserCard` wraps `AuthorMeta` with a role line and expandable bio, and `UserGridCard` is the larger directory card rendered by `NetworkInfiniteFeed` on `/network`. All of these take already-fetched data as props; none of them query Supabase.

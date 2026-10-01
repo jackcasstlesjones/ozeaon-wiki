@@ -1,8 +1,6 @@
 ---
 title: "Navigation"
 description: The top nav, mega menu, sidebars, account menus and the nav-slot system pages use to customise the header.
-sidebar:
-  order: 8
 ---
 
 Navigation is one shared top bar plus a per-layout sidebar, coordinated through a client context.

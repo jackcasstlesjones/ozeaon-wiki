@@ -1,8 +1,6 @@
 ---
 title: "Notifications"
 description: The unread-notifications overlay opened from the top nav bell, and its row and skeleton components.
-sidebar:
-  order: 9
 ---
 
 These components render the notification overlay. The entry point lives in the nav: `NotificationBell` (server) reads the unread count and renders `NotificationBellButton` (client), which on desktop opens a `Popover` containing `NotificationOverlay`. On mobile the bell renders without the overlay (a dedicated notifications page is pending, per the source comments). The bell is only rendered when `env.features.notifications` is on and `AppTopbar` is not in `noUser` mode. See [Navigation](../nav/) for the bell components.

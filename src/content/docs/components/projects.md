@@ -1,8 +1,6 @@
 ---
 title: "Projects"
 description: Project feeds, cards, the multi-section create/edit form, and the public project page sections.
-sidebar:
-  order: 11
 ---
 
 `src/components/projects/` covers four surfaces:

@@ -1,8 +1,6 @@
 ---
 title: "Icons"
 description: Custom Lucide-compatible icons converted from Figma, social brand marks, and the Ozeaon logo and wordmark SVGs.
-sidebar:
-  order: 7
 ---
 
 `src/components/icons/` holds the SVG icons that Lucide doesn't provide. There's no barrel file, so import each icon from its own module (e.g. `@/components/icons/CustomIcons`). All of them are plain modules, safe in server and client components.

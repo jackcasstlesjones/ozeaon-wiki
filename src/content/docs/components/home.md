@@ -1,8 +1,6 @@
 ---
 title: "Home"
 description: Home feed sections (welcome header, create-post slot, activity metrics), home cards and small home helpers.
-sidebar:
-  order: 6
 ---
 
 The home page (`src/app/(main)/(feed)/(public)/(home)/page.tsx`) is built from three streamed "slot" components followed by carousel sections:

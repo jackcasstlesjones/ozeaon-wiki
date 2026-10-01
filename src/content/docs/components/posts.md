@@ -1,8 +1,6 @@
 ---
 title: "Posts"
 description: The community feed — post cards and their attachments, like/repost/comment actions, the infinite feed, and the mobile/desktop post composer.
-sidebar:
-  order: 10
 ---
 
 Posts components fall into four groups. **Feed**: `PostsInfiniteFeed` takes the first page from a server component and pages on via `GET /api/posts`. **Card**: `PostCard` renders one post, using the `attachments/` pieces for the author line, message, images and the single attached project / article / organization / reposted post, then `PostInteractions` for like, comment and repost. **Composer**: `CreatePost` (`create-form/`) is a thin shell over the `useCreatePost` hook. It renders `MobileComposer` (bottom-sheet drawer) or `DesktopComposer` (inline collapsible), and both are built from the same `parts/`. The hook submits to `POST /api/posts`. **Utils**: `CustomPostFilters` drives the sort/user filter on `/posts/custom`.

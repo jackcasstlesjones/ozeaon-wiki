@@ -1,8 +1,6 @@
 ---
 title: "shadcn Primitives"
 description: The vendored shadcn/ui primitives in src/components/shadcn, with the project's variants, added props and token styling, and the ui wrappers built on them.
-sidebar:
-  order: 14
 ---
 
 `src/components/shadcn/` holds the shadcn/ui primitives, built on Radix, `cmdk`, `vaul`, `react-day-picker` and `sonner`. They're vendored with the project's design tokens: typography utilities such as `font-body`, `font-mono-lg` and `font-h3`, and colour tokens such as `text-primary`, `bg-bg-surface` and `border-border-focus` in place of shadcn's default Tailwind utilities. A few components also add behaviour: `Button` (variants and icon props), `Tooltip` (touch support), `CollapsibleContent` (animated re-measuring) and `CommandInput` (custom icon). This page covers only what's project-specific. For each component's base API, follow the upstream link.

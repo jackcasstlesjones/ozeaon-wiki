@@ -1,8 +1,6 @@
 ---
 title: "Articles"
 description: Components for article feeds and cards, the article authoring form, and the public article reader.
-sidebar:
-  order: 2
 ---
 
 `src/components/articles/` covers three surfaces:

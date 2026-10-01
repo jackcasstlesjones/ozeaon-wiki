@@ -1,8 +1,6 @@
 ---
 title: "Profiles"
 description: Components that build the user profile and Organization profile pages — shared page shell, header data slots, owner image controls, actions and overview sections.
-sidebar:
-  order: 12
 ---
 
 The `profiles/` components assemble the two profile page layouts: `src/app/(main)/(profile)/profiles/[username]/layout.tsx` (users) and `src/app/(main)/(profile)/organizations/[slug]/layout.tsx` (Organizations). Both layouts fetch the entity on the server, then compose the same `shared/` frame — `ProfilePageShell` with a `CoverImageSlot` cover, a `ProfileHeader`, tabs and a sidebar — and fill its slots with domain-specific pieces from `users/` or `organizations/`.

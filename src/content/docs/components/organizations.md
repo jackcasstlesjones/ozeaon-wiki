@@ -1,8 +1,6 @@
 ---
 title: "Organizations"
 description: Organization feed cards, the create and settings forms, member management for organization admins, and the personal memberships/invitations/requests views.
-sidebar:
-  order: 10
 ---
 
 Organization components serve three audiences:

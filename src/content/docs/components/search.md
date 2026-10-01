@@ -1,8 +1,6 @@
 ---
 title: "Search"
 description: The desktop and mobile search fields in the top nav, and the infinite results feed on /search.
-sidebar:
-  order: 13
 ---
 
 Search has three pieces. `SearchBar` is the desktop field docked in the top nav's left side; `MobileSearchBar` is the mobile top nav collapsed into a search field (opened by `MobileSearchTrigger` in the nav, see [Navigation](../nav/)). Both submit by navigating to `searchHref(value)`. The `/search` page then renders `SearchResultsFeed`, which pages through mixed result kinds.
