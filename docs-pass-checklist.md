@@ -351,14 +351,14 @@ These apply to every one of the 46 non-component pages. Each page section below 
 
 ### operations/migrations-and-seeding.md (475 → ~170)
 
-- [ ] FORMAT: house-style sweep; split the "Failure Modes, Edge Cases & Operational Notes" section; drop the brittle migration counts
-- [ ] ROADMAP: mark as not built:
+- [x] FORMAT: house-style sweep; split the "Failure Modes, Edge Cases & Operational Notes" section; drop the brittle migration counts
+- [x] ROADMAP: mark as not built:
   - `open_calls` and `organization_blocked_users`
   - `transfer_org_ownership()` (no callers; ownership transfer is planned)
   - `is_featured` on educational tables
   - `are_connected`/`is_blocked_pair` and the block veto (UI disconnected)
   - the org verification stopgap
-- [ ] STALE-DETAIL: the chronological catalog of ~80 migrations (→ eras plus the "Key Migrations in Depth" sections and a directory link), config.toml copies (keep the seed comment once), script bodies twice (→ a purpose table), the Seed Sources diagram and table → cut
+- [x] STALE-DETAIL: the chronological catalog of ~80 migrations (→ eras plus the "Key Migrations in Depth" sections and a directory link), config.toml copies (keep the seed comment once), script bodies twice (→ a purpose table), the Seed Sources diagram and table → cut
 
 ### developer-guide/adding-a-feature.md (568 → ~200)
 
