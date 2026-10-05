@@ -147,3 +147,7 @@ A read-only mode. Claude reads the whole area, ranks issues Critical / High / Me
 
 The skill's description says the report goes to `docs/`, but its process step writes to `.claude/docs/analysis/`. That folder isn't gitignored, so reports show up as untracked files. Delete them or leave them out of your commits.
 
+## Subagent: claude-config-docs
+
+A general-purpose helper for writing CLAUDE.md sections, skills, agents and hooks. It runs on Opus. It contains nothing specific to OZEAON, and its hook example uses an `event`/`matcher.type` shape that is not the real `settings.json` format. Copy hook syntax from `.claude/settings.json` instead.
+
