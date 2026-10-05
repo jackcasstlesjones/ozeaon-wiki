@@ -85,3 +85,65 @@ After every `Write` or `Edit` tool call, it runs a full `tsc --noEmit` in the ba
 CLAUDE.md's TypeScript section describes this differently. It says the hook runs on **Stop**, runs only when `.ts`/`.tsx` files were edited, and **blocks completion** until errors are fixed. The committed hook does none of those things. It fires on every edit to any file, and because it is `async` it never blocks. Until the two are reconciled, run `pnpm check` yourself before finishing.
 :::
 
+## Skills
+
+| Skill | Invoke | Use it for |
+| --- | --- | --- |
+| `oz-review` | `/oz-review [file-or-feature]` | Reviewing the current branch before or during code review |
+| `db-trigger` | `/db-trigger`, or automatically when writing a trigger | Any migration that creates a trigger function or an RLS helper |
+| `zod4` | Automatically when writing Zod schemas | Avoiding Zod 3 syntax |
+| `logtape` | Automatically when adding logging | LogTape API usage |
+| `analyze` | `/analyze`, or "analyze / audit / investigate X" | A written plan before any code is touched |
+
+### oz-review
+
+The largest skill. It reviews **only the diff against `main`** and watches for signs of vibe coding, such as unnecessary fallbacks and over-complicated data processing. Pass a file or feature to narrow the scope.
+
+1. **Identify the ticket.** It parses the ticket id from the branch name (`<type>/<tozn|bozn>-<n>-<description>`), falling back to the PR's `Closes TOZN-<n>` line. It then reads the item, its updates and any linked Monday doc through the Monday MCP. If the ticket body is just a Google Docs link, it reads that doc through the Google Drive connector.
+2. **PR context.** It reads the PR description, comments, review threads and linked issues with `gh`.
+3. **Triage and orientation.** It classifies each changed file (page, route, layout, component, hook, schema, migration) and runs `pnpm check` and `pnpm lint`.
+4. **Checklist review.** Supabase client usage, auth, server/client boundaries, Zod, RHF, R2 uploads and moderation, types, design system, API routes, error handling, state, performance, logging, migrations. It looks conventions up in the reference docs rather than arguing from memory.
+5. **Verify every finding.** It runs a probe against the local stack where one exists: `psql` with an `authenticated` role for RLS, `curl` against the dev server, Playwright for rendering, `eslint` for lint claims. Each finding is labelled **CONFIRMED**, **REFUTED** (deleted) or **UNVERIFIED** (kept, with the reason).
+6. **Output.** Findings are grouped 🔴 Critical / 🟡 Warnings / 🟢 Suggestions / ✅ What's working well, ordered by severity. Every 🔴 and 🟡 carries an `Evidence:` line, and the report says how many findings were refuted. Unmet acceptance criteria are 🔴, and changes outside the ticket are flagged as scope creep.
+
+`references/anti-patterns.md` is a before/after table the skill loads only when a finding doesn't fit the checklist.
+
+**What it needs.** Its `allowed-tools` reference MCP servers that the repo does not configure, so connect them yourself:
+
+| Capability | Needed for |
+| --- | --- |
+| Monday connector (`claude_ai_monday_com`) | Reading the ticket. Without it the review runs with no ticket context |
+| Google Drive connector | Tickets whose description is a Google Docs link |
+| Playwright MCP | Verifying rendering and hydration findings |
+| Supabase MCP | Advisor checks and SQL on migration findings |
+| `gh` CLI, authenticated | PR context |
+| Local Supabase + `pnpm dev` | Verification. With the stack down, findings ship as UNVERIFIED |
+
+### db-trigger
+
+This skill encodes the trigger convention derived from the migration history, so new triggers don't trip Supabase advisor lints 0011, 0028 and 0029:
+
+- `SECURITY DEFINER` and `SET search_path TO ''`, with fully qualified table names. Triggers that only mutate `NEW` don't need `SECURITY DEFINER`.
+- `trg_` prefix on both the function and the trigger.
+- `BEFORE` triggers for mutating the row, `AFTER` for side effects on other tables. Guard status transitions with `IS DISTINCT FROM`.
+- Revoke `EXECUTE` from **both** `PUBLIC` and `anon, authenticated` in the same migration. Either revoke alone still gets flagged.
+- RLS-only helpers go in the `private` schema. RPC-callable functions are granted to `authenticated` only.
+- `(SELECT auth.uid())` in policies, and policies split per command.
+- Verify with `has_function_privilege` after `supabase db reset`.
+
+See [Migrations & Seeding](../../operations/migrations-and-seeding/) for where migrations fit in the workflow.
+
+### zod4
+
+A reference table of the Zod 3 → 4 breaking changes as they apply here. Examples: top-level format validators (`z.email()`, not `z.string().email()`), the unified `error` parameter, `z.strictObject` / `z.looseObject`, two-argument `z.record`, `.default()` matching the output type, and `z.treeifyError`. See [Zod Schemas](../../forms/zod-schemas/) for how the project's schemas are organised.
+
+### logtape
+
+The upstream LogTape skill (MIT), covering loggers, structured message syntax, configuration, context, lazy evaluation, sinks, redaction and testing. It is generic. The project-specific categories and helpers live in `docs/logging-conventions.md` and [Logging & Observability](../../operations/logging-observability/), and those win where the two differ.
+
+### analyze
+
+A read-only mode. Claude reads the whole area, ranks issues Critical / High / Medium / Low, and writes a file-by-file fix plan with line numbers. It saves the report to `.claude/docs/analysis/analysis-<topic>.md` and stops without editing source files. You review the plan and then ask for the changes.
+
+The skill's description says the report goes to `docs/`, but its process step writes to `.claude/docs/analysis/`. That folder isn't gitignored, so reports show up as untracked files. Delete them or leave them out of your commits.
+
