@@ -60,3 +60,28 @@ The project instructions are deliberately short and point into `docs/` for the f
 
 The block between `<!-- BEGIN:nextjs-agent-rules -->` and `<!-- END:nextjs-agent-rules -->` at the bottom is written by `next dev`, not by hand. If you delete it, it reappears as an uncommitted change the next time the dev server starts. Leave it committed.
 
+## The type-check hook
+
+`.claude/settings.json` registers a single hook:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "npx tsc --noEmit 2>&1 | head -20", "timeout": 60, "async": true }
+        ]
+      }
+    ]
+  }
+}
+```
+
+After every `Write` or `Edit` tool call, it runs a full `tsc --noEmit` in the background and reports the first 20 lines of output.
+
+:::caution
+CLAUDE.md's TypeScript section describes this differently. It says the hook runs on **Stop**, runs only when `.ts`/`.tsx` files were edited, and **blocks completion** until errors are fixed. The committed hook does none of those things. It fires on every edit to any file, and because it is `async` it never blocks. Until the two are reconciled, run `pnpm check` yourself before finishing.
+:::
+
