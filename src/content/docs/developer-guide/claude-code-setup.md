@@ -35,3 +35,28 @@ flowchart TD
 
 `CLAUDE.md` is always in context. Skills load on demand, either when you type their name as a slash command or when Claude decides a request matches the skill's `description`. CLAUDE.md also tells Claude to reach for a skill in specific cases, for example "invoke the `db-trigger` skill" before writing any trigger.
 
+## CLAUDE.md
+
+The project instructions are deliberately short and point into `docs/` for the full detail, so the two don't drift apart. Its sections:
+
+| Section | What it tells Claude |
+| --- | --- |
+| Project Overview | SSR constraints, the planned `cacheComponents` move, and the ban on old route segment config (`export const dynamic`, `revalidate`, `fetchCache`, `runtime`). Read the bundled Next.js docs in `node_modules/next/dist/docs/` before touching routes, caching or Supabase-in-SSR code |
+| Workflow Rules | Diagnose the root cause before editing. Analysis first when asked to understand, analyse or review. Parallel agents for changes spanning 4+ files |
+| TypeScript | Verify each fix resolves the exact error, check field names across Zod, DB types and props, and always await promises |
+| Technology Stack & Versions | Breaking changes that matter: async `cookies()`/`headers()`, Zod 4, Tailwind v4 config, pnpm only |
+| Commands Reference | The `pnpm` scripts (`dev`, `check`, `lint`, `db:gen`, `ci:deploy`, ...) |
+| Supabase Client Patterns | Which client to import where, and never calling `createClient()` after `getAuthUser()` or inside a `withAuthUser` handler. See [Supabase Client Patterns](../../architecture/supabase-client-patterns/) |
+| R2 Storage Patterns | Always go through `StorageAdapter`. Points to `docs/r2-storage.md` |
+| API & Server Action Patterns | Status codes, `TablesInsert<>`, ownership checks on mutations, `revalidateTag` after writes |
+| Import Conventions | Barrel imports and domain `cards/` subdirectories |
+| Type System | Derive from generated types, never hand-roll them. Domain types live in `src/types/` |
+| Component Library | The primitives most often reinvented (`EmptyState`, `GridLayout`, `Button` icon props, `ConfirmDialog`). Points to `docs/component-library.md` |
+| Typography & Color System | No raw Tailwind size or colour utilities. Points to `docs/design-system.md` |
+| Database Schema / Triggers | Core tables, `docs/db/schema.sql`, and side effects as triggers written with the `db-trigger` skill |
+| Deployment | Always pass `--env` to `ci:deploy`, plus the per-PR preview fixture rule |
+
+### The Next.js agent-rules block
+
+The block between `<!-- BEGIN:nextjs-agent-rules -->` and `<!-- END:nextjs-agent-rules -->` at the bottom is written by `next dev`, not by hand. If you delete it, it reappears as an uncommitted change the next time the dev server starts. Leave it committed.
+
