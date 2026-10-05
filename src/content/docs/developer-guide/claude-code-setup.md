@@ -20,3 +20,18 @@ The ozeaon-v2 repository ships a shared Claude Code configuration, so every deve
 | [`.claude/skills/analyze/`](https://github.com/ozeaon/ozeaon-v2/blob/eb7b75a5ce9802b7848f614195586fadda822f0b/.claude/skills/analyze/SKILL.md) | Skill | Read-only analysis that writes a severity-ranked report and fix plan |
 | [`.claude/agents/claude-config-docs.md`](https://github.com/ozeaon/ozeaon-v2/blob/eb7b75a5ce9802b7848f614195586fadda822f0b/.claude/agents/claude-config-docs.md) | Subagent | Generic helper for writing Claude Code configuration |
 
+## How the pieces load
+
+```mermaid
+flowchart TD
+    Start["Session starts in ozeaon-v2"] --> Memory["CLAUDE.md loaded into context"]
+    Memory --> Prompt["Developer prompt"]
+    Prompt -->|"/oz-review, /db-trigger, ..."| Skill["Skill instructions loaded"]
+    Prompt -->|"request matches a skill description"| Skill
+    Skill --> Work["Claude reads and edits code"]
+    Prompt --> Work
+    Work -->|"Write or Edit tool"| Hook["PostToolUse hook: npx tsc --noEmit (async)"]
+```
+
+`CLAUDE.md` is always in context. Skills load on demand, either when you type their name as a slash command or when Claude decides a request matches the skill's `description`. CLAUDE.md also tells Claude to reach for a skill in specific cases, for example "invoke the `db-trigger` skill" before writing any trigger.
+
