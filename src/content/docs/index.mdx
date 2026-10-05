@@ -1,31 +1,42 @@
 ---
-title: OZEAON Developer Wiki
-description: Developer documentation for the OZEAON codebase.
+title: OZEAON Wiki
+description: Team process and developer documentation for OZEAON.
 template: splash
 hero:
   image:
     file: ../../assets/ozeaon-logo-square.svg
     alt: OZEAON logo
-  tagline: Architecture, workflows and conventions of the OZEAON ocean conservation platform.
+  tagline: How the team works, and how the OZEAON ocean conservation platform is built.
   actions:
-    - text: "Project Overview"
-      link: /ozeaon-wiki/overview/project-overview/
+    - text: "How We Work"
+      link: /ozeaon-wiki/process/
       icon: right-arrow
-    - text: "Getting Started & Local Setup"
-      link: /ozeaon-wiki/overview/getting-started/
+    - text: "Developer Docs"
+      link: /ozeaon-wiki/overview/project-overview/
       variant: minimal
 ---
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-## Start Here
+## How We Work
+
+For everyone on the team: how work moves from idea to production.
+
+<CardGrid>
+  <LinkCard title="Kanban" description="The 11 columns of the Monday board, who owns each, and how design work reaches dev." href="/ozeaon-wiki/process/kanban/" />
+  <LinkCard title="Change Requests" description="How to change anything after Design Done, plus internal feedback and bug intake." href="/ozeaon-wiki/process/change-requests/" />
+  <LinkCard title="Preview Environments" description="QA on each pull request's own preview: the link, test accounts and traps." href="/ozeaon-wiki/process/preview-environments/" />
+  <LinkCard title="All process docs" description="New features, documentation conventions, design omissions and PR rules." href="/ozeaon-wiki/process/" />
+</CardGrid>
+
+## Developer Docs
 
 <CardGrid>
   <LinkCard title="Project Overview" description="What the platform does, what is planned, and the decisions that shape the code." href="/ozeaon-wiki/overview/project-overview/" />
   <LinkCard title="Getting Started" description="Run the app and a local Supabase in a few commands." href="/ozeaon-wiki/overview/getting-started/" />
 </CardGrid>
 
-## Sections
+### Sections
 
 <CardGrid>
   <LinkCard title="Architecture" description="Route groups, rendering and caching, Supabase clients, the data model and generated types." href="/ozeaon-wiki/architecture/app-structure/" />
