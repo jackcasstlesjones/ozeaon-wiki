@@ -164,3 +164,10 @@ These stay out of the repo. Each developer keeps their own:
 
 MCP servers and claude.ai connectors (Monday, Google Drive, Playwright, Supabase) are configured per developer too. The repo has no `.mcp.json`.
 
+## Changing the setup
+
+- Add a shared skill as `.claude/skills/<name>/SKILL.md`, with `name` and `description` frontmatter. The description decides when Claude triggers the skill automatically, so say when to use it, not just what it is.
+- **`.claude/commands/` and `.claude/hooks/` are gitignored**, so a command or hook script added there never reaches the team. Ship shared workflows as skills, which can be invoked with `/name` the same way.
+- `.claude/settings.json` is also listed in `.gitignore`, but it was committed in April 2026, before that rule was added in July, so git still tracks it and edits to it do commit.
+- Keep CLAUDE.md short and point to `docs/` for detail. When a convention changes, update the doc it points to, and the CLAUDE.md line only if the rule itself changed.
+- Commit Claude config changes as `chore(skills): ...` or `docs(skills): ...`, matching the existing history.
