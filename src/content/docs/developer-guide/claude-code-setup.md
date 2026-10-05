@@ -151,3 +151,16 @@ The skill's description says the report goes to `docs/`, but its process step wr
 
 A general-purpose helper for writing CLAUDE.md sections, skills, agents and hooks. It runs on Opus. It contains nothing specific to OZEAON, and its hook example uses an `event`/`matcher.type` shape that is not the real `settings.json` format. Copy hook syntax from `.claude/settings.json` instead.
 
+## What is not shared
+
+These stay out of the repo. Each developer keeps their own:
+
+| Path | What it is |
+| --- | --- |
+| `.claude/settings.local.json` | Your permissions and personal settings. Ignored through the global git ignore Claude Code writes (`~/.config/git/ignore`), not the repo's `.gitignore` |
+| `.claude/commands/` | Slash commands |
+| `.claude/hooks/` | Hook scripts |
+| `.claude/worktrees/`, `.claude/plans/` | Worktrees and plan files Claude Code creates |
+
+MCP servers and claude.ai connectors (Monday, Google Drive, Playwright, Supabase) are configured per developer too. The repo has no `.mcp.json`.
+
