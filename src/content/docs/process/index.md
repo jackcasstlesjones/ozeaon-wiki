@@ -21,3 +21,4 @@ Spec writing, design ideation, and signoff happen in columns 1 to 6, spec first.
 - [Design Omissions](/ozeaon-wiki/process/design-omissions/). What a dev does when a design leaves a small gap, and how it gets written back into Figma and the spec.
 - [PR and Ticket Rules](/ozeaon-wiki/process/pr-ticket-rules/). What the Monday automation asks of you when you open a pull request. How to link one ticket or several, and why one approval is enough to send it to QA.
 - [Preview Environments](/ozeaon-wiki/process/preview-environments/). QA happens on the pull request's own preview environment rather than on staging. Where the link comes from, the test accounts, and what it changes for QA.
+- [Team Resources](/ozeaon-wiki/process/team-resources/). The Figma design file, the two Monday boards (tasks and bugs) and the shared drive, in one place.
