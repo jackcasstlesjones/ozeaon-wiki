@@ -17,3 +17,51 @@
 	width: min(16rem, 60vw);
 	height: auto;
 }
+
+/* Roadmap overview headline numbers. */
+.roadmap-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+	gap: 1rem;
+}
+
+.roadmap-stats > div {
+	display: flex;
+	flex-direction: column;
+	padding: 1rem;
+	border: 1px solid var(--sl-color-gray-5);
+	border-radius: 0.5rem;
+	background: var(--sl-color-accent-low);
+}
+
+.roadmap-stats strong {
+	font-size: 2.5rem;
+	line-height: 1;
+	color: var(--sl-color-white);
+}
+
+.roadmap-stats span {
+	margin-top: 0.5rem;
+	font-size: var(--sl-text-sm);
+	color: var(--sl-color-gray-2);
+}
+
+/* Milestones in the roadmap sidebar read as dividers, not pages. */
+.sidebar-content a.roadmap-milestone {
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--sl-color-gray-3);
+	border-top: 1px dashed var(--sl-color-gray-5);
+	border-radius: 0;
+}
+
+/* Full-width tables. Starlight sets tables to display: block so they scroll sideways on
+   narrow screens; keep that on mobile and stretch them to the content width above it. */
+@media (min-width: 50rem) {
+	.sl-markdown-content table {
+		display: table;
+		width: 100%;
+	}
+}

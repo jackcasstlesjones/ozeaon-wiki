@@ -1,0 +1,30 @@
+---
+title: "Content reporting & moderation queue"
+description: "User-facing reporting on every content type, plus the queue and actions behind it. Sits here rather than later because the DSA obliges a notice-and-action route for flagging illegal content, and until it ships a user who finds something harmful has no route that is not emailing you."
+prev: { link: "/ozeaon-wiki/roadmap/phase-2/open-calls/", label: "Open Calls" }
+next: { link: "/ozeaon-wiki/roadmap/phase-2/user-to-user-invites/", label: "User-to-user invites" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="M · Moderate" variant="default" /> <Badge text="Backend" variant="tip" /> <Badge text="Legal" variant="danger" />
+
+| | |
+|---|---|
+| Priority | 24 of 63 |
+| Stage | [Phase 2](../../#phase-2) |
+| Effort | M, moderate, about 3 weeks |
+
+:::caution[Legal]
+Compelled by statute. The timing is a legal exposure question, not a prioritisation one.
+:::
+
+Comes after the [Payments release](../../#milestone-payments-release) milestone.
+
+## What it involves (5 deliverables)
+
+- Report action on articles, projects, comments and profiles
+- Report reason taxonomy and duplicate handling
+- Moderation queue with triage states and an action log
+- Outcome notice to reporter and author (DSA statement of reasons)
+- Appeal route against a removal

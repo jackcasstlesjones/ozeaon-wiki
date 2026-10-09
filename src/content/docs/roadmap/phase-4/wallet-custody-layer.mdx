@@ -1,0 +1,32 @@
+---
+title: "Wallet & custody layer"
+description: "Wallet provisioning, key management and recovery, gas abstraction, and the transaction, pending and failure states across the product. The custody decision drives both the compliance burden and how many users get through the door."
+prev: { link: "/ozeaon-wiki/roadmap/phase-4/open-calls-dao-endorsement-flow/", label: "Open Calls - DAO endorsement flow" }
+next: { link: "/ozeaon-wiki/roadmap/phase-4/ozn-contracts-external-audit/", label: "$OZN contracts & external audit" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="XXL · Longer-timeline initiative" variant="default" /> <Badge text="Backend" variant="tip" /> <Badge text="Legal" variant="danger" />
+
+| | |
+|---|---|
+| Priority | 58 of 63 |
+| Stage | [Phase 4 — Token economy](../../#phase-4--token-economy) |
+| Effort | XXL, longer-timeline initiative, about 20 weeks |
+
+:::caution[Legal]
+Compelled by statute. The timing is a legal exposure question, not a prioritisation one.
+:::
+
+Comes after the [Chain dependency begins](../../#milestone-chain-dependency-begins) milestone, so it waits on the outcome of [Tokenomics simulation & parameter review](../tokenomics-simulation-parameter-review/) and [Regulatory & custody assessment](../regulatory-custody-assessment/).
+
+## What it involves (7 deliverables)
+
+- Custodial vs self-custody implementation (set by the regulatory assessment)
+- Wallet provisioning and account binding
+- Key management, rotation and recovery flows
+- Gas abstraction / sponsored transactions
+- Transaction, pending and failure states across every money surface
+- Chain and RPC provider selection with failover
+- Security review of the key-handling path

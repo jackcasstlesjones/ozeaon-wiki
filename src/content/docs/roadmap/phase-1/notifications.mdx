@@ -1,0 +1,27 @@
+---
+title: "Notifications"
+description: "First release only: the bell, dropdown panel and notifications page, covering the five groups the platform can already raise. Grouping, settings and quick actions move to the second pass."
+prev: { link: "/ozeaon-wiki/roadmap/phase-1/feed-filters/", label: "Feed filters" }
+next: { link: "/ozeaon-wiki/roadmap/phase-1/content-retention-restoration/", label: "Content retention & restoration" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="In progress" variant="caution" /> <Badge text="L · Substantial" variant="default" />
+
+| | |
+|---|---|
+| Priority | 16 of 63 |
+| Stage | [Phase 1](../../#phase-1) |
+| Effort | L, substantial, about 6 weeks |
+
+Comes after the [Initial launch](../../#milestone-initial-launch) milestone, so its scope is subject to change.
+
+## What it involves (6 deliverables)
+
+- Notification types, templates and per-type icons for the five live groups: posts, projects, articles, organisation membership and your own membership
+- In-app bell with unread count and read/seen state
+- Dropdown panel and dedicated notifications page
+- Cross-account addressing so a notification belongs to an organisation or a person
+- Realtime delivery so the bell and unread count update the moment something happens
+- Backfill hooks so later features register new types without schema change

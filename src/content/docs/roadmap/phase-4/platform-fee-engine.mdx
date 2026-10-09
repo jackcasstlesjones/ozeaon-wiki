@@ -1,0 +1,26 @@
+---
+title: "Platform fee engine"
+description: "Governance-configurable fee rates across funding, tipping and bounties, with bounded limits and reporting."
+prev: { link: "/ozeaon-wiki/roadmap/phase-4/ozn-funding-tipping-rails/", label: "$OZN funding & tipping rails" }
+next: false
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="L · Substantial" variant="default" /> <Badge text="Backend" variant="tip" />
+
+| | |
+|---|---|
+| Priority | 63 of 63 |
+| Stage | [Phase 4 — Token economy](../../#phase-4--token-economy) |
+| Effort | L, substantial, about 6 weeks |
+
+Comes after the [Chain dependency begins](../../#milestone-chain-dependency-begins) milestone, so it waits on the outcome of [Tokenomics simulation & parameter review](../tokenomics-simulation-parameter-review/) and [Regulatory & custody assessment](../regulatory-custody-assessment/).
+
+## What it involves (5 deliverables)
+
+- Governance-configurable rates with bounded min / max
+- Fee bands: funding 5%, tipping 9%, bounties 9%
+- Migration from hard-coded Phase 1 Stripe fee take
+- DAO treasury disbursement fee (0-1%, optional)
+- Fee revenue reporting and Foundation Reserve routing

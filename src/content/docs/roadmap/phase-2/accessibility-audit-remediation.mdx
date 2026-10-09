@@ -1,0 +1,33 @@
+---
+title: "Accessibility audit & remediation"
+description: "WCAG 2.2 AA audit and remediation across shipped surfaces, plus the regression checks that keep it from drifting back. The European Accessibility Act applies to consumer-facing digital services in the EU."
+prev: { link: "/ozeaon-wiki/roadmap/phase-2/security-hardening/", label: "Security hardening" }
+next: { link: "/ozeaon-wiki/roadmap/phase-2/seo-metadata/", label: "SEO & metadata" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="L · Substantial" variant="default" /> <Badge text="Backend" variant="tip" /> <Badge text="Legal" variant="danger" />
+
+| | |
+|---|---|
+| Priority | 28 of 63 |
+| Stage | [Phase 2](../../#phase-2) |
+| Effort | L, substantial, about 6 weeks |
+
+:::caution[Legal]
+Compelled by statute. The timing is a legal exposure question, not a prioritisation one.
+:::
+
+Comes after the [Payments release](../../#milestone-payments-release) milestone.
+
+## What it involves (8 deliverables)
+
+- Automated and manual audit of shipped surfaces
+- Keyboard navigation and focus management
+- Screen-reader semantics and landmark structure
+- Colour contrast, including the category colour system
+- Form labelling and error messaging (ties into Forms rework)
+- Media captions, transcripts and alt-text authoring flow
+- Published accessibility statement
+- Regression checks in CI so the fixes hold

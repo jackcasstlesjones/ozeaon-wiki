@@ -1,0 +1,28 @@
+---
+title: "Transactional email & delivery"
+description: "The mail layer notifications, invites, receipts, funding updates and moderation notices all send through. Flagged as unowned inside the User-to-user invites breakdown."
+prev: { link: "/ozeaon-wiki/roadmap/phase-3/educational-resources/", label: "Educational Resources" }
+next: { link: "/ozeaon-wiki/roadmap/phase-3/sidebar-category-filters/", label: "Sidebar category filters" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="L · Substantial" variant="default" /> <Badge text="Backend" variant="tip" />
+
+| | |
+|---|---|
+| Priority | 35 of 63 |
+| Stage | [Phase 3](../../#phase-3) |
+| Effort | L, substantial, about 6 weeks |
+
+Comes after the [Payments release](../../#milestone-payments-release) milestone.
+
+## What it involves (7 deliverables)
+
+- Provider selection and sending-domain authentication (SPF, DKIM, DMARC)
+- Template system, branding and plain-text fallbacks
+- Per-type routing, unsubscribe handling and a preference centre
+- Bounce, complaint and suppression-list handling
+- Deliverability monitoring and reputation warm-up
+- Transactional vs marketing separation and consent records
+- Localisation hooks for translated templates

@@ -1,0 +1,27 @@
+---
+title: "Search"
+description: "Global search across every content type."
+prev: { link: "/ozeaon-wiki/roadmap/phase-2/admin-back-office-console/", label: "Admin & back-office console" }
+next: { link: "/ozeaon-wiki/roadmap/phase-2/internationalisation-localisation/", label: "Internationalisation & localisation" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="L · Substantial" variant="default" />
+
+| | |
+|---|---|
+| Priority | 32 of 63 |
+| Stage | [Phase 2](../../#phase-2) |
+| Effort | L, substantial, about 6 weeks |
+
+Comes after the [Payments release](../../#milestone-payments-release) milestone.
+
+## What it involves (6 deliverables)
+
+- Search infrastructure choice and index pipeline
+- Indexing for articles, projects, users, organisations
+- Re-index hooks for content types shipping later (Educational Resources, Open Calls, Events)
+- Query parsing, ranking and typo tolerance
+- Filters, facets and result-type tabs
+- Permission-aware results (drafts, paywalled, protocol-gated content)

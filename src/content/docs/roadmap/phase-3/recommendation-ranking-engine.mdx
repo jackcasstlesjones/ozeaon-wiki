@@ -1,0 +1,30 @@
+---
+title: "Recommendation & ranking engine"
+description: "The ranking system behind the feeds and the surfaces it feeds: what shows, for whom, and in what order. Scores content on engagement (likes, comments, reactions) and on the viewer's relationship to the author through connections and follows. Absorbs For You / Trending / Featured, which was the same work described from the front end."
+prev: { link: "/ozeaon-wiki/roadmap/phase-3/article-reactions/", label: "Article reactions" }
+next: { link: "/ozeaon-wiki/roadmap/phase-3/events/", label: "Events" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="XXL · Longer-timeline initiative" variant="default" />
+
+| | |
+|---|---|
+| Priority | 43 of 63 |
+| Stage | [Phase 3](../../#phase-3) |
+| Effort | XXL, longer-timeline initiative, about 20 weeks |
+
+Comes after the [Payments release](../../#milestone-payments-release) milestone.
+
+## What it involves (9 deliverables)
+
+- For You / Trending / Featured: home page tab shell and per-tab data sources
+- Engagement signals: likes, reactions and comments
+- Social graph signals from connections and follows
+- Scoring pass with trending velocity, decay and basic anti-gaming
+- Cold-start handling for new accounts
+- Permission-aware filtering: drafts, paywalled, protocol-gated, blocked users
+- Featured curation tooling
+- Right-hand sidebar: Upcoming, Your Activity
+- Precomputation and caching so the feed stays fast

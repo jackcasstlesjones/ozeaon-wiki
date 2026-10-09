@@ -24,7 +24,7 @@ In progress: notifications (behind the `NEXT_PUBLIC_FEATURE_NOTIFICATIONS` flag)
 
 ## Roadmap
 
-Planned work includes:
+The full plan, with effort and a breakdown for each item, is in the [Roadmap](../../roadmap/). Planned work includes:
 - pods and DAO governance
 - a token reward system
 - project funding, donations and tipping

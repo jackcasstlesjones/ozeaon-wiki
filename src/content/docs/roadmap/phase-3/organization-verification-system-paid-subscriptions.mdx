@@ -1,0 +1,26 @@
+---
+title: "Organization verification system & paid subscriptions"
+description: "Verified badges for organizations, with an application and review workflow to confirm legitimacy before granting the badge. Paid organisation subscriptions ride on the same workflow: the verification tier is what organisations pay for, and this is the first logical revenue generator on the platform, so it carries the recurring billing the roadmap needs revenue from."
+prev: { link: "/ozeaon-wiki/roadmap/phase-3/privacy-settings/", label: "Privacy settings" }
+next: { link: "/ozeaon-wiki/roadmap/phase-3/article-reactions/", label: "Article reactions" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="L · Substantial" variant="default" />
+
+| | |
+|---|---|
+| Priority | 41 of 63 |
+| Stage | [Phase 3](../../#phase-3) |
+| Effort | L, substantial, about 6 weeks |
+
+Comes after the [Payments release](../../#milestone-payments-release) milestone.
+
+## What it involves (5 deliverables)
+
+- Verification application, review and badge granting
+- Subscription plans and pricing tiers for organisations
+- Recurring billing on Stripe: checkout, renewals, failed payments and cancellation
+- Entitlement gating so paid-tier features follow the subscription state
+- Billing surface in organisation settings with invoices

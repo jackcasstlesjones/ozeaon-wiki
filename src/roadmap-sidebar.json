@@ -1,0 +1,587 @@
+[
+  {
+    "label": "Overview",
+    "link": "/roadmap/"
+  },
+  {
+    "label": "Before Phase 1",
+    "badge": {
+      "text": "3",
+      "variant": "note"
+    },
+    "items": [
+      {
+        "slug": "roadmap/before-phase-1/mobile-designs",
+        "label": "01  Mobile designs",
+        "badge": {
+          "text": "M",
+          "variant": "success"
+        }
+      },
+      {
+        "slug": "roadmap/before-phase-1/articles-comments",
+        "label": "02  Articles - comments",
+        "badge": {
+          "text": "M",
+          "variant": "success"
+        }
+      },
+      {
+        "slug": "roadmap/before-phase-1/projects-comments",
+        "label": "03  Projects - comments",
+        "badge": {
+          "text": "M",
+          "variant": "success"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Phase 1",
+    "badge": {
+      "text": "19",
+      "variant": "note"
+    },
+    "items": [
+      {
+        "slug": "roadmap/phase-1/articles-publish-hard-deletion-my-articles",
+        "label": "04  Articles - publish, hard deletion & 'My Articles'",
+        "badge": {
+          "text": "M",
+          "variant": "success"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/projects-publish-unpublish-hard-deletion-my-projects",
+        "label": "05  Projects - publish, unpublish, hard deletion & 'My Projects'",
+        "badge": {
+          "text": "M",
+          "variant": "success"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/account-hard-deletion",
+        "label": "06  Account hard deletion",
+        "badge": {
+          "text": "M",
+          "variant": "success"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/organisation-hard-deletion",
+        "label": "07  Organisation hard deletion",
+        "badge": {
+          "text": "M",
+          "variant": "success"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/legal-pages",
+        "label": "08  Legal pages",
+        "badge": {
+          "text": "M",
+          "variant": "caution"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/automated-moderation",
+        "label": "09  Automated moderation",
+        "badge": {
+          "text": "M",
+          "variant": "success"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/alpha-badges",
+        "label": "10  Alpha badges",
+        "badge": {
+          "text": "S",
+          "variant": "success"
+        }
+      },
+      {
+        "label": "Initial launch",
+        "link": "/roadmap/#milestone-initial-launch",
+        "attrs": {
+          "class": "roadmap-milestone"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/compliance-audit",
+        "label": "11  Compliance audit",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/content-versioning-edit-history",
+        "label": "12  Content versioning & edit history",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/articles-reviews",
+        "label": "13  Articles - reviews",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/forms-rework",
+        "label": "14  Forms rework",
+        "badge": {
+          "text": "S",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/feed-filters",
+        "label": "15  Feed filters",
+        "badge": {
+          "text": "S",
+          "variant": "caution"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/notifications",
+        "label": "16  Notifications",
+        "badge": {
+          "text": "L",
+          "variant": "caution"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/content-retention-restoration",
+        "label": "17  Content retention & restoration",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/organisation-ownership-transfer",
+        "label": "18  Organisation ownership transfer",
+        "badge": {
+          "text": "S",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/stripe-integration",
+        "label": "19  Stripe integration",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/project-funding",
+        "label": "20  Project funding",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/tipping",
+        "label": "21  Tipping",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-1/paywalls",
+        "label": "22  Paywalls",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "label": "Payments release",
+        "link": "/roadmap/#milestone-payments-release",
+        "attrs": {
+          "class": "roadmap-milestone"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Phase 2",
+    "badge": {
+      "text": "11",
+      "variant": "note"
+    },
+    "items": [
+      {
+        "slug": "roadmap/phase-2/open-calls",
+        "label": "23  Open Calls",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/content-reporting-moderation-queue",
+        "label": "24  Content reporting & moderation queue",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/user-to-user-invites",
+        "label": "25  User-to-user invites",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/rate-limiting-monitoring",
+        "label": "26  Rate limiting & monitoring",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/security-hardening",
+        "label": "27  Security hardening",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/accessibility-audit-remediation",
+        "label": "28  Accessibility audit & remediation",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/seo-metadata",
+        "label": "29  SEO & metadata",
+        "badge": {
+          "text": "S",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/gdpr-self-serve-endpoints",
+        "label": "30  GDPR self-serve endpoints",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/admin-back-office-console",
+        "label": "31  Admin & back-office console",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/search",
+        "label": "32  Search",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-2/internationalisation-localisation",
+        "label": "33  Internationalisation & localisation",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Phase 3",
+    "badge": {
+      "text": "13",
+      "variant": "note"
+    },
+    "items": [
+      {
+        "slug": "roadmap/phase-3/educational-resources",
+        "label": "34  Educational Resources",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/transactional-email-delivery",
+        "label": "35  Transactional email & delivery",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/sidebar-category-filters",
+        "label": "36  Sidebar category filters",
+        "badge": {
+          "text": "S",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/indigenous-knowledge-hub",
+        "label": "37  Indigenous Knowledge Hub",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/notes-bookmarks",
+        "label": "38  Notes & Bookmarks",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/connections-blocking",
+        "label": "39  Connections & blocking",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/privacy-settings",
+        "label": "40  Privacy settings",
+        "badge": {
+          "text": "M",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/organization-verification-system-paid-subscriptions",
+        "label": "41  Organization verification system & paid subscriptions",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/article-reactions",
+        "label": "42  Article reactions",
+        "badge": {
+          "text": "S",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/recommendation-ranking-engine",
+        "label": "43  Recommendation & ranking engine",
+        "badge": {
+          "text": "XXL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/events",
+        "label": "44  Events",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/messaging",
+        "label": "45  Messaging",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-3/notifications-second-pass",
+        "label": "46  Notifications — second pass",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      }
+    ]
+  },
+  {
+    "label": "Phase 4 — Token economy",
+    "badge": {
+      "text": "17",
+      "variant": "note"
+    },
+    "items": [
+      {
+        "slug": "roadmap/phase-4/tokenomics-simulation-parameter-review",
+        "label": "47  Tokenomics simulation & parameter review",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/regulatory-custody-assessment",
+        "label": "48  Regulatory & custody assessment",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/attestation-signed-claims",
+        "label": "49  Attestation & signed claims",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/treasury-accounting-disbursement",
+        "label": "50  Treasury accounting & disbursement",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/progress-prg-contribution-ledger",
+        "label": "51  Progress (PRG) contribution ledger",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/quizzes",
+        "label": "52  Quizzes",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/learn2earn-rewards",
+        "label": "53  Learn2Earn rewards",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/dao-pods",
+        "label": "54  DAO pods",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/progress-weighted-governance",
+        "label": "55  Progress-weighted governance",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/dao-driven-inclusion-queue",
+        "label": "56  DAO-driven inclusion queue",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/open-calls-dao-endorsement-flow",
+        "label": "57  Open Calls - DAO endorsement flow",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      },
+      {
+        "label": "Chain dependency begins",
+        "link": "/roadmap/#milestone-chain-dependency-begins",
+        "attrs": {
+          "class": "roadmap-milestone"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/wallet-custody-layer",
+        "label": "58  Wallet & custody layer",
+        "badge": {
+          "text": "XXL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/ozn-contracts-external-audit",
+        "label": "59  $OZN contracts & external audit",
+        "badge": {
+          "text": "XXL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/public-ico-fiat-on-ramp",
+        "label": "60  Public ICO & fiat on-ramp",
+        "badge": {
+          "text": "XXL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/proof-of-progress-staking",
+        "label": "61  Proof-of-Progress staking",
+        "badge": {
+          "text": "XXL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/ozn-funding-tipping-rails",
+        "label": "62  $OZN funding & tipping rails",
+        "badge": {
+          "text": "XL",
+          "variant": "default"
+        }
+      },
+      {
+        "slug": "roadmap/phase-4/platform-fee-engine",
+        "label": "63  Platform fee engine",
+        "badge": {
+          "text": "L",
+          "variant": "default"
+        }
+      }
+    ]
+  },
+  {
+    "label": "History",
+    "items": [
+      {
+        "slug": "roadmap/release-notes"
+      },
+      {
+        "slug": "roadmap/roadmap-changelog"
+      }
+    ]
+  }
+]

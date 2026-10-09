@@ -1,0 +1,28 @@
+---
+title: "Tokenomics simulation & parameter review"
+description: "Model the white paper parameters before any of them are built. The published figures currently allow $OZN to be minted far below intended cost: tipping earns 10 PRG per US$1, and 100 PRG staked wins 1 $OZN for 50 PRG, so self-dealing between accounts mints $OZN for the transaction fee alone. Needs sybil controls, or PRG per dollar decoupled from staking cost, before contracts are written."
+prev: { link: "/ozeaon-wiki/roadmap/phase-3/notifications-second-pass/", label: "Notifications — second pass" }
+next: { link: "/ozeaon-wiki/roadmap/phase-4/regulatory-custody-assessment/", label: "Regulatory & custody assessment" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="L · Substantial" variant="default" /> <Badge text="Backend" variant="tip" />
+
+| | |
+|---|---|
+| Priority | 47 of 63 |
+| Stage | [Phase 4 — Token economy](../../#phase-4--token-economy) |
+| Effort | L, substantial, about 6 weeks |
+
+Comes after the [Payments release](../../#milestone-payments-release) milestone.
+
+## What it involves (7 deliverables)
+
+- Model PRG emissions ladder against projected activity
+- Model $OZN mint rate from Proof-of-Progress under realistic PRG supply
+- Close the self-dealing tipping loop (10 PRG per US$1 vs 50 PRG per $OZN)
+- Sybil-resistance requirements and cost-per-fake-account analysis
+- Activity buff caps and runaway-emission bounds
+- Inactivity decay and treasury recycling behaviour
+- Publish revised parameter table and reconcile against the white paper

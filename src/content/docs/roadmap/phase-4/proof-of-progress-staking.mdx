@@ -1,0 +1,28 @@
+---
+title: "Proof-of-Progress staking"
+description: "Staking rounds, verifiable randomness, the consecutive-loss boost and minting from the reserve. The highest-risk component in the system: the off-chain contribution ledger becomes the minting authority for a liquid asset, so a scoring bug mints money."
+prev: { link: "/ozeaon-wiki/roadmap/phase-4/public-ico-fiat-on-ramp/", label: "Public ICO & fiat on-ramp" }
+next: { link: "/ozeaon-wiki/roadmap/phase-4/ozn-funding-tipping-rails/", label: "$OZN funding & tipping rails" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="XXL · Longer-timeline initiative" variant="default" />
+
+| | |
+|---|---|
+| Priority | 61 of 63 |
+| Stage | [Phase 4 — Token economy](../../#phase-4--token-economy) |
+| Effort | XXL, longer-timeline initiative, about 20 weeks |
+
+Comes after the [Chain dependency begins](../../#milestone-chain-dependency-begins) milestone, so it waits on the outcome of [Tokenomics simulation & parameter review](../tokenomics-simulation-parameter-review/) and [Regulatory & custody assessment](../regulatory-custody-assessment/).
+
+## What it involves (7 deliverables)
+
+- Staking rounds, minimum 50 PRG / full probability at 100 PRG
+- Verifiable randomness integration (Chainlink VRF or equivalent)
+- Consecutive-loss boost at 314 basis points per loss
+- Minting from the 750M $OZN reserve with reserve exhaustion handling
+- PRG cost on win routed to Foundation Treasury
+- Auto-unstake below threshold
+- Hardening: the off-chain ledger becomes the minting authority for a liquid asset

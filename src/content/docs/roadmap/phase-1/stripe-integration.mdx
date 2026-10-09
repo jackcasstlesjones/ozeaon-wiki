@@ -1,0 +1,34 @@
+---
+title: "Stripe integration"
+description: "Underlying Stripe integration and payment infrastructure that tipping, funding and paywalls all sit on top of. Also carries the founding-member fee exemption, keyed off the alpha badge."
+prev: { link: "/ozeaon-wiki/roadmap/phase-1/organisation-ownership-transfer/", label: "Organisation ownership transfer" }
+next: { link: "/ozeaon-wiki/roadmap/phase-1/project-funding/", label: "Project funding" }
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+<Badge text="Planned" variant="note" /> <Badge text="XL · Major initiative" variant="default" /> <Badge text="Legal" variant="danger" />
+
+| | |
+|---|---|
+| Priority | 19 of 63 |
+| Stage | [Phase 1](../../#phase-1) |
+| Effort | XL, major initiative, about 12 weeks |
+
+:::caution[Legal]
+Compelled by statute. The timing is a legal exposure question, not a prioritisation one.
+:::
+
+Comes after the [Initial launch](../../#milestone-initial-launch) milestone, so its scope is subject to change.
+
+## What it involves (9 deliverables)
+
+- Stripe account, webhook ingestion and idempotent event handling
+- Customer and payment-method storage, SCA / 3DS flows
+- Stripe Connect onboarding for payout recipients (KYC, verification states)
+- Payouts, balance handling and payout scheduling
+- Refunds, chargebacks and dispute handling
+- Platform fee take at source (feeds the Phase 4 fee engine)
+- Tax reporting surface and invoice / receipt generation
+- Currency handling and minimum-amount rules
+- Founding-member platform-fee exemption, keyed off the alpha badge
