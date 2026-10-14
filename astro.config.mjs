@@ -4,7 +4,6 @@ import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
 import sidebar from './src/sidebar.json' with { type: 'json' };
-import roadmapSidebar from './src/roadmap-sidebar.json' with { type: 'json' };
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,7 +20,6 @@ export default defineConfig({
 				starlightSidebarTopics([
 					{ label: 'Developer Docs', link: '/overview/project-overview/', icon: 'laptop', items: sidebar },
 					{ label: 'Team Process', link: '/process/', icon: 'open-book', items: [{ autogenerate: { directory: 'process' } }] },
-					{ label: 'Roadmap', link: '/roadmap/', icon: 'rocket', items: roadmapSidebar },
 				]),
 			],
 			customCss: ['./src/styles/custom.css'],
